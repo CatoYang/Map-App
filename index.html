@@ -1,1 +1,79 @@
-a
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Historical Map Viewer</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg" />
+</head>
+<body>
+  <div id="app">
+    <!-- Map fills the viewport -->
+    <div id="map"></div>
+
+    <!-- Sidebar panel (right side) -->
+    <aside id="sidebar" class="sidebar sidebar--collapsed">
+      <button id="sidebar-toggle" class="sidebar__toggle" aria-label="Toggle sidebar">
+        <span class="sidebar__toggle-icon">◀</span>
+      </button>
+      <div class="sidebar__content">
+        <header class="sidebar__header">
+          <h1 class="sidebar__title">Historical Map Viewer</h1>
+        </header>
+
+        <!-- Detail panel — populated by DetailPanel.js -->
+        <section class="sidebar__section">
+          <h2 class="sidebar__section-title">Details</h2>
+          <div id="detail-panel">
+            <p class="sidebar__placeholder">Click a region or building to see details.</p>
+          </div>
+        </section>
+
+        <!-- Legend — populated by Legend.js -->
+        <section class="sidebar__section">
+          <div id="legend"></div>
+        </section>
+      </div>
+    </aside>
+
+    <!-- Top toolbar -->
+    <nav id="toolbar" class="toolbar">
+      <!-- Mode toggle buttons — populated by ModeSelector.js -->
+      <div id="mode-selector" class="toolbar__group"></div>
+
+      <div class="toolbar__divider"></div>
+
+      <!-- Pin visibility toggle -->
+      <div class="toolbar__group">
+        <button
+          id="pin-toggle"
+          class="toolbar__btn toolbar__btn--active"
+          title="Hide buildings"
+          aria-label="Toggle building pins"
+        >📍 Buildings</button>
+      </div>
+
+      <div class="toolbar__divider"></div>
+
+      <!-- Base layer selector — populated by MapManager.js -->
+      <div class="toolbar__group">
+        <label class="toolbar__label">Map:</label>
+        <select id="base-layer-select" class="toolbar__select"></select>
+      </div>
+
+      <!-- Opacity slider for historical overlay -->
+      <div id="opacity-control" class="toolbar__group" style="display:none;">
+        <label class="toolbar__label">Opacity:</label>
+        <input type="range" id="opacity-slider" class="toolbar__slider" min="0" max="100" value="80" />
+      </div>
+    </nav>
+
+    <!-- Epoch selector bar (bottom) — populated by EpochSelector.js -->
+    <div id="epoch-bar">
+      <div id="epoch-selector"></div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

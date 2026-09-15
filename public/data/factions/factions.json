@@ -1,0 +1,74 @@
+{
+  "factions": [
+    {
+      "id": "france",
+      "name": "French Republic",
+      "color": "#002395",
+      "pattern": "tricolor",
+      "icon": "🇫🇷",
+      "active": { "start": 1849, "end": 1943 },
+      "controls": [
+        { "region": "french-concession", "start": 1849, "end": 1943 }
+      ]
+    },
+    {
+      "id": "smc",
+      "name": "Shanghai Municipal Council",
+      "color": "#b01c2e",
+      "pattern": "smc",
+      "icon": "🏛️",
+      "active": { "start": 1863, "end": 1943 },
+      "controls": [
+        { "region": "international-settlement", "start": 1863, "end": 1941 }
+      ]
+    },
+    {
+      "id": "qing",
+      "name": "Qing Dynasty",
+      "color": "#ffcc00",
+      "pattern": "dragon",
+      "icon": "🐉",
+      "active": { "start": 1842, "end": 1911 },
+      "controls": [
+        { "region": "old-city", "start": 1842, "end": 1911 }
+      ]
+    },
+    {
+      "id": "beiyang",
+      "name": "Beiyang Government",
+      "color": "#d94236",
+      "pattern": "five-races",
+      "icon": "🚩",
+      "active": { "start": 1911, "end": 1927 },
+      "controls": [
+        { "region": "old-city", "start": 1911, "end": 1927 }
+      ]
+    },
+    {
+      "id": "roc",
+      "name": "Republic of China",
+      "color": "#000095",
+      "pattern": "blue-sky",
+      "icon": "🇹🇼",
+      "active": { "start": 1927, "end": 1949 },
+      "controls": [
+        { "region": "old-city", "start": 1927, "end": 1937 },
+        { "region": "old-city", "start": 1945, "end": 1949 },
+        { "region": "french-concession", "start": 1943, "end": 1949 },
+        { "region": "international-settlement", "start": 1943, "end": 1949 }
+      ]
+    },
+    {
+      "id": "japan",
+      "name": "Empire of Japan",
+      "color": "#bf1e2d",
+      "pattern": "rising-sun",
+      "icon": "🇯🇵",
+      "active": { "start": 1937, "end": 1945 },
+      "controls": [
+        { "region": "old-city", "start": 1937, "end": 1945 },
+        { "region": "international-settlement", "start": 1941, "end": 1945 }
+      ]
+    }
+  ]
+}

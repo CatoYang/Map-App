@@ -1,0 +1,723 @@
+﻿
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="google-site-verification" content="eD_pZjh-aWkTGA3_iYHmMdGV2cNugc7FTwtgNv2EnZE">
+  <meta name="msvalidate.01" content="4E61263975C6ABBF2ECE5A8CA5E592B7">
+  
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZL7MQNBFW9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    
+    const config = {};
+    
+    gtag('config', 'G-ZL7MQNBFW9', config)
+  </script>
+
+  <title>EarthWorks</title>
+
+  <script>
+    document.querySelector("html").classList.remove("no-js");
+  </script>
+
+  <link href="https://earthworks.stanford.edu/catalog/opensearch.xml" title="EarthWorks" type="application/opensearchdescription+xml" rel="search" />
+
+  <!-- app icon -->
+  <link rel="icon" href="https://cdn.jsdelivr.net/gh/sul-dlss/component-library@v2025-09-11/styles/icon.png" type="image/png">
+  <link rel="icon" href="https://cdn.jsdelivr.net/gh/sul-dlss/component-library@v2025-09-11/styles/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/gh/sul-dlss/component-library@v2025-09-11/styles/icon.png">
+
+  <!-- styles -->
+  <link rel="stylesheet" href="/assets/application-c6fbca8f.css" media="all" data-turbo-track="reload" />
+
+  <!-- scripts -->
+  <script type="importmap" data-turbo-track="reload">{
+  "imports": {
+    "ol": "https://esm.sh/ol@8.1.0",
+    "ol/": "https://esm.sh/ol@8.1.0/",
+    "ol-pmtiles": "https://cdn.jsdelivr.net/npm/ol-pmtiles@0.3.0/+esm",
+    "leaflet": "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet-src.esm.js",
+    "esri-leaflet": "https://cdn.jsdelivr.net/npm/esri-leaflet@3.0.19/+esm",
+    "leaflet.fullscreen": "https://cdn.jsdelivr.net/npm/leaflet.fullscreen@5.3.0/+esm",
+    "@hotwired/stimulus": "/assets/stimulus.min-4b1e420e.js",
+    "@hotwired/stimulus-loading": "/assets/stimulus-loading-1fc53fe7.js",
+    "@hotwired/turbo-rails": "/assets/turbo.min-9fd88cd5.js",
+    "@popperjs/core": "https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8",
+    "bootstrap": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/+esm",
+    "@github/auto-complete-element": "https://cdn.jsdelivr.net/npm/@github/auto-complete-element@3.8.0/+esm",
+    "leaflet-fullscreen": "https://cdn.jsdelivr.net/npm/leaflet.fullscreen@5.3.0/+esm",
+    "chart.js": "https://cdn.jsdelivr.net/npm/chart.js@4.5.1/+esm",
+    "@kurkle/color": "https://cdn.jsdelivr.net/npm/@kurkle/color@0.4.0/dist/color.esm.min.js",
+    "blacklight-frontend/bookmark_toggle": "/assets/blacklight-frontend/bookmark_toggle-4db80d2f.js",
+    "blacklight-frontend/button_focus": "/assets/blacklight-frontend/button_focus-9e66e362.js",
+    "blacklight-frontend/checkbox_submit": "/assets/blacklight-frontend/checkbox_submit-a4b81576.js",
+    "blacklight-frontend/color_theme_switcher": "/assets/blacklight-frontend/color_theme_switcher-0b044be9.js",
+    "blacklight-frontend/core": "/assets/blacklight-frontend/core-79dd4d36.js",
+    "blacklight-frontend/debounce": "/assets/blacklight-frontend/debounce-a77752c3.js",
+    "blacklight-frontend/facet_suggest": "/assets/blacklight-frontend/facet_suggest-8a45a83f.js",
+    "blacklight-frontend": "/assets/blacklight-frontend/index-a4e0f178.js",
+    "blacklight-frontend/modal": "/assets/blacklight-frontend/modal-bc2d1d06.js",
+    "blacklight-frontend/search_context": "/assets/blacklight-frontend/search_context-1287545b.js",
+    "geoblacklight/controllers/clipboard_controller": "/assets/geoblacklight/controllers/clipboard_controller-5ef055c4.js",
+    "geoblacklight/controllers/leaflet_viewer_controller": "/assets/geoblacklight/controllers/leaflet_viewer_controller-aa50457f.js",
+    "geoblacklight/controllers/oembed_viewer_controller": "/assets/geoblacklight/controllers/oembed_viewer_controller-a6e04f04.js",
+    "geoblacklight/controllers/openlayers_viewer_controller": "/assets/geoblacklight/controllers/openlayers_viewer_controller-f3c8fda4.js",
+    "geoblacklight/controllers/search_results_controller": "/assets/geoblacklight/controllers/search_results_controller-09955b85.js",
+    "geoblacklight/core": "/assets/geoblacklight/core-6f66a84a.js",
+    "geoblacklight": "/assets/geoblacklight/index-0e2bd424.js",
+    "geoblacklight/initializers/metadata_download": "/assets/geoblacklight/initializers/metadata_download-8697b20e.js",
+    "geoblacklight/initializers/popovers": "/assets/geoblacklight/initializers/popovers-ab1b6772.js",
+    "geoblacklight/initializers/tooltips": "/assets/geoblacklight/initializers/tooltips-368d173a.js",
+    "geoblacklight/initializers/truncation": "/assets/geoblacklight/initializers/truncation-0f84b862.js",
+    "geoblacklight/leaflet/basemaps": "/assets/geoblacklight/leaflet/basemaps-eeb50eb3.js",
+    "geoblacklight/leaflet/constants": "/assets/geoblacklight/leaflet/constants-83235ecc.js",
+    "geoblacklight/leaflet/controls/geosearch": "/assets/geoblacklight/leaflet/controls/geosearch-673a0094.js",
+    "geoblacklight/leaflet/controls/layer_opacity": "/assets/geoblacklight/leaflet/controls/layer_opacity-9d4fc494.js",
+    "geoblacklight/leaflet/controls/sidebar": "/assets/geoblacklight/leaflet/controls/sidebar-43f5b1fa.js",
+    "geoblacklight/leaflet/controls/sleep": "/assets/geoblacklight/leaflet/controls/sleep-df19447d.js",
+    "geoblacklight/leaflet/inspection": "/assets/geoblacklight/leaflet/inspection-e000b68e.js",
+    "geoblacklight/leaflet/layer_index_map": "/assets/geoblacklight/leaflet/layer_index_map-c2200846.js",
+    "geoblacklight/leaflet/layer_wmts": "/assets/geoblacklight/leaflet/layer_wmts-3013bb36.js",
+    "geoblacklight/leaflet/layers": "/assets/geoblacklight/leaflet/layers-34d6b1e4.js",
+    "geoblacklight/leaflet/utils": "/assets/geoblacklight/leaflet/utils-bb786648.js",
+    "geoblacklight/openlayers/basemaps": "/assets/geoblacklight/openlayers/basemaps-4b176650.js",
+    "geoblacklight/openlayers/inspection": "/assets/geoblacklight/openlayers/inspection-469b95ad.js",
+    "geoblacklight/openlayers/layers": "/assets/geoblacklight/openlayers/layers-a3186f34.js",
+    "blacklight-range-limit": "/assets/blacklight-range-limit/index-784ec6e9.js",
+    "controllers/application": "/assets/controllers/application-3affb389.js",
+    "controllers/clipboard_copy_controller": "/assets/controllers/clipboard_copy_controller-f6eec32e.js",
+    "controllers/description_controller": "/assets/controllers/description_controller-5958a202.js",
+    "controllers/expandcollapse_controller": "/assets/controllers/expandcollapse_controller-76a1b5a1.js",
+    "controllers/global_alert_controller": "/assets/controllers/global_alert_controller-dffd89c8.js",
+    "controllers": "/assets/controllers/index-236ab973.js",
+    "controllers/maptogglebutton_controller": "/assets/controllers/maptogglebutton_controller-40d2e2d4.js",
+    "controllers/searchmapcontainer_controller": "/assets/controllers/searchmapcontainer_controller-4563792d.js",
+    "application": "/assets/application-217d308c.js"
+  }
+}</script>
+<link rel="modulepreload" href="https://esm.sh/ol@8.1.0">
+<link rel="modulepreload" href="https://esm.sh/ol@8.1.0/">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/ol-pmtiles@0.3.0/+esm">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet-src.esm.js">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/esri-leaflet@3.0.19/+esm">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/leaflet.fullscreen@5.3.0/+esm">
+<link rel="modulepreload" href="/assets/stimulus.min-4b1e420e.js">
+<link rel="modulepreload" href="/assets/stimulus-loading-1fc53fe7.js">
+<link rel="modulepreload" href="/assets/turbo.min-9fd88cd5.js">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/+esm">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@github/auto-complete-element@3.8.0/+esm">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/+esm">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@kurkle/color@0.4.0/dist/color.esm.min.js">
+<link rel="modulepreload" href="/assets/blacklight-frontend/bookmark_toggle-4db80d2f.js">
+<link rel="modulepreload" href="/assets/blacklight-frontend/button_focus-9e66e362.js">
+<link rel="modulepreload" href="/assets/blacklight-frontend/checkbox_submit-a4b81576.js">
+<link rel="modulepreload" href="/assets/blacklight-frontend/color_theme_switcher-0b044be9.js">
+<link rel="modulepreload" href="/assets/blacklight-frontend/core-79dd4d36.js">
+<link rel="modulepreload" href="/assets/blacklight-frontend/debounce-a77752c3.js">
+<link rel="modulepreload" href="/assets/blacklight-frontend/facet_suggest-8a45a83f.js">
+<link rel="modulepreload" href="/assets/blacklight-frontend/index-a4e0f178.js">
+<link rel="modulepreload" href="/assets/blacklight-frontend/modal-bc2d1d06.js">
+<link rel="modulepreload" href="/assets/blacklight-frontend/search_context-1287545b.js">
+<link rel="modulepreload" href="/assets/geoblacklight/controllers/clipboard_controller-5ef055c4.js">
+<link rel="modulepreload" href="/assets/geoblacklight/controllers/leaflet_viewer_controller-aa50457f.js">
+<link rel="modulepreload" href="/assets/geoblacklight/controllers/oembed_viewer_controller-a6e04f04.js">
+<link rel="modulepreload" href="/assets/geoblacklight/controllers/openlayers_viewer_controller-f3c8fda4.js">
+<link rel="modulepreload" href="/assets/geoblacklight/controllers/search_results_controller-09955b85.js">
+<link rel="modulepreload" href="/assets/geoblacklight/core-6f66a84a.js">
+<link rel="modulepreload" href="/assets/geoblacklight/index-0e2bd424.js">
+<link rel="modulepreload" href="/assets/geoblacklight/initializers/metadata_download-8697b20e.js">
+<link rel="modulepreload" href="/assets/geoblacklight/initializers/popovers-ab1b6772.js">
+<link rel="modulepreload" href="/assets/geoblacklight/initializers/tooltips-368d173a.js">
+<link rel="modulepreload" href="/assets/geoblacklight/initializers/truncation-0f84b862.js">
+<link rel="modulepreload" href="/assets/geoblacklight/leaflet/basemaps-eeb50eb3.js">
+<link rel="modulepreload" href="/assets/geoblacklight/leaflet/constants-83235ecc.js">
+<link rel="modulepreload" href="/assets/geoblacklight/leaflet/controls/geosearch-673a0094.js">
+<link rel="modulepreload" href="/assets/geoblacklight/leaflet/controls/layer_opacity-9d4fc494.js">
+<link rel="modulepreload" href="/assets/geoblacklight/leaflet/controls/sidebar-43f5b1fa.js">
+<link rel="modulepreload" href="/assets/geoblacklight/leaflet/controls/sleep-df19447d.js">
+<link rel="modulepreload" href="/assets/geoblacklight/leaflet/inspection-e000b68e.js">
+<link rel="modulepreload" href="/assets/geoblacklight/leaflet/layer_index_map-c2200846.js">
+<link rel="modulepreload" href="/assets/geoblacklight/leaflet/layer_wmts-3013bb36.js">
+<link rel="modulepreload" href="/assets/geoblacklight/leaflet/layers-34d6b1e4.js">
+<link rel="modulepreload" href="/assets/geoblacklight/leaflet/utils-bb786648.js">
+<link rel="modulepreload" href="/assets/geoblacklight/openlayers/basemaps-4b176650.js">
+<link rel="modulepreload" href="/assets/geoblacklight/openlayers/inspection-469b95ad.js">
+<link rel="modulepreload" href="/assets/geoblacklight/openlayers/layers-a3186f34.js">
+<link rel="modulepreload" href="/assets/blacklight-range-limit/index-784ec6e9.js">
+<link rel="modulepreload" href="/assets/controllers/application-3affb389.js">
+<link rel="modulepreload" href="/assets/controllers/clipboard_copy_controller-f6eec32e.js">
+<link rel="modulepreload" href="/assets/controllers/description_controller-5958a202.js">
+<link rel="modulepreload" href="/assets/controllers/expandcollapse_controller-76a1b5a1.js">
+<link rel="modulepreload" href="/assets/controllers/global_alert_controller-dffd89c8.js">
+<link rel="modulepreload" href="/assets/controllers/index-236ab973.js">
+<link rel="modulepreload" href="/assets/controllers/maptogglebutton_controller-40d2e2d4.js">
+<link rel="modulepreload" href="/assets/controllers/searchmapcontainer_controller-4563792d.js">
+<link rel="modulepreload" href="/assets/application-217d308c.js">
+<script type="module">import "application"</script>
+  <meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="FtAhnYEaMvBHSzunPUmr2PreHhXp2jGBKgdPwq7xEii30vLLrfFNSi7ofKXwq0-iGoSZjzbXHImjhk-0ZVYUwg" />
+  
+</head>
+
+<body class="blacklight-catalog blacklight-catalog-index">
+  <nav id="skip-link" class="visually-hidden-focusable" aria-label="Skip links">
+  <div class="container-xl">
+    <a class="d-inline-flex py-2 px-3" href="#main-container">Skip to main content</a>
+    <a class="d-inline-flex py-2 px-3" href="#q">Skip to search</a>
+    
+
+  </div>
+</nav>
+  
+  
+  
+  <header>
+  <div class="identity-bar">
+  <div class="container">
+    <a class="su-brand-bar__logo" href="https://www.stanford.edu">
+      Stanford University
+    </a>
+  </div>
+</div>
+
+<nav class="navbar navbar-expand-md bg-dark palo-alto-base">
+  <div class="container">
+    <a
+      class="mb-0 navbar-brand navbar-logo"
+      href="https://library.stanford.edu"
+      aria-label="Stanford University Libraries"
+    ></a>
+
+    <button
+      class="navbar-toggler navbar-toggler-right collapsed"
+      type="button"
+      data-toggle="collapse"
+      data-bs-toggle="collapse"
+      data-target="#user-util-collapse"
+      data-bs-target="#user-util-collapse"
+      aria-controls="user-util-collapse"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="d-md-block d-none">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="/bookmarks">
+            Bookmarks
+
+            <span
+              class="badge rounded-pill bookmark-counter"
+              data-role="bookmark-counter"
+            >
+              0
+            </span>
+</a>        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="/search_history">History</a>
+        </li>
+
+        <li class="nav-item">
+          <a
+            href="#feedback"
+            class="nav-link"
+            data-bs-toggle="collapse"
+            data-bs-target="#feedback"
+          >
+            Feedback
+          </a>
+        </li>
+
+        <li class="nav-item dropdown">
+            <a class="nav-link" href="/restricted/users/auth/webauth?referrer=https%3A%2F%2Fearthworks.stanford.edu%2Fcatalog.json%3Fq%3DShanghai">Login</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div id="feedback" class="collapse">
+  <div class="container pt-3">
+    <div class="row justify-content-center">
+      <form
+        class="col-md-8 feedback-form"
+        action="/feedback"
+        accept-charset="UTF-8"
+        method="post"
+      >
+        <input
+          type="hidden"
+          id="url"
+          name="url"
+          value="https://earthworks.stanford.edu/catalog.json?q=Shanghai"
+        >
+
+        <div class="alert alert-info" role="alert">
+          Reporting from: https://earthworks.stanford.edu/
+        </div>
+
+        <div class="mb-3 row">
+          <label class="col-md-3 col-form-label" for="message">Message</label>
+
+          <div class="col-md-9">
+            <textarea
+              class="form-control"
+              rows="5"
+              required
+              data-form-type="other"
+              name="message"
+              id="message"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="mb-3 row">
+          <label class="col-md-3 col-form-label" for="name">Your name</label>
+
+          <div class="col-md-9">
+            <input type="text" name="name" id="name" autocomplete="name" class="form-control" required="required" />
+          </div>
+        </div>
+
+        <div class="mb-3 row">
+          <label class="col-md-3 col-form-label" for="email">Your email</label>
+
+          <div class="col-md-9">
+            <input type="email" name="email" id="email" autocomplete="email" class="form-control" required="required" />
+          </div>
+        </div>
+
+        <div class="mb-3 row">
+          <div class="col-md-9 offset-md-3">
+              <script src="https://www.recaptcha.net/recaptcha/api.js" async defer ></script>
+<div data-sitekey="6LfDgvQUAAAAAPN5qIgiM8uPrc-dz5ZXQv3ku8kC" class="g-recaptcha "></div>
+          <noscript>
+            <div>
+              <div style="width: 302px; height: 422px; position: relative;">
+                <div style="width: 302px; height: 422px; position: absolute;">
+                  <iframe
+                    src="https://www.recaptcha.net/recaptcha/api/fallback?k=6LfDgvQUAAAAAPN5qIgiM8uPrc-dz5ZXQv3ku8kC"
+                    name="ReCAPTCHA"
+                    style="width: 302px; height: 422px; border-style: none; border: 0; overflow: hidden;">
+                  </iframe>
+                </div>
+              </div>
+              <div style="width: 300px; height: 60px; border-style: none;
+                bottom: 12px; left: 25px; margin: 0px; padding: 0px; right: 25px;
+                background: #f9f9f9; border: 1px solid #c1c1c1; border-radius: 3px;">
+                <textarea name="g-recaptcha-response"
+                  class="g-recaptcha-response"
+                  style="width: 250px; height: 40px; border: 1px solid #c1c1c1;
+                  margin: 10px 25px; padding: 0px; resize: none;">
+                </textarea>
+              </div>
+            </div>
+          </noscript>
+
+              <p>(Stanford users can avoid this Captcha by logging in.)</p>
+          </div>
+        </div>
+
+        <div class="mb-3 row">
+          <div class="col-md-9 offset-md-3">
+            <input
+              type="submit"
+              name="commit"
+              value="Send"
+              class="btn btn-secondary"
+              data-disable-with="Send"
+            >
+
+            <button
+              name="button"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#feedback"
+              class="btn btn-outline-secondary"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="masthead bg-dark palo-alto-base">
+  <div class="container">
+    <div class="d-flex flex-wrap align-items-end pt-3 pb-1 pb-md-3 gap-2">
+      <div class="d-flex align-items-end gap-2 flex-grow-1">
+        <span
+          class="rosette-logo me-1 align-self-start flex-shrink-0"
+          aria-hidden="true"
+        ></span>
+
+        <div class="me-1 flex-grow-1">
+          <div class="h1 my-0"><a href="/">EarthWorks</a></div>
+        </div>
+      </div>
+
+      <div class="navbars ms-md-auto bg-dark">
+        <nav
+          id="user-util-collapse"
+          aria-label="Browse"
+          class="
+            collapse navbar-collapse align-items-start
+            justify-content-md-end navbar-expand-md d-md-flex flex-column
+            flex-md-row
+          "
+        >
+          <hr class="d-md-none text-white vw-100 my-0">
+
+          <ul class="navbar-nav d-md-none gap-0 w-100">
+            <li class="nav-item">
+              <a class="nav-link" href="/bookmarks">
+                Bookmarks
+
+                <span
+                  class="badge rounded-pill bookmark-counter"
+                  data-role="bookmark-counter"
+                >
+                  0
+                </span>
+</a>            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="/search_history">History</a>
+            </li>
+
+            <li class="nav-item">
+              <a
+                href="#feedback"
+                class="nav-link"
+                data-bs-toggle="collapse"
+                data-bs-target="#feedback"
+              >
+                Feedback
+              </a>
+            </li>
+
+            <li class="nav-item dropdown">
+                <a class="nav-link" href="/restricted/users/auth/webauth?referrer=https%3A%2F%2Fearthworks.stanford.edu%2Fcatalog.json%3Fq%3DShanghai">Login</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <div class="navbar navbar-search bg-body-tertiary border-bottom" role="navigation" aria-label="Search">
+  <div class="container">
+    <search>
+  <form class="search-query-form col-md-12 col-lg-8" action="https://earthworks.stanford.edu/catalog" accept-charset="UTF-8" method="get">
+    <input type="hidden" name="format" value="json" autocomplete="off" />
+    <div class="input-group">
+      
+
+        <input autocomplete="off" value="all_fields" type="hidden" name="search_field" id="search_field" />
+
+      <label class="visually-hidden" for="q">search for</label>
+        <auto-complete src="/catalog/suggest" for="autocomplete-popup" class="search-autocomplete-wrapper form-control rounded-start">
+          <input value="Shanghai" placeholder="Try &quot;groundwater&quot;" class="search-q q form-control rounded-start" aria-label="search for" aria-autocomplete="list" aria-controls="autocomplete-popup" type="search" name="q" id="q" />
+          <ul id="autocomplete-popup" class="dropdown-menu" role="listbox" aria-label="search for" hidden></ul>
+        </auto-complete>
+
+      
+      <button class="btn btn-primary search-btn" type="submit" id="search"><span class="submit-search-text">Search</span></button>
+    </div>
+</form>
+</search>
+
+  </div>
+</div>
+</header>
+
+  <main id="main-container" class="container" role="main" aria-label="Main content">
+    
+    
+
+    <div class="row">
+          <section class="col-md-12">
+      <div class="bot_challenge_page">
+  <h1 class="mb-4">Traffic control and bot detection...</h1>
+
+  <div
+  class="cf-turnstile"
+  data-sitekey="0x4AAAAAABewboPcgNoVEf5M"
+  data-callback="turnstileCallback"
+></div>
+
+
+  <noscript>
+    <div class="alert alert-danger">Sorry, Javascript is required to be enabled for our traffic check, and does not appear available.</div>
+  </noscript>
+
+  <p>If this check is preventing you from making use of our resources, make sure you have cookies enabled.</p>
+
+  <template id="botChallengePageErrorTemplate">
+    <div class="alert alert-danger" role="alert">
+      <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+      Check failed. Sorry, something has gone wrong, or your traffic looks unusual to us. You can try refreshing this page to try again.
+    </div>
+  </template>
+
+  <template id="botChallengePageStillAroundTemplate" data-still_around_delay_ms="1200">
+    <div class="alert alert-info" role="alert">
+      <i class="fa fa-info-circle" aria-hidden="true"></i>
+      The traffic check has completed. You may need to return to your original browser tab or press the back button.
+    </div>
+  </template>
+
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+  
+<script type="text/javascript">
+  async function turnstileCallback(token) {
+    try {
+      // I don't know if we could be disabling CSRF instead for this one, but we'll just use it
+      const csrfToken = document.querySelector("[name='csrf-token']");
+
+      const response = await fetch('/challenge', {
+        method: 'POST',
+        headers: {
+          "X-CSRF-Token": csrfToken?.content,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ cf_turnstile_response: token }),
+      });
+
+      if (!response.ok) {
+        throw new Error('bad response: ' + response.status + ": " + response.url);
+      }
+
+      // This page may end up staying around on sucesss, stay if the dest url is a media
+      // type that can only be downloaded.
+      //
+      // When so, if the page stays around, it may end up
+      // calling turnstile and this callback over and over again, without an  (that
+      // we're not tracking) this will remove the most recent turnstile widget executed,
+      // we only expect one.
+      turnstile.remove();
+
+      result = await response.json();
+      if (result["success"] == true) {
+        // in case this page stays around, (say it was rediret to media asset), let's add a failsafe message after
+        // a couple seconds.
+        const delay = document.querySelector("#botChallengePageStillAroundTemplate")?.getAttribute("data-still-around-delay-ms") || 1200;
+        window.setTimeout(function() {
+          _displayStillAroundNote()
+        }, delay);
+
+        if (result["redirect_for_challenge"] == true) {
+          const dest = new URLSearchParams(window.location.search).get("dest");
+          // For security make sure it only has path and on
+          if (!dest.startsWith("/") || dest.startsWith("//")) {
+            throw new Error("illegal non-local redirect: " + dest);
+          }
+
+          // replace the challenge page in history
+          window.location.replace(dest);
+        } else {
+          // just need to reload and now we'll get through
+          window.location.reload();
+        }
+      } else {
+        console.error("Turnstile response reported as failure: " + JSON.stringify(result))
+        _displayChallengeError();
+      }
+    } catch(error) {
+      console.error("Error processing turnstile challenge backend action: " + error);
+      _displayChallengeError();
+    }
+  }
+
+  function _displayChallengeError() {
+    const template = document.querySelector("#botChallengePageErrorTemplate");
+    const clone = template.content.cloneNode(true);
+    document.querySelector(".cf-turnstile").replaceChildren(clone);
+  }
+
+  // If the page is still around after location changed, what's up?
+  // Warn them they might need t use back button, maybe it was a media download
+  function _displayStillAroundNote() {
+    const template = document.querySelector("#botChallengePageStillAroundTemplate");
+    const clone = template.content.cloneNode(true);
+    document.querySelector(".cf-turnstile")?.after(clone);
+  }
+</script>
+
+</div>
+
+    </section>
+
+    </div>
+  </main>
+
+  <footer>
+  <section id="pre-footer" class="py-4" aria-label="Library footer">
+    <div class="container">
+      <div class="row row-gap-3">
+        <div id="sul-footer-img" class="d-none d-md-flex d-lg-none d-xl-flex col-sm-12 col-lg-3 col-xl-3 d-flex align-items-start justify-content-lg-start justify-content-md-center">
+          <a href="https://library.stanford.edu" class="prefooter-logo stacked-lg" aria-label="Stanford University Libraries"></a>
+        </div>
+        <section class="col-md-4 col-xl-3 primary-menu" aria-label="Main links">
+          <div class="d-block d-md-none d-lg-block d-xl-none mb-3">
+            <a href="https://library.stanford.edu" class="prefooter-logo" aria-label="Stanford University Libraries"></a>
+          </div>
+          <ul class="list-unstyled fw-semibold">
+            <li>
+              <a href="https://library.stanford.edu/all-locations-and-hours">All locations and hours
+                <i class="bi bi-arrow-right-short"></i></a>
+            </li>
+            <li>
+              <a href="https://library.stanford.edu/">Library website
+                <i class="bi bi-arrow-right-short"></i></a>
+            </li>
+            <li>
+              <a href="https://mylibrary.stanford.edu">My Account
+                <i class="bi bi-arrow-right-short"></i></a>
+            </li>
+          </ul>
+        </section>
+        <section class="col-md-4 col-xl-3 secondary-menu" aria-labelledby="get-help-header">
+          <header id="get-help-header" class="fw-semibold fs-5 mb-2">
+                    Get help
+          </header>
+          <ul class="list-unstyled">
+            <li>
+              <a href="https://library.stanford.edu/contact-us">Contact us</a>
+            </li>
+            <li>
+              <a href="https://library.stanford.edu/library-accessibility">Library accessibility</a>
+            </li>
+            <li>
+              <a href="https://library-status.stanford.edu/">System status</a>
+            </li>
+            <li>
+              <a href="https://library.stanford.edu/ask/email/connection-problems">Report a connection problem</a>
+            </li>
+          </ul>
+        </section>
+        <section class="col-md-4 col-xl-3 secondary-menu" aria-labelledby="search-header">
+          <header id="search-header" class="fw-semibold fs-5 mb-2">
+                    Search
+          </header>
+          <ul class="list-unstyled">
+            <li>
+              <a href="https://searchworks.stanford.edu/">SearchWorks Catalog</a>
+                      |
+              <a href="https://searchworks.stanford.edu/articles">Articles+</a>
+            </li>
+            <li>
+              <a href="https://archives.stanford.edu/">Archival Collections at Stanford</a>
+            </li>
+            <li>
+              <a href="https://spotlight.stanford.edu/">Spotlight Exhibits</a>
+            </li>
+            <li>
+              <a href="https://earthworks.stanford.edu/">EarthWorks</a>
+            </li>
+            <li>
+              <a href="https://dataworks.stanford.edu/">DataWorks</a>
+            </li>
+            <li>
+              <a href="https://guides.library.stanford.edu/">Guides</a>
+            </li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </section>
+  <section id="su-footer" class="text-white bg-dark pt-4 pb-4" aria-label="Stanford University footer">
+    <div class="container-lg d-flex flex-column flex-lg-row align-items-center align-md-normal" title="Common Stanford resources">
+      <div class="mt-1 mb-2 align-self-lg-start">
+        <a class="su-logo" href="https://www.stanford.edu">Stanford<br>
+          <span class="su-logo-university">University</span></a>
+      </div>
+      <div class="ms-lg-5">
+        <nav aria-label="Global footer menu" class="d-flex flex-row gap-4 gap-sm-0 flex-sm-column justify-content-center justify-content-lg-start align-items-start align-items-sm-center align-items-lg-start">
+          <ul class="justify-content-center justify-content-lg-start fw-semibold gap-sm-2 gap-md-3 gap-lg-4 list-unstyled d-flex flex-column flex-sm-row">
+            <li>
+              <a href="https://www.stanford.edu">
+                        Stanford Home<span class="visually-hidden">(link is external)</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://visit.stanford.edu/plan/">
+                        Maps &amp; Directions<span class="visually-hidden">(link is external)</span></a>
+            </li>
+            <li>
+              <a href="https://www.stanford.edu/search/">
+                        Search Stanford<span class="visually-hidden">(link is external)</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://emergency.stanford.edu">
+                        Emergency Info<span class="visually-hidden">(link is external)</span>
+              </a>
+            </li>
+          </ul>
+          <ul class="justify-content-center justify-content-lg-start gap-sm-2 gap-md-3 gap-lg-4 list-unstyled d-flex flex-column flex-sm-row">
+            <li>
+              <a href="https://www.stanford.edu/site/terms/" title="Terms of use for sites">
+                        Terms of Use<span class="visually-hidden">(link is external)</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://www.stanford.edu/site/privacy/" title="Privacy and cookie policy">
+                        Privacy<span class="visually-hidden">(link is external)</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://uit.stanford.edu/security/copyright-infringement" title="Report alleged copyright infringement">
+                        Copyright<span class="visually-hidden">(link is external)</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://adminguide.stanford.edu/chapter-1/subchapter-5/policy-1-5-4" title="Ownership and use of Stanford trademarks and images">
+                        Trademarks<span class="visually-hidden">(link is external)</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://studentservices.stanford.edu/more-resources/student-policies/non-academic/non-discrimination" title="Non-discrimination policy">
+                        Non-Discrimination<span class="visually-hidden">(link is external)</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://www.stanford.edu/site/accessibility" title="Report web accessibility issues">
+                        Accessibility<span class="visually-hidden">(link is external)</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <div class="text-center text-lg-start copyright">
+          <span class="text-nowrap">© Stanford University.</span><span class="text-nowrap">&nbsp; Stanford, California 94305.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</footer>
+  <dialog id="blacklight-modal" class="modal" data-turbo="false">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+    </div>
+  </div>
+</dialog>
+
+</body>
+</html>
