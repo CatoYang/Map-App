@@ -1,0 +1,22 @@
+{
+  "overlays": [
+    { "id": "assamites", "name": "Assamites", "color": "#8B0000", "icon": "assets/symbols/assamites.png", "active": { "start": 1842, "end": 1949 }, "files": [] },
+    { "id": "brujah", "name": "Brujah", "color": "#B22222", "icon": "assets/symbols/brujah.png", "active": { "start": 1842, "end": 1949 }, "files": [] },
+    { "id": "followers-of-set", "name": "Followers of Set", "color": "#DAA520", "icon": "assets/symbols/followers-of-set.png", "active": { "start": 1842, "end": 1949 }, "files": [] },
+    { "id": "gangrel", "name": "Gangrel", "color": "#8B4513", "icon": "assets/symbols/gangrel.png", "active": { "start": 1842, "end": 1949 }, "files": [] },
+    { "id": "giovanni", "name": "Giovanni", "color": "#4B0082", "icon": "assets/symbols/giovanni.png", "active": { "start": 1842, "end": 1949 }, "files": [] },
+    { "id": "lasombra", "name": "Lasombra", "color": "#000000", "icon": "assets/symbols/lasombra.png", "active": { "start": 1842, "end": 1949 }, "files": [] },
+    { "id": "malkavian", "name": "Malkavian", "color": "#800080", "icon": "assets/symbols/malkavian.png", "active": { "start": 1842, "end": 1949 }, "files": [] },
+    { "id": "nosferatu", "name": "Nosferatu", "color": "#556B2F", "icon": "assets/symbols/nosferatu.png", "active": { "start": 1842, "end": 1949 }, "files": [] },
+    { "id": "ravnos", "name": "Ravnos", "color": "#A0522D", "icon": "assets/symbols/ravnos.png", "active": { "start": 1842, "end": 1949 }, "files": [] },
+    { "id": "toreador", "name": "Toreador", "color": "#FF1493", "icon": "assets/symbols/toreador.png", "active": { "start": 1842, "end": 1949 }, "files": [] },
+    { "id": "tremere", "name": "Tremere", "color": "#800000", "icon": "assets/symbols/tremere.png", "active": { "start": 1842, "end": 1949 }, "files": [] },
+    { "id": "tzimisce", "name": "Tzimisce", "color": "#2F4F4F", "icon": "assets/symbols/tzimisce.png", "active": { "start": 1842, "end": 1949 }, "files": [] },
+    { "id": "ventrue", "name": "Ventrue", "color": "#000080", "icon": "assets/symbols/ventrue.png", "active": { "start": 1842, "end": 1949 }, "files": [] },
+    { "id": "autarkis", "name": "Autarkis", "color": "#A9A9A9", "icon": "assets/symbols/autarkis.png", "active": { "start": 1842, "end": 1949 }, "files": [] },
+    { "id": "garou", "name": "Garou", "color": "#228B22", "icon": "assets/symbols/garou.png", "active": { "start": 1842, "end": 1949 }, "files": [] },
+    { "id": "salubri", "name": "Salubri", "color": "#D4AF37", "icon": "assets/symbols/salubri.png", "active": { "start": 1842, "end": 1949 }, "files": [] },
+    { "id": "hecata", "name": "Hecata", "color": "#483D8B", "icon": "assets/symbols/hecata.png", "active": { "start": 1842, "end": 1949 }, "files": [] },
+    { "id": "ministry", "name": "The Ministry", "color": "#CD853F", "icon": "assets/symbols/ministry-alt.png", "active": { "start": 1842, "end": 1949 }, "files": [] }
+  ]
+}

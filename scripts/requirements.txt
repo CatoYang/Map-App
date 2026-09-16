@@ -1,0 +1,5 @@
+# Python dependencies for Map-App utilities
+# (e.g., src/utils/calc_map_bearing.py)
+
+opencv-python>=4.8.0
+numpy>=1.24.0

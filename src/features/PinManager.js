@@ -17,7 +17,9 @@ export class PinManager {
     this.detailPanel = detailPanel;
 
     // Create a custom pane so pins stay above polygons even when polygons are hovered/clicked
-    this.map.createPane('pinsPane');
+    // Ensure it attaches to the 'rotatePane' so leaflet-rotate transforms it correctly!
+    const parentPane = this.map.getPane('rotatePane') || this.map.getPane('mapPane');
+    this.map.createPane('pinsPane', parentPane);
     this.map.getPane('pinsPane').style.zIndex = 450; // default overlayPane is 400
 
     // Vector layers (CircleMarkers) need a custom renderer to use a custom pane!

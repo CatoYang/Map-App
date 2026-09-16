@@ -61,6 +61,17 @@
         <select id="base-layer-select" class="toolbar__select"></select>
       </div>
 
+      <div class="toolbar__divider"></div>
+
+      <!-- Map Rotation Dropdown -->
+      <div class="toolbar__group">
+        <label class="toolbar__label">Orientation:</label>
+        <select id="bearing-select" class="toolbar__select">
+          <option value="true-north">True North</option>
+          <option value="map-north" selected>Map North</option>
+        </select>
+      </div>
+
       <!-- Opacity slider for historical overlay -->
       <div id="opacity-control" class="toolbar__group" style="display:none;">
         <label class="toolbar__label">Opacity:</label>

@@ -1,0 +1,14 @@
+﻿{
+  "ch_01": {
+    "name": "Prince LaCroix",
+    "bloodline": "ventrue"
+  },
+  "ch_02": {
+    "name": "Therese Voerman",
+    "bloodline": "malkavian"
+  },
+  "ch_03": {
+    "name": "Nines Rodriguez",
+    "bloodline": "brujah"
+  }
+}

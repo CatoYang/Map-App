@@ -23,9 +23,13 @@ import { DetailPanel }    from './features/DetailPanel.js';
 import { RegionHover }    from './features/RegionHover.js';
 import { PinManager }     from './features/PinManager.js';
 import { FactionOverlay } from './features/FactionOverlay.js';
-import { EpochSelector }  from './ui/TimelineSlider.js';
+import { GenericOverlay } from './features/GenericOverlay.js';
+import { EpochSelector }  from './ui/EpochSelector.js';
 import { ModeSelector }   from './ui/ModeSelector.js';
 import { Legend }         from './ui/Legend.js';
+import { Sidebar }        from './ui/Sidebar.js';
+import { Toolbar }        from './ui/Toolbar.js';
+import { HistoricalScale } from './ui/HistoricalScale.js';
 import { injectSVGPatterns } from './utils/StyleEngine.js';
 
 async function init() {
@@ -47,6 +51,7 @@ async function init() {
   // 2. Map
   const mapManager = new MapManager('map', config.project);
   const map = mapManager.getMap();
+  new HistoricalScale().addTo(map);
 
   // 3. Map sources
   try {
@@ -59,7 +64,8 @@ async function init() {
   const modeManager  = new ModeManager();
 
   // 5. Layer infrastructure
-  const detailPanel = new DetailPanel('detail-panel');
+  const sidebar = new Sidebar();
+  const detailPanel = new DetailPanel(sidebar, 'detail-panel');
   const regionHover = new RegionHover(map, detailPanel);
   const layerManager = new LayerManager(map, dataLoader);
   layerManager.setHoverManager(regionHover);
@@ -78,11 +84,20 @@ async function init() {
     }
   }
 
-  // 8. Factions
+  // 8. Factions & Overlays
   const factionOverlay = new FactionOverlay(map, dataLoader, layerManager, epochManager);
   if (config.factions) {
     try { await factionOverlay.load(`data/${config.factions}`, config.regions || []); } catch { /* empty is fine */ }
   }
+
+  const militaryOverlay = new GenericOverlay(map, dataLoader, layerManager, epochManager, 'military', 'data/overlays/military.json');
+  await militaryOverlay.load();
+  
+  const bloodlinesOverlay = new GenericOverlay(map, dataLoader, layerManager, epochManager, 'bloodlines', 'data/overlays/bloodlines.json');
+  await bloodlinesOverlay.load();
+
+  const masquaradeOverlay = new GenericOverlay(map, dataLoader, layerManager, epochManager, 'masquarade', 'data/overlays/masquarade.json');
+  await masquaradeOverlay.load();
 
   // 9. UI — epoch selector (replaces slider), mode buttons, legend
   const epochSelector = new EpochSelector(epochManager);
@@ -91,55 +106,49 @@ async function init() {
   const modeSelector = new ModeSelector(modeManager);
   modeSelector.mount('mode-selector');
 
-  const legend = new Legend(modeManager, factionOverlay, regionManager, epochManager);
+  const legend = new Legend(modeManager, factionOverlay, regionManager, epochManager, { 
+    military: militaryOverlay,
+    bloodlines: bloodlinesOverlay,
+    masquarade: masquaradeOverlay
+  });
   legend.mount('legend');
 
-  // 10. Pin toggle button
-  const pinToggle = document.getElementById('pin-toggle');
-  if (pinToggle) {
-    pinToggle.addEventListener('click', () => {
-      const visible = pinManager.toggleVisibility();
-      pinToggle.classList.toggle('toolbar__btn--active', visible);
-      pinToggle.title = visible ? 'Hide buildings' : 'Show buildings';
-    });
-  }
-
-  // 11. Base-layer selector (populated by MapManager)
-  const baseLayerSelect = document.getElementById('base-layer-select');
-  if (baseLayerSelect) {
-    baseLayerSelect.addEventListener('change', (e) => mapManager.setBaseLayer(e.target.value));
-  }
+  // Instantiate UI controllers
+  const toolbar = new Toolbar(pinManager, mapManager);
 
   // 12. React to epoch changes — swap map, update regions and pins
   epochManager.onChange((epoch) => {
+    const year = epochManager.getYear();
+    
     // Swap base map to the epoch's designated tile layer
     mapManager.setBaseLayer(epoch.mapLayerId);
 
     // Sync the base layer selector dropdown
-    if (baseLayerSelect) baseLayerSelect.value = epoch.mapLayerId;
-
     // Filter pins to buildings that existed during this epoch
     pinManager.filterByEpoch(epoch);
+
+    // Notify overlays
+    factionOverlay.onYearChange(year);
+    militaryOverlay.onYearChange(year);
+    bloodlinesOverlay.onYearChange(year);
+    masquaradeOverlay.onYearChange(year);
   });
 
   // 13. React to mode changes
   modeManager.onChange((activeModes) => {
-    if (activeModes.has('faction')) {
-      factionOverlay.enable();
-    } else {
-      factionOverlay.disable();
-    }
-
-    if (activeModes.has('explore')) {
-      regionManager.enable();
-    } else {
-      regionManager.disable();
-    }
+    activeModes.has('faction') ? factionOverlay.enable() : factionOverlay.disable();
+    activeModes.has('explore') ? regionManager.enable() : regionManager.disable();
+    activeModes.has('military') ? militaryOverlay.enable() : militaryOverlay.disable();
+    activeModes.has('bloodlines') ? bloodlinesOverlay.enable() : bloodlinesOverlay.disable();
+    activeModes.has('masquarade') ? masquaradeOverlay.enable() : masquaradeOverlay.disable();
   });
 
   // 14. Start up — enable active modes, filter pins for default epoch
   if (modeManager.isActive('explore')) regionManager.enable();
   if (modeManager.isActive('faction')) factionOverlay.enable();
+  if (modeManager.isActive('military')) militaryOverlay.enable();
+  if (modeManager.isActive('bloodlines')) bloodlinesOverlay.enable();
+  if (modeManager.isActive('masquarade')) masquaradeOverlay.enable();
   pinManager.filterByEpoch(epochManager.getEpoch());
   mapManager.setBaseLayer(epochManager.getEpoch().mapLayerId);
 

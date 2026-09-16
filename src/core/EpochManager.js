@@ -1,4 +1,5 @@
 import { EPOCHS, DEFAULT_EPOCH_ID } from '../utils/constants.js';
+import { eventBus } from './EventBus.js';
 
 /**
  * EpochManager — replaces TimelineManager's continuous slider with discrete
@@ -10,27 +11,38 @@ export class EpochManager {
   constructor() {
     this.epochs    = EPOCHS;
     this.current   = EPOCHS.find(e => e.id === DEFAULT_EPOCH_ID) || EPOCHS[3];
-    this.listeners = [];
+    this.currentYear = this.current.year;
   }
 
+  // Backwards compatibility for now, though we should migrate callers
   onChange(fn) {
-    this.listeners.push(fn);
+    eventBus.on('epoch:changed', fn);
   }
 
   setEpoch(epochId) {
     const epoch = this.epochs.find(e => e.id === epochId);
     if (!epoch) { console.warn(`[EpochManager] Unknown epoch: ${epochId}`); return; }
     this.current = epoch;
-    this.listeners.forEach(fn => fn(epoch));
+    this.currentYear = epoch.year;
+    eventBus.emit('epoch:changed', this.current);
+    eventBus.emit('year:changed', this.currentYear);
+  }
+
+  setYear(year) {
+    this.currentYear = year;
+    eventBus.emit('year:changed', this.currentYear);
+    // For legacy subscribers to onChange (which expects an epoch object, wait, some expect year!)
+    // Actually, onChange currently receives this.current but components check getYear().
+    eventBus.emit('epoch:changed', this.current);
   }
 
   getEpoch()  { return this.current; }
-  getYear()   { return this.current.year; }
+  getYear()   { return this.currentYear; }
   getEpochs() { return this.epochs; }
 
   /** Compatibility shim — some systems call isActive({start, end}) */
   isActive(period) {
-    const y = this.current.year;
+    const y = this.currentYear;
     return y >= period.start && y <= period.end;
   }
 }

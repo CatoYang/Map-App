@@ -1,0 +1,37 @@
+{
+  "overlays": [
+    {
+      "id": "camarilla",
+      "name": "Camarilla",
+      "color": "#b7950b",
+      "icon": "assets/symbols/camarilla.png",
+      "active": {
+        "start": 1842,
+        "end": 1949
+      },
+      "files": []
+    },
+    {
+      "id": "anarch",
+      "name": "Anarchs",
+      "color": "#d9381e",
+      "icon": "assets/symbols/anarch.png",
+      "active": {
+        "start": 1842,
+        "end": 1949
+      },
+      "files": []
+    },
+    {
+      "id": "sabbat",
+      "name": "Sabbat",
+      "color": "#4a154b",
+      "icon": "assets/symbols/sabbat.png",
+      "active": {
+        "start": 1842,
+        "end": 1949
+      },
+      "files": []
+    }
+  ]
+}

@@ -8,6 +8,7 @@
  */
 
 import L from 'leaflet';
+import 'leaflet-rotate';
 
 export class MapManager {
   /**
@@ -26,6 +27,13 @@ export class MapManager {
       zoom: defaultZoom,
       zoomControl: true,
       attributionControl: true,
+      rotate: true,
+      bearing: 0,
+      rotateControl: {
+        closeOnZeroBearing: false,
+        position: 'topleft'
+      },
+      touchRotate: true,
     });
 
     /** @type {Map<string, L.TileLayer>} registered base layers by ID */
@@ -33,15 +41,46 @@ export class MapManager {
 
     /** @type {string|null} currently active base layer ID */
     this.activeBaseLayerId = null;
+    this.rotationMode = 'map-north';
 
     // Add default OSM base layer
     this._addDefaultBaseLayer();
 
-    // Wire up sidebar toggle
-    this._initSidebarToggle();
+    // Sync rotation events with our dropdown and fix tooltip
+    this.map.on('rotate', this._syncRotationUI.bind(this));
+    
+    // Fix tooltip after control is added
+    setTimeout(() => {
+      const compassBtn = document.querySelector('.leaflet-control-rotate');
+      if (compassBtn) {
+        compassBtn.title = "Snap to True North";
+        // leaflet-rotate might put it on the <a> tag
+        const link = compassBtn.querySelector('a');
+        if (link) link.title = "Snap to True North";
+      }
+    }, 500);
+  }
 
-    // Wire up opacity slider
-    this._initOpacitySlider();
+  _syncRotationUI() {
+    const currentBearing = this.map.getBearing ? this.map.getBearing() : 0;
+    const select = document.getElementById('bearing-select');
+    if (!select) return;
+
+    if (currentBearing === 0) {
+      if (select.value !== 'true-north') {
+        select.value = 'true-north';
+        this.rotationMode = 'true-north';
+      }
+    } else {
+      const config = this.mapSourceConfigs?.find(c => c.id === this.activeBaseLayerId);
+      const expectedBearing = config?.bearing || 0;
+      if (Math.abs(currentBearing - expectedBearing) < 0.1 && expectedBearing !== 0) {
+        if (select.value !== 'map-north') {
+          select.value = 'map-north';
+          this.rotationMode = 'map-north';
+        }
+      }
+    }
   }
 
   /**
@@ -61,16 +100,23 @@ export class MapManager {
     if (!select) return;
 
     const layers = mapSources.baseLayers || [];
+    this.mapSourceConfigs = layers;
 
     for (const source of layers) {
       if (this.baseLayers.has(source.id)) continue;
 
-      const tileLayer = L.tileLayer(source.url, {
-        attribution: source.attribution || '',
-        minZoom: source.minZoom || 0,
-        maxZoom: source.maxZoom || 19,
-        opacity: source.opacity ?? 1,
-      });
+      let tileLayer;
+      if (source.disabled) {
+        tileLayer = L.layerGroup();
+        source.name += " (Disabled)";
+      } else {
+        tileLayer = L.tileLayer(source.url, {
+          attribution: source.attribution || '',
+          minZoom: source.minZoom || 0,
+          maxZoom: source.maxZoom || 19,
+          opacity: source.opacity ?? 1,
+        });
+      }
 
       this.baseLayers.set(source.id, tileLayer);
 
@@ -109,8 +155,38 @@ export class MapManager {
       if (opacityControl) {
         opacityControl.style.display = layerId === 'osm' ? 'none' : 'flex';
       }
+
+      // Sync the dropdown UI in case the change was triggered programmatically (e.g. Timeline)
+      const select = document.getElementById('base-layer-select');
+      if (select && select.value !== layerId) {
+        select.value = layerId;
+      }
+      
+      this.applyRotation();
     } else {
       console.warn(`[MapManager] Unknown base layer ID: ${layerId}`);
+    }
+  }
+
+  /**
+   * Set rotation mode
+   * @param {string} mode - 'true-north' or 'map-north'
+   */
+  setRotationMode(mode) {
+    this.rotationMode = mode;
+    this.applyRotation();
+  }
+
+  /**
+   * Apply bearing based on active base layer config and current mode
+   */
+  applyRotation() {
+    if (this.rotationMode === 'map-north' && this.activeBaseLayerId) {
+      const config = this.mapSourceConfigs?.find(c => c.id === this.activeBaseLayerId);
+      const bearing = config?.bearing || 0;
+      this.map.setBearing(bearing);
+    } else {
+      this.map.setBearing(0);
     }
   }
 
@@ -119,16 +195,11 @@ export class MapManager {
    * @private
    */
   _addDefaultBaseLayer() {
-    const osmLayer = L.tileLayer(
-      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 19,
-      }
-    );
-
-    this.baseLayers.set('osm', osmLayer);
-    osmLayer.addTo(this.map);
+    // OSM disabled temporarily to prevent API spam during local dev
+    // We add an empty layer group so the app doesn't break when looking for 'osm'
+    const emptyLayer = L.layerGroup();
+    this.baseLayers.set('osm', emptyLayer);
+    emptyLayer.addTo(this.map);
     this.activeBaseLayerId = 'osm';
 
     // Add OSM as first option in selector
@@ -136,42 +207,10 @@ export class MapManager {
     if (select) {
       const option = document.createElement('option');
       option.value = 'osm';
-      option.textContent = 'Modern (OpenStreetMap)';
+      option.textContent = 'Modern (Disabled)';
       option.selected = true;
       select.appendChild(option);
     }
   }
 
-  /**
-   * Initialize the sidebar collapse/expand toggle.
-   * @private
-   */
-  _initSidebarToggle() {
-    const toggle = document.getElementById('sidebar-toggle');
-    const sidebar = document.getElementById('sidebar');
-    if (toggle && sidebar) {
-      toggle.addEventListener('click', () => {
-        sidebar.classList.toggle('sidebar--collapsed');
-      });
-    }
-  }
-
-  /**
-   * Initialize the opacity slider for the active historical overlay.
-   * @private
-   */
-  _initOpacitySlider() {
-    const slider = document.getElementById('opacity-slider');
-    if (slider) {
-      slider.addEventListener('input', (e) => {
-        const opacity = parseInt(e.target.value, 10) / 100;
-        // Apply to all non-OSM base layers
-        for (const [id, layer] of this.baseLayers) {
-          if (id !== 'osm' && this.map.hasLayer(layer)) {
-            layer.setOpacity(opacity);
-          }
-        }
-      });
-    }
-  }
 }

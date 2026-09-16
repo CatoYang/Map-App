@@ -26,6 +26,42 @@ export class ModeManager {
         icon: '⚔️',
         description: 'View territorial control by faction',
       },
+      military: {
+        id: 'military',
+        label: 'Military',
+        icon: '🪖',
+        description: 'View military movements and battle lines',
+      },
+      racial: {
+        id: 'racial',
+        label: 'Racial',
+        icon: '👥',
+        description: 'View demographic and racial distribution',
+      },
+      political: {
+        id: 'political',
+        label: 'Political',
+        icon: '🏛️',
+        description: 'View political influence and territories',
+      },
+      organisational: {
+        id: 'organisational',
+        label: 'Organisational',
+        icon: '🏢',
+        description: 'View presence of gangs and organisations',
+      },
+      bloodlines: {
+        id: 'bloodlines',
+        label: 'Bloodlines',
+        icon: '🩸',
+        description: 'View presence of Kindred clans and supernatural groups',
+      },
+      masquarade: {
+        id: 'masquarade',
+        label: 'Masquarade',
+        icon: '🎭',
+        description: 'View Kindred sects and political factions',
+      },
     };
   }
 
@@ -43,11 +79,9 @@ export class ModeManager {
       return;
     }
     
-    if (this.activeModes.has(modeId)) {
-      this.activeModes.delete(modeId);
-    } else {
-      this.activeModes.add(modeId);
-    }
+    // Make modes mutually exclusive
+    this.activeModes.clear();
+    this.activeModes.add(modeId);
     
     this.listeners.forEach(fn => fn(this.activeModes));
   }

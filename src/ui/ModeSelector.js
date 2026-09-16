@@ -18,28 +18,38 @@ export class ModeSelector {
   }
 
   _render() {
+    if (!this.container) return;
     const modes = this.mm.getModes();
-    this.container.innerHTML = modes.map(mode => `
-      <button
-        class="mode-btn ${this.mm.isActive(mode.id) ? 'mode-btn--active' : ''}"
-        data-mode="${mode.id}"
-        title="${mode.description}"
-      >
-        <span class="mode-btn__icon">${mode.icon}</span>
-        <span class="mode-btn__label">${mode.label}</span>
-      </button>
-    `).join('');
+    
+    let html = `
+      <div class="mode-selector-dropdown">
+        <label for="mode-select" style="color: white; margin-right: 8px; font-size: 13px; font-weight: bold;">View Mode:</label>
+        <select id="mode-select" class="toolbar__select" style="min-width: 150px;">
+          ${modes.map(mode => `
+            <option value="${mode.id}" ${this.mm.isActive(mode.id) ? 'selected' : ''}>
+              ${mode.icon} ${mode.label}
+            </option>
+          `).join('')}
+        </select>
+      </div>
+    `;
 
-    this.container.querySelectorAll('.mode-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        this.mm.toggleMode(btn.dataset.mode);
-      });
+    this.container.innerHTML = html;
+
+    const select = this.container.querySelector('#mode-select');
+    select.addEventListener('change', (e) => {
+      this.mm.toggleMode(e.target.value);
     });
   }
 
   _updateActiveButton() {
-    this.container.querySelectorAll('.mode-btn').forEach(btn => {
-      btn.classList.toggle('mode-btn--active', this.mm.isActive(btn.dataset.mode));
-    });
+    if (!this.container) return;
+    const select = this.container.querySelector('#mode-select');
+    if (select) {
+      const activeMode = Array.from(this.mm.getActiveModes())[0] || 'explore';
+      if (select.value !== activeMode) {
+        select.value = activeMode;
+      }
+    }
   }
 }
