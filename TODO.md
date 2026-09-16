@@ -33,6 +33,7 @@
 - [x] **Secondary maps**: Georectify additional maps as needed (German 1903, German 1907, etc.)
 - [x] Test Academia Sinica pre-georectified tiles as interim base layers
 - [x] Register all georectified map sources in public/data/map-sources.json
+- [ ] Rasterise additional historical maps for local CDN deployment (Currently blocked by Stanford EarthWorks preview bug, delaying for now)
 
 ## Phase 1 — Base Map & Historical Overlay
 - [x] Implement MapManager.js — init Leaflet, base layer switching
@@ -50,14 +51,16 @@
 - [x] Style regions with configurable fill/stroke
 
 ## Phase 3 — Factions & Overlay Modes
-- [ ] Implement ModeManager.js — mode switching, layer group swap
-- [ ] Implement FactionOverlay.js — faction coloring, symbols, patterns
-- [ ] Implement TimelineManager.js — year state, date-based filtering
-- [ ] Implement ModeSelector.js — UI for switching modes
-- [ ] Implement TimelineSlider.js — year scrubber control
-- [ ] Implement Legend.js — dynamic legend per mode
-- [ ] Create faction definitions (factions.json)
-- [ ] Create overlay configs (political, military, etc.)
+- [x] Implement ModeManager.js — mode switching, layer group swap
+- [x] Implement FactionOverlay.js — faction coloring, symbols, patterns
+- [x] Implement EpochManager.js — timeline state, discrete epoch filtering (Replaces TimelineManager)
+- [x] Implement ModeSelector.js — UI for switching modes
+- [x] Implement EpochSelector.js — discrete epoch UI (Replaces TimelineSlider)
+- [x] Implement Legend.js — dynamic legend per mode
+- [x] Create initial faction definitions (factions.json)
+- [ ] Create specialized overlay configs (political, military, etc.)
+- [ ] Create Overlays for locales, so its adaptable for inference for the other overlays
+- [ ] Create Overlays for not specified regions, like zhabei or paoshan
 
 ## Phase 4 — Pins & Points of Interest
 - [x] Implement PinManager.js — markers, clustering, popups
@@ -66,6 +69,9 @@
 - [ ] Category-specific pin icons
 - [x] Rich popups with images, dates, descriptions
 - [ ] Pin filtering by category and time period
+- [ ] Clean up pin data (manually or assisted) to list buildings instead of streets/addresses
+- [ ] Create a search function for users to search for specific buildings
+- [ ] Create different colour representation when a pin is associated with another faction when in certain view modes 
 
 ## Phase 5 — Polish & Deployment
 - [ ] Connect repo to Cloudflare Pages (dashboard setup)
@@ -74,6 +80,14 @@
 - [ ] Write docs/adding-content.md
 - [ ] Performance audit (Lighthouse)
 - [ ] Mobile responsiveness pass
+
+## Phase 6 — Data population
+- [ ] Include information regarding each faction
+- [ ] Include historical information regarding specific buildings
+- [ ] Include major events into a timeline for tracking events happening in the universe
+- [ ] 
+- [ ] 
+- [ ] 
 
 ---
 

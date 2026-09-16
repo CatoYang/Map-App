@@ -1,5 +1,6 @@
 export class DetailPanel {
-  constructor(containerId = 'detail-panel') {
+  constructor(sidebar, containerId = 'detail-panel') {
+    this.sidebar = sidebar;
     this.container = document.getElementById(containerId);
   }
 
@@ -7,6 +8,10 @@ export class DetailPanel {
     try {
       const container = document.getElementById('detail-panel');
       if (!container) return;
+
+      if (this.sidebar) {
+        this.sidebar.open();
+      }
 
       // Get useful fields from OHM or Stanford shapefile
       const name = properties.name || properties.name_en || properties.name_zh || properties.OBJECTID || 'Unnamed Region';
@@ -40,6 +45,10 @@ export class DetailPanel {
       const container = document.getElementById('detail-panel');
       if (!container) return;
       
+      if (this.sidebar) {
+        this.sidebar.open();
+      }
+
       const props = properties || {};
       
       const name = props.name || props.name_en || props.NAME_EN || props.IDBAT || 'Unnamed Pin';

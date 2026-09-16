@@ -2,11 +2,12 @@
  * Legend — dynamic legend reflecting the active mode and current epoch.
  */
 export class Legend {
-  constructor(modeManager, factionOverlay, regionManager, epochManager) {
+  constructor(modeManager, factionOverlay, regionManager, epochManager, genericOverlays = {}) {
     this.mm = modeManager;
     this.fo = factionOverlay;
     this.rm = regionManager;
     this.em = epochManager;
+    this.go = genericOverlays;
     this.container = null;
   }
 
@@ -23,7 +24,7 @@ export class Legend {
     if (!this.container) return;
     const activeModes = this.mm.getActiveModes();
     const epoch = this.em.getEpoch();
-    const year  = epoch.year;
+    const year  = this.em.getYear();
 
     let html = '';
 
@@ -58,6 +59,7 @@ export class Legend {
           <ul class="legend__list">
             ${active.map(f => `
               <li class="legend__item">
+                ${f.icon ? (f.icon.endsWith('.png') || f.icon.endsWith('.svg') ? `<img src="${f.icon}" class="legend__icon" alt="" />` : `<span style="font-size:14px;line-height:1;margin-right:2px;">${f.icon}</span>`) : ''}
                 <span class="legend__swatch" style="background:${f.color}"></span>
                 <span class="legend__name">${f.name}</span>
               </li>
@@ -67,6 +69,28 @@ export class Legend {
       `;
     }
 
+    // Handle generic overlays (military, racial, political, etc)
+    for (const [modeId, overlayMgr] of Object.entries(this.go)) {
+      if (activeModes.has(modeId)) {
+        const active = overlayMgr.overlays.filter(o => year >= o.active.start && year <= o.active.end);
+        html += `
+          <h4 class="legend__title" style="margin-top: ${html ? '12px' : '0'};">${overlayMgr.modeId.charAt(0).toUpperCase() + overlayMgr.modeId.slice(1)} Overlays</h4>
+          ${active.length === 0 ? `
+            <p class="legend__empty">No active ${modeId} data in ${year}.</p>
+          ` : `
+            <ul class="legend__list">
+              ${active.map(o => `
+                <li class="legend__item">
+                  ${o.icon ? `<img src="${o.icon}" class="legend__icon" alt="" />` : ''}
+                  <span class="legend__swatch" style="background:${o.color}"></span>
+                  <span class="legend__name">${o.name}</span>
+                </li>
+              `).join('')}
+            </ul>
+          `}
+        `;
+      }
+    }
     this.container.innerHTML = html;
   }
 }

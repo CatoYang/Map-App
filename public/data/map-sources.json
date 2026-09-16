@@ -7,7 +7,8 @@
       "url": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
       "attribution": "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors",
       "maxZoom": 19,
-      "default": true
+      "default": true,
+      "disabled": true
     },
     {
       "id": "shanghai-1907",
@@ -17,7 +18,8 @@
       "attribution": "Academia Sinica Center for GIS",
       "opacity": 0.8,
       "maxZoom": 18,
-      "period": { "start": 1907, "end": 1907 }
+      "period": { "start": 1907, "end": 1907 },
+      "disabled": true
     },
     {
       "id": "shanghai-1910",
@@ -27,7 +29,8 @@
       "attribution": "Academia Sinica Center for GIS",
       "opacity": 0.8,
       "maxZoom": 18,
-      "period": { "start": 1910, "end": 1910 }
+      "period": { "start": 1910, "end": 1910 },
+      "disabled": true
     },
     {
       "id": "shanghai-1932",
@@ -38,6 +41,7 @@
       "opacity": 0.8,
       "minZoom": 13,
       "maxZoom": 17,
+      "bearing": 21.01,
       "period": { "start": 1932, "end": 1932 }
     },
     {
@@ -48,7 +52,8 @@
       "attribution": "Academia Sinica Center for GIS",
       "opacity": 0.8,
       "maxZoom": 18,
-      "period": { "start": 1937, "end": 1937 }
+      "period": { "start": 1937, "end": 1937 },
+      "disabled": true
     },
     {
       "id": "shanghai-1948",
@@ -58,7 +63,8 @@
       "attribution": "Academia Sinica Center for GIS",
       "opacity": 0.8,
       "maxZoom": 18,
-      "period": { "start": 1948, "end": 1948 }
+      "period": { "start": 1948, "end": 1948 },
+      "disabled": true
     }
   ]
 }
