@@ -58,20 +58,23 @@
 - [x] Implement EpochSelector.js — discrete epoch UI (Replaces TimelineSlider)
 - [x] Implement Legend.js — dynamic legend per mode
 - [x] Create initial faction definitions (factions.json)
+- [x] Implement Spatial Join (Turf.js) to auto-assign Locales to POIs based on region polygons
+- [ ] Implement DynamicShapeEngine (Turf.js) to dynamically generate overlay boundaries from pins
+- [ ] Test Buffer, Voronoi, and Concave Hull generation methods to evaluate visual styles
 - [ ] Create specialized overlay configs (political, military, etc.)
 - [ ] Create Overlays for locales, so its adaptable for inference for the other overlays
-- [ ] Create Overlays for not specified regions, like zhabei or paoshan
+- [ ] Create Overlays for none specified regions, like zhabei or paoshan
 
 ## Phase 4 — Pins & Points of Interest
 - [x] Implement PinManager.js — markers, clustering, popups
-- [ ] Implement LayerControl.js — custom layer toggle UI
+- [x] Implement LayerControl.js — custom layer toggle UI
 - [x] Integrate leaflet.markercluster
-- [ ] Category-specific pin icons
+- [x] Category-specific pin icons
 - [x] Rich popups with images, dates, descriptions
-- [ ] Pin filtering by category and time period
-- [ ] Clean up pin data (manually or assisted) to list buildings instead of streets/addresses
-- [ ] Create a search function for users to search for specific buildings
-- [ ] Create different colour representation when a pin is associated with another faction when in certain view modes 
+- [x] Pin filtering by category and time period
+- [x] Clean up pin data (manually or assisted) to list buildings instead of streets/addresses
+- [x] Create a search function for users to search for specific buildings
+- [x] Create different colour representation when a pin is associated with another faction when in certain view modes 
 
 ## Phase 5 — Polish & Deployment
 - [ ] Connect repo to Cloudflare Pages (dashboard setup)

@@ -29,8 +29,9 @@ import { ModeSelector }   from './ui/ModeSelector.js';
 import { Legend }         from './ui/Legend.js';
 import { Sidebar }        from './ui/Sidebar.js';
 import { Toolbar }        from './ui/Toolbar.js';
+import { LayerControl }   from './ui/LayerControl.js';
 import { HistoricalScale } from './ui/HistoricalScale.js';
-import { injectSVGPatterns } from './utils/StyleEngine.js';
+import { injectSVGPatterns, updatePatternScale } from './utils/StyleEngine.js';
 
 async function init() {
   console.log('[Map-App] Initializing...');
@@ -41,7 +42,7 @@ async function init() {
   let config;
   try {
     config = await dataLoader.load('data/config.json');
-  } catch {
+  } catch (err) {
     config = {
       project: { name: 'Historical Map Viewer', defaultCenter: [31.23, 121.47], defaultZoom: 13 },
       regions: [], pins: [], factions: 'factions/factions.json',
@@ -52,6 +53,11 @@ async function init() {
   const mapManager = new MapManager('map', config.project);
   const map = mapManager.getMap();
   new HistoricalScale().addTo(map);
+
+  // Apply dynamic scaling to SVG patterns on zoom
+  map.on('zoomend', () => updatePatternScale(map));
+  // Call once initially to set the correct scale
+  updatePatternScale(map);
 
   // 3. Map sources
   try {
@@ -99,6 +105,13 @@ async function init() {
   const masquaradeOverlay = new GenericOverlay(map, dataLoader, layerManager, epochManager, 'masquarade', 'data/overlays/masquarade.json');
   await masquaradeOverlay.load();
 
+  pinManager.setOverlays({
+    faction: factionOverlay,
+    military: militaryOverlay,
+    bloodlines: bloodlinesOverlay,
+    masquarade: masquaradeOverlay
+  }, modeManager);
+
   // 9. UI — epoch selector (replaces slider), mode buttons, legend
   const epochSelector = new EpochSelector(epochManager);
   epochSelector.mount('epoch-selector');
@@ -115,6 +128,7 @@ async function init() {
 
   // Instantiate UI controllers
   const toolbar = new Toolbar(pinManager, mapManager);
+  const layerControl = new LayerControl(pinManager);
 
   // 12. React to epoch changes — swap map, update regions and pins
   epochManager.onChange((epoch) => {

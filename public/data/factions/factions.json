@@ -6,9 +6,16 @@
       "color": "#002395",
       "pattern": "tricolor",
       "icon": "🇫🇷",
-      "active": { "start": 1849, "end": 1943 },
+      "active": {
+        "start": 1849,
+        "end": 1943
+      },
       "controls": [
-        { "region": "french-concession", "start": 1849, "end": 1943 }
+        {
+          "region": "french-concession",
+          "start": 1849,
+          "end": 1943
+        }
       ]
     },
     {
@@ -17,9 +24,31 @@
       "color": "#b01c2e",
       "pattern": "smc",
       "icon": "🏛️",
-      "active": { "start": 1863, "end": 1943 },
+      "active": {
+        "start": 1863,
+        "end": 1943
+      },
       "controls": [
-        { "region": "international-settlement", "start": 1863, "end": 1941 }
+        {
+          "region": "international-settlement-central",
+          "start": 1863,
+          "end": 1941
+        },
+        {
+          "region": "international-settlement-west",
+          "start": 1863,
+          "end": 1941
+        },
+        {
+          "region": "international-settlement-east",
+          "start": 1863,
+          "end": 1941
+        },
+        {
+          "region": "international-settlement-hongkew",
+          "start": 1863,
+          "end": 1941
+        }
       ]
     },
     {
@@ -28,9 +57,16 @@
       "color": "#ffcc00",
       "pattern": "dragon",
       "icon": "🐉",
-      "active": { "start": 1842, "end": 1911 },
+      "active": {
+        "start": 1842,
+        "end": 1911
+      },
       "controls": [
-        { "region": "old-city", "start": 1842, "end": 1911 }
+        {
+          "region": "old-city",
+          "start": 1842,
+          "end": 1911
+        }
       ]
     },
     {
@@ -39,9 +75,16 @@
       "color": "#d94236",
       "pattern": "five-races",
       "icon": "🚩",
-      "active": { "start": 1911, "end": 1927 },
+      "active": {
+        "start": 1911,
+        "end": 1927
+      },
       "controls": [
-        { "region": "old-city", "start": 1911, "end": 1927 }
+        {
+          "region": "old-city",
+          "start": 1911,
+          "end": 1927
+        }
       ]
     },
     {
@@ -50,12 +93,46 @@
       "color": "#000095",
       "pattern": "blue-sky",
       "icon": "🇹🇼",
-      "active": { "start": 1927, "end": 1949 },
+      "active": {
+        "start": 1927,
+        "end": 1949
+      },
       "controls": [
-        { "region": "old-city", "start": 1927, "end": 1937 },
-        { "region": "old-city", "start": 1945, "end": 1949 },
-        { "region": "french-concession", "start": 1943, "end": 1949 },
-        { "region": "international-settlement", "start": 1943, "end": 1949 }
+        {
+          "region": "old-city",
+          "start": 1927,
+          "end": 1937
+        },
+        {
+          "region": "old-city",
+          "start": 1945,
+          "end": 1949
+        },
+        {
+          "region": "french-concession",
+          "start": 1943,
+          "end": 1949
+        },
+        {
+          "region": "international-settlement-central",
+          "start": 1943,
+          "end": 1949
+        },
+        {
+          "region": "international-settlement-west",
+          "start": 1943,
+          "end": 1949
+        },
+        {
+          "region": "international-settlement-east",
+          "start": 1943,
+          "end": 1949
+        },
+        {
+          "region": "international-settlement-hongkew",
+          "start": 1943,
+          "end": 1949
+        }
       ]
     },
     {
@@ -64,10 +141,58 @@
       "color": "#bf1e2d",
       "pattern": "rising-sun",
       "icon": "🇯🇵",
-      "active": { "start": 1937, "end": 1945 },
+      "active": {
+        "start": 1937,
+        "end": 1945
+      },
       "controls": [
-        { "region": "old-city", "start": 1937, "end": 1945 },
-        { "region": "international-settlement", "start": 1941, "end": 1945 }
+        {
+          "region": "old-city",
+          "start": 1937,
+          "end": 1945
+        },
+        {
+          "region": "international-settlement-central",
+          "start": 1941,
+          "end": 1945
+        },
+        {
+          "region": "international-settlement-west",
+          "start": 1941,
+          "end": 1945
+        },
+        {
+          "region": "international-settlement-east",
+          "start": 1941,
+          "end": 1945
+        },
+        {
+          "region": "international-settlement-hongkew",
+          "start": 1941,
+          "end": 1945
+        }
+      ]
+    },
+    {
+      "id": "green-gang",
+      "name": "Green Gang (Qingbang)",
+      "color": "#118c2d",
+      "pattern": "solid",
+      "icon": "🗡️",
+      "active": {
+        "start": 1910,
+        "end": 1949
+      },
+      "controls": [
+        {
+          "type": "dynamic_pins",
+          "match": {
+            "faction": "green-gang"
+          },
+          "radiusKm": 0.2,
+          "start": 1910,
+          "end": 1949
+        }
       ]
     }
   ]

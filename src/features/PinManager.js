@@ -1,109 +1,209 @@
 import L from 'leaflet';
-import { PIN_STYLE, PIN_STYLE_HOVER } from '../utils/constants.js';
+import { PIN_STYLE, PIN_STYLE_HOVER, CATEGORY_COLORS, DEFAULT_PIN_COLOR } from '../utils/constants.js';
+import { pointInGeoJSON } from '../utils/geometry.js';
 
-/**
- * PinManager — renders historic buildings as small circle markers.
- *
- * Features:
- *  - Circle markers (not default drop-pins) — much less intrusive
- *  - Time filtering: only shows buildings that existed in the current epoch
- *  - Global show/hide toggle
- *  - Click opens the detail panel
- */
 export class PinManager {
   constructor(map, dataLoader, detailPanel) {
     this.map         = map;
     this.dataLoader  = dataLoader;
     this.detailPanel = detailPanel;
 
-    // Create a custom pane so pins stay above polygons even when polygons are hovered/clicked
-    // Ensure it attaches to the 'rotatePane' so leaflet-rotate transforms it correctly!
     const parentPane = this.map.getPane('rotatePane') || this.map.getPane('mapPane');
     this.map.createPane('pinsPane', parentPane);
-    this.map.getPane('pinsPane').style.zIndex = 450; // default overlayPane is 400
+    this.map.getPane('pinsPane').style.zIndex = 450;
 
-    // Vector layers (CircleMarkers) need a custom renderer to use a custom pane!
     this.pinsRenderer = L.svg({ pane: 'pinsPane' });
 
-    this.allFeatures = []; // { feature, marker } — every loaded pin
+    this.allFeatures = []; // { feature, marker, name, category, suppressed }
     this.layerGroup  = L.layerGroup().addTo(map);
     this.visible     = true;
+
+    this.filters = {
+      categories: new Set(Object.keys(CATEGORY_COLORS)),
+      searchTerm: ''
+    };
+    
+    this.currentEpoch = null;
+    this.overlays = {};
+    this.activeModes = new Set();
+    this.modeManager = null;
+  }
+
+  setOverlays(overlays, modeManager) {
+    this.overlays = overlays;
+    this.modeManager = modeManager;
+    if (this.modeManager) {
+      this.modeManager.onChange((modes) => {
+        this.activeModes = modes;
+        if (this.currentEpoch) this.filterByEpoch(this.currentEpoch);
+      });
+      this.activeModes = new Set(this.modeManager.activeModes);
+    }
   }
 
   async loadPins(path) {
     try {
       const data = await this.dataLoader.load(path);
 
-      for (const feature of (data.features || [])) {
-        if (!feature.geometry) continue;
-
-        const [lng, lat] = feature.geometry.coordinates;
-        if (!lat || !lng) continue;
-
-        const marker = L.circleMarker([lat, lng], { 
+      for (const item of data) {
+        const marker = L.circleMarker([item.lat, item.lng], { 
           ...PIN_STYLE, 
-          renderer: this.pinsRenderer 
+          renderer: this.pinsRenderer,
+          fillColor: CATEGORY_COLORS[item.category] || DEFAULT_PIN_COLOR
         });
 
-        // Tooltip — short name on hover
-        const name = this._getName(feature.properties);
-        marker.bindTooltip(name, { direction: 'top', offset: [0, -4] });
+        if (item.name) {
+          marker.bindTooltip(item.name, { direction: 'top', offset: [0, -4] });
+        }
 
-        // Click — open detail panel (using mousedown is far more reliable for small circle markers than click, which can be cancelled by 1px of accidental drag)
         marker.on('mousedown', (e) => {
-          console.log('[PinManager] Mousedown on pin:', name, feature.properties);
           if (this.detailPanel) {
-            this.detailPanel.showPin(feature.properties);
+            this.detailPanel.showPin(item.props);
           }
         });
 
-        // Hover highlight
-        marker.on('mouseover', () => marker.setStyle(PIN_STYLE_HOVER));
-        marker.on('mouseout',  () => marker.setStyle(PIN_STYLE));
+        marker.on('mouseover', () => {
+          marker.setStyle({ ...PIN_STYLE_HOVER, fillColor: this._getPinColor(item, marker) });
+        });
+        marker.on('mouseout', () => {
+          marker.setStyle({ ...PIN_STYLE, fillColor: this._getPinColor(item, marker) });
+        });
 
-        this.allFeatures.push({ feature, marker });
+        this.allFeatures.push({ 
+          feature: { 
+            geometry: { coordinates: [item.lng, item.lat] }, 
+            properties: { ...item.props, start: item.start, end: item.end } 
+          }, 
+          marker, 
+          name: item.name.toLowerCase(), 
+          category: item.category, 
+          suppressed: false 
+        });
       }
 
-      console.log(`[PinManager] Loaded ${this.allFeatures.length} pins from ${path}`);
+      console.log(`[PinManager] Successfully loaded ${this.allFeatures.length} pins from ${path}`);
+      
+      this.filterByEpoch(this.currentEpoch || { start: 1930, end: 1930 });
     } catch (err) {
-      console.error(`[PinManager] Failed to load ${path}:`, err);
+      console.error('Error loading pins:', err);
     }
   }
 
-  /**
-   * Re-render only the pins active during the given epoch.
-   * @param {{ start: number, end: number, year: number }} epoch
-   */
+  setFilters(filters) {
+    this.filters = { ...this.filters, ...filters };
+    if (this.currentEpoch) {
+      this.filterByEpoch(this.currentEpoch);
+    }
+    
+    // Zoom if exactly one match from search
+    if (this.filters.searchTerm && this.filters.searchTerm.length > 2) {
+      const visible = this.allFeatures.filter(f => this.layerGroup.hasLayer(f.marker));
+      if (visible.length === 1) {
+        const [lng, lat] = visible[0].feature.geometry.coordinates;
+        this.map.flyTo([lat, lng], 16);
+        if (this.detailPanel) this.detailPanel.showPin(visible[0].feature.properties);
+      }
+    }
+  }
+
   filterByEpoch(epoch) {
+    this.currentEpoch = epoch;
     this.layerGroup.clearLayers();
 
     if (!this.visible) return;
 
     let shown = 0;
-    for (const { feature, marker } of this.allFeatures) {
-      const props = feature.properties;
-      // START / END are year integers in the Virtual Shanghai dataset
-      const start = parseInt(props.START ?? props.start_date ?? 0, 10)  || 0;
-      const end   = parseInt(props.END   ?? props.end_date   ?? 9999, 10) || 9999;
+    for (const item of this.allFeatures) {
+      if (item.suppressed) continue; // Skip suppressed
 
-      // Show if the building existed at any point within the epoch window
+      // Filter by category
+      if (!this.filters.categories.has(item.category)) {
+        if (item.category !== 'Undefined' || !this.filters.categories.has('Undefined')) {
+          continue;
+        }
+      }
+
+      // Filter by search
+      if (this.filters.searchTerm) {
+        const term = this.filters.searchTerm.toLowerCase().trim();
+        const searchText = `${item.name} ${item.feature.properties.F_ADDRESS || ''} ${item.feature.properties.CHINESE || ''}`.toLowerCase();
+        if (!searchText.includes(term)) {
+          continue;
+        }
+      }
+
+      // We read start and end from item.feature.properties which now has them natively
+      // But wait, in loadPins we mapped item.start and item.end. Let's just use the feature.properties which maps to item.props
+      const props = item.feature.properties;
+      const start = props.start !== undefined ? props.start : 0;
+      const end   = props.end !== undefined ? props.end : 9999;
+
       const overlap = start <= epoch.end && end >= epoch.start;
       if (overlap) {
-        this.layerGroup.addLayer(marker);
+        item.marker.setStyle({ fillColor: this._getPinColor(item.feature, item.marker) });
+        this.layerGroup.addLayer(item.marker);
         shown++;
       }
     }
-
-    console.log(`[PinManager] Showing ${shown}/${this.allFeatures.length} pins for epoch ${epoch.id}`);
   }
 
-  /** Toggle global pin visibility. Returns new state. */
+  _getPinColor(feature, marker) {
+    let baseColor = CATEGORY_COLORS[feature.properties.TYP01] || DEFAULT_PIN_COLOR;
+    
+    // Check overlays for active modes
+    const pt = feature.geometry.coordinates;
+    const year = this.currentEpoch ? this.currentEpoch.year : 1930;
+
+    for (const [modeId, overlay] of Object.entries(this.overlays)) {
+      if (this.activeModes.has(modeId)) {
+        // Find which region contains this point
+        const color = this._getColorFromOverlay(pt, year, overlay);
+        if (color) return color;
+      }
+    }
+
+    return baseColor;
+  }
+
+  _getColorFromOverlay(pt, year, overlay) {
+    // Both FactionOverlay and GenericOverlay have a similar structure?
+    // Let's rely on their layers.
+    let layersMap = null;
+    if (overlay.factionLayers) layersMap = overlay.factionLayers;
+    else if (overlay.overlayLayers) layersMap = overlay.overlayLayers;
+    
+    if (!layersMap) return null;
+
+    for (const [id, entries] of layersMap) {
+      for (const { period, layer } of entries) {
+        if (year >= period[0] && year <= period[1]) {
+          const geojson = layer.toGeoJSON();
+          if (geojson.features) {
+             for (const f of geojson.features) {
+               if (pointInGeoJSON(pt, f.geometry)) {
+                 // Return the faction/overlay color
+                 const defs = overlay.factions || overlay.overlays || [];
+                 const def = defs.find(d => d.id === id);
+                 return def ? def.color : null;
+               }
+             }
+          } else if (pointInGeoJSON(pt, geojson.geometry)) {
+             const defs = overlay.factions || overlay.overlays || [];
+             const def = defs.find(d => d.id === id);
+             return def ? def.color : null;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
   toggleVisibility() {
     this.visible = !this.visible;
-    if (this.visible) {
-      this.map.addLayer(this.layerGroup);
+    if (this.visible && this.currentEpoch) {
+      this.filterByEpoch(this.currentEpoch);
     } else {
-      this.map.removeLayer(this.layerGroup);
+      this.layerGroup.clearLayers();
     }
     return this.visible;
   }
@@ -111,10 +211,8 @@ export class PinManager {
   isVisible() { return this.visible; }
 
   _getName(props) {
-    return props.NAME_EN
-      || props.name
-      || props.name_en
-      || props.IDBAT
-      || 'Historic building';
+    const rawName = props.NAME_EN || props.NAME || props.name || props.name_en || props.IDBAT || '';
+    if (String(rawName).trim() === '') return '';
+    return String(rawName);
   }
 }

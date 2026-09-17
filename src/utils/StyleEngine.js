@@ -70,64 +70,91 @@ export function injectSVGPatterns() {
 
   const defs = document.createElementNS(svgNS, 'defs');
 
-  // 1. Tricolor (France) - vertical stripes
+  // 1. Tricolor (France) - scaled up flag
   defs.innerHTML += `
-    <pattern id="pattern-tricolor" width="30" height="30" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-      <rect width="10" height="30" fill="#002395" opacity="0.6"/>
-      <rect x="10" width="10" height="30" fill="#ffffff" opacity="0.6"/>
-      <rect x="20" width="10" height="30" fill="#ed2939" opacity="0.6"/>
+    <pattern id="pattern-tricolor" width="150" height="100" patternUnits="userSpaceOnUse">
+      <animate attributeName="x" from="0" to="150" dur="15s" repeatCount="indefinite" />
+      <rect width="50" height="100" fill="#002395" opacity="0.6"/>
+      <rect x="50" width="50" height="100" fill="#ffffff" opacity="0.6"/>
+      <rect x="100" width="50" height="100" fill="#ed2939" opacity="0.6"/>
     </pattern>
   `;
 
-  // 2. SMC - repeating text/seal abstract pattern
+  // 2. SMC - using the real flag image
   defs.innerHTML += `
-    <pattern id="pattern-smc" width="40" height="40" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
-      <rect width="40" height="40" fill="#b01c2e" opacity="0.2"/>
-      <line x1="0" y1="20" x2="40" y2="20" stroke="#b01c2e" stroke-width="4" opacity="0.5"/>
-      <line x1="20" y1="0" x2="20" y2="40" stroke="#b01c2e" stroke-width="4" opacity="0.5"/>
-      <circle cx="20" cy="20" r="10" fill="none" stroke="#b01c2e" stroke-width="3" opacity="0.5"/>
+    <pattern id="pattern-smc" width="200" height="133" patternUnits="userSpaceOnUse">
+      <animate attributeName="x" from="0" to="200" dur="25s" repeatCount="indefinite" />
+      <animate attributeName="y" from="0" to="133" dur="35s" repeatCount="indefinite" />
+      <rect width="200" height="133" fill="#b01c2e" opacity="0.1"/>
+      <image href="/assets/flags/Flag_of_the_Shanghai_International_Settlement_pre-WWI.svg" width="200" height="133" opacity="0.7"/>
     </pattern>
   `;
 
-  // 3. Qing Dragon (Yellow/Blue motif)
+  // 3. Qing Dragon (Yellow/Blue motif) - scaled up
   defs.innerHTML += `
-    <pattern id="pattern-dragon" width="20" height="20" patternUnits="userSpaceOnUse">
-      <rect width="20" height="20" fill="#ffcc00" opacity="0.4"/>
-      <circle cx="10" cy="10" r="4" fill="#0033aa" opacity="0.5"/>
+    <pattern id="pattern-dragon" width="100" height="100" patternUnits="userSpaceOnUse">
+      <animate attributeName="x" from="0" to="100" dur="20s" repeatCount="indefinite" />
+      <animate attributeName="y" from="0" to="100" dur="20s" repeatCount="indefinite" />
+      <rect width="100" height="100" fill="#ffcc00" opacity="0.4"/>
+      <circle cx="50" cy="50" r="20" fill="#0033aa" opacity="0.5"/>
     </pattern>
   `;
 
-  // 4. Five Races Under One Union (Beiyang) - Red, Yellow, Blue, White, Black stripes
+  // 4. Five Races Under One Union (Beiyang) - scaled up
   defs.innerHTML += `
-    <pattern id="pattern-five-races" width="50" height="50" patternUnits="userSpaceOnUse">
-      <rect y="0" width="50" height="10" fill="#d94236" opacity="0.5"/>
-      <rect y="10" width="50" height="10" fill="#ffcc00" opacity="0.5"/>
-      <rect y="20" width="50" height="10" fill="#0033aa" opacity="0.5"/>
-      <rect y="30" width="50" height="10" fill="#ffffff" opacity="0.5"/>
-      <rect y="40" width="50" height="10" fill="#000000" opacity="0.5"/>
+    <pattern id="pattern-five-races" width="150" height="100" patternUnits="userSpaceOnUse">
+      <animate attributeName="y" from="0" to="100" dur="20s" repeatCount="indefinite" />
+      <rect y="0" width="150" height="20" fill="#d94236" opacity="0.5"/>
+      <rect y="20" width="150" height="20" fill="#ffcc00" opacity="0.5"/>
+      <rect y="40" width="150" height="20" fill="#0033aa" opacity="0.5"/>
+      <rect y="60" width="150" height="20" fill="#ffffff" opacity="0.5"/>
+      <rect y="80" width="150" height="20" fill="#000000" opacity="0.5"/>
     </pattern>
   `;
 
-  // 5. Blue Sky White Sun (ROC)
+  // 5. Blue Sky White Sun (ROC) - scaled up
   defs.innerHTML += `
-    <pattern id="pattern-blue-sky" width="30" height="30" patternUnits="userSpaceOnUse">
-      <rect width="30" height="30" fill="#000095" opacity="0.4"/>
-      <circle cx="15" cy="15" r="6" fill="#ffffff" opacity="0.7"/>
-      <path d="M15,3 L15,27 M3,15 L27,15 M6.5,6.5 L23.5,23.5 M6.5,23.5 L23.5,6.5" stroke="#ffffff" stroke-width="2" opacity="0.7"/>
+    <pattern id="pattern-blue-sky" width="150" height="100" patternUnits="userSpaceOnUse">
+      <animate attributeName="x" from="0" to="150" dur="18s" repeatCount="indefinite" />
+      <rect width="150" height="100" fill="#000095" opacity="0.4"/>
+      <circle cx="75" cy="50" r="20" fill="#ffffff" opacity="0.7"/>
+      <path d="M75,10 L75,90 M25,50 L125,50 M46,21 L104,79 M46,79 L104,21" stroke="#ffffff" stroke-width="4" opacity="0.7"/>
     </pattern>
   `;
 
-  // 6. Rising Sun (Japan)
+  // 6. Rising Sun (Japan) - scaled up
   defs.innerHTML += `
-    <pattern id="pattern-rising-sun" width="40" height="40" patternUnits="userSpaceOnUse">
-      <rect width="40" height="40" fill="#ffffff" opacity="0.4"/>
+    <pattern id="pattern-rising-sun" width="150" height="100" patternUnits="userSpaceOnUse">
+      <animate attributeName="x" from="0" to="150" dur="20s" repeatCount="indefinite" />
+      <rect width="150" height="100" fill="#ffffff" opacity="0.4"/>
       <!-- Rays -->
-      <path d="M20,20 L0,0 M20,20 L20,0 M20,20 L40,0 M20,20 L40,20 M20,20 L40,40 M20,20 L20,40 M20,20 L0,40 M20,20 L0,20" stroke="#bf1e2d" stroke-width="3" opacity="0.5"/>
+      <path d="M75,50 L0,0 M75,50 L75,0 M75,50 L150,0 M75,50 L150,50 M75,50 L150,100 M75,50 L75,100 M75,50 L0,100 M75,50 L0,50" stroke="#bf1e2d" stroke-width="8" opacity="0.5"/>
       <!-- Sun -->
-      <circle cx="20" cy="20" r="8" fill="#bf1e2d" opacity="0.6"/>
+      <circle cx="75" cy="50" r="24" fill="#bf1e2d" opacity="0.6"/>
     </pattern>
   `;
 
   svg.appendChild(defs);
   document.body.appendChild(svg);
+}
+
+/**
+ * Dynamically scales SVG patterns based on map zoom level so they act
+ * like they are painted on the ground instead of tiling on the screen.
+ * @param {L.Map} map 
+ */
+export function updatePatternScale(map) {
+  if (!map) return;
+  
+  // The zoom level where scale = 1 (100%)
+  const baseZoom = 13; 
+  const currentZoom = map.getZoom();
+  
+  // Scale factor: doubles size for every zoom level in
+  const scale = Math.pow(2, currentZoom - baseZoom);
+  
+  const patterns = document.querySelectorAll('#map-svg-patterns pattern');
+  patterns.forEach(p => {
+    p.setAttribute('patternTransform', `scale(${scale})`);
+  });
 }
