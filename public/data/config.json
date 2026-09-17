@@ -1,9 +1,15 @@
 {
   "project": {
     "name": "Historical Map Viewer",
-    "defaultCenter": [31.23, 121.47],
+    "defaultCenter": [
+      31.23,
+      121.47
+    ],
     "defaultZoom": 13,
-    "timeRange": { "start": 1845, "end": 1949 }
+    "timeRange": {
+      "start": 1845,
+      "end": 1949
+    }
   },
   "regions": [
     {
@@ -11,36 +17,46 @@
       "name": "French Concession",
       "nameZh": "法租界",
       "color": "#4169E1",
-      "labelCenter": [31.215, 121.450],
+      "labelCenter": [
+        31.215,
+        121.45
+      ],
       "description": "The French Concession was administered by France from 1849 until its retrocession to China in 1943. It expanded significantly in 1900 and again in 1914.",
       "periods": [
-        { "start": 1849, "end": 1860, "geojson": ["regions/fc_1849_1861.geojson"] },
-        { "start": 1861, "end": 1899, "geojson": [
-          "regions/fc_1849_1861.geojson", 
-          "regions/fc_1861_1900.geojson"
-        ] },
-        { "start": 1900, "end": 1913, "geojson": [
-          "regions/fc_1849_1861.geojson", 
-          "regions/fc_1861_1900.geojson", 
-          "regions/fc_1900_1914.geojson"
-        ] },
-        { "start": 1914, "end": 1943, "geojson": [
-          "regions/fc_1849_1861.geojson", 
-          "regions/fc_1861_1900.geojson", 
-          "regions/fc_1900_1914.geojson", 
-          "regions/fc_1914_1943.geojson"
-        ] }
-      ]
-    },
-    {
-      "id": "international-settlement",
-      "name": "International Settlement",
-      "nameZh": "公共租界",
-      "color": "#B22222",
-      "labelCenter": [31.240, 121.470],
-      "description": "Formed in 1863 from the merger of the British and American concessions, governed by the Shanghai Municipal Council until retrocession in 1943.",
-      "periods": [
-        { "start": 1863, "end": 1943, "geojson": ["regions/is_1863_1943.geojson"] }
+        {
+          "start": 1849,
+          "end": 1860,
+          "geojson": [
+            "regions/fc_1849_1861.geojson"
+          ]
+        },
+        {
+          "start": 1861,
+          "end": 1899,
+          "geojson": [
+            "regions/fc_1849_1861.geojson",
+            "regions/fc_1861_1900.geojson"
+          ]
+        },
+        {
+          "start": 1900,
+          "end": 1913,
+          "geojson": [
+            "regions/fc_1849_1861.geojson",
+            "regions/fc_1861_1900.geojson",
+            "regions/fc_1900_1914.geojson"
+          ]
+        },
+        {
+          "start": 1914,
+          "end": 1943,
+          "geojson": [
+            "regions/fc_1849_1861.geojson",
+            "regions/fc_1861_1900.geojson",
+            "regions/fc_1900_1914.geojson",
+            "regions/fc_1914_1943.geojson"
+          ]
+        }
       ]
     },
     {
@@ -48,17 +64,197 @@
       "name": "Shanghai Old City",
       "nameZh": "上海老城廂",
       "color": "#DAA520",
-      "labelCenter": [31.225, 121.488],
+      "labelCenter": [
+        31.225,
+        121.488
+      ],
       "description": "The traditional walled city of Shanghai, the historic Chinese core predating the concessions.",
       "periods": [
-        { "start": 1845, "end": 1949, "geojson": ["regions/old_city_1845_1949.geojson"] }
+        {
+          "start": 1845,
+          "end": 1949,
+          "geojson": [
+            "regions/old_city_1845_1949.geojson"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "zhabei",
+      "name": "Zhabei",
+      "color": "#8A2BE2",
+      "description": "Dynamically aligned region for Zhabei.",
+      "periods": [
+        {
+          "start": 1845,
+          "end": 1949,
+          "geojson": [
+            "regions/extra_zhabei.geojson"
+          ]
+        }
+      ],
+      "labelCenter": [
+        31.2497,
+        121.4559
+      ]
+    },
+    {
+      "id": "pudong",
+      "name": "Pudong",
+      "color": "#ff8c00",
+      "description": "Dynamically aligned region for Pudong.",
+      "periods": [
+        {
+          "start": 1845,
+          "end": 1949,
+          "geojson": [
+            "regions/extra_pudong.geojson"
+          ]
+        }
+      ],
+      "labelCenter": [
+        31.2378,
+        121.5158
+      ]
+    },
+    {
+      "id": "paoshan",
+      "name": "Paoshan",
+      "color": "#2e8b57",
+      "description": "Dynamically aligned region for Paoshan.",
+      "periods": [
+        {
+          "start": 1845,
+          "end": 1949,
+          "geojson": [
+            "regions/extra_paoshan.geojson"
+          ]
+        }
+      ],
+      "labelCenter": [
+        31.2786,
+        121.496
+      ]
+    },
+    {
+      "id": "nanshi-stateowned-heavy-industries-",
+      "name": "Nanshi ( Stateowned Heavy Industries )",
+      "color": "#d2691e",
+      "description": "Dynamically aligned region for Nanshi ( Stateowned Heavy Industries ).",
+      "periods": [
+        {
+          "start": 1845,
+          "end": 1949,
+          "geojson": [
+            "regions/extra_nanshi-stateowned-heavy-industries-.geojson"
+          ]
+        }
+      ],
+      "labelCenter": [
+        31.1977,
+        121.4677
+      ]
+    },
+    {
+      "id": "siccawei",
+      "name": "Siccawei",
+      "color": "#1e90ff",
+      "description": "Dynamically aligned region for Siccawei.",
+      "periods": [
+        {
+          "start": 1845,
+          "end": 1949,
+          "geojson": [
+            "regions/extra_siccawei.geojson"
+          ]
+        }
+      ],
+      "labelCenter": [
+        31.2011,
+        121.4208
+      ]
+    },
+    {
+      "id": "international-settlement-central",
+      "name": "International Settlement ( Central )",
+      "color": "#B22222",
+      "description": "The International Settlement ( Central ) district of the International Settlement.",
+      "labelCenter": [
+        31.2361,
+        121.4702
+      ],
+      "periods": [
+        {
+          "start": 1863,
+          "end": 1943,
+          "geojson": [
+            "regions/international-settlement-central.geojson"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "international-settlement-west",
+      "name": "International Settlement ( West )",
+      "color": "#B22222",
+      "description": "The International Settlement ( West ) district of the International Settlement.",
+      "labelCenter": [
+        31.2373,
+        121.4431
+      ],
+      "periods": [
+        {
+          "start": 1863,
+          "end": 1943,
+          "geojson": [
+            "regions/international-settlement-west.geojson"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "international-settlement-hongkew",
+      "name": "International Settlement (Hongkew)",
+      "color": "#B22222",
+      "description": "The International Settlement (Hongkew) district of the International Settlement.",
+      "labelCenter": [
+        31.2565,
+        121.5005
+      ],
+      "periods": [
+        {
+          "start": 1863,
+          "end": 1943,
+          "geojson": [
+            "regions/international-settlement-hongkew.geojson"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "international-settlement-east",
+      "name": "International Settlement ( East )",
+      "color": "#B22222",
+      "description": "The International Settlement ( East ) district of the International Settlement.",
+      "labelCenter": [
+        31.2627,
+        121.5223
+      ],
+      "periods": [
+        {
+          "start": 1863,
+          "end": 1943,
+          "geojson": [
+            "regions/international-settlement-east.geojson"
+          ]
+        }
       ]
     }
   ],
   "factions": "factions/factions.json",
   "overlays": [],
   "pins": [
-    "pins/buildings_pre1949.geojson"
+    "pins/clean_pins.json"
   ],
   "mapSources": "map-sources.json"
 }

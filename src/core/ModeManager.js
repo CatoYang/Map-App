@@ -14,10 +14,16 @@ export class ModeManager {
     this.listeners = [];
 
     this.modes = {
+      none: {
+        id: 'none',
+        label: 'None',
+        icon: '🗺️',
+        description: 'View the base map without any region overlays',
+      },
       explore: {
         id: 'explore',
         label: 'Explore',
-        icon: '🗺️',
+        icon: '🔍',
         description: 'Browse regions and points of interest',
       },
       faction: {

@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@turf/turf": "^6.5.0",
     "leaflet": "^1.9.4",
     "leaflet-rotate": "^0.2.8",
     "leaflet.markercluster": "^1.5.3"

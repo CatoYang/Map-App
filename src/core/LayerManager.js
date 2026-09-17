@@ -40,7 +40,29 @@ export class LayerManager {
       return null;
     }
   }
+  /**
+   * Load raw GeoJSON object and create a Leaflet layer group.
+   */
+  loadGeoJSONData(id, data, styleOptions = DEFAULT_REGION_STYLE) {
+    if (this.layers.has(id)) return this.layers.get(id);
 
+    try {
+      const layer = L.geoJSON(data, {
+        style: () => styleOptions,
+        onEachFeature: (feature, layer) => {
+          if (this.hoverManager) {
+            this.hoverManager.attach(feature, layer);
+          }
+        }
+      });
+      
+      this.layers.set(id, layer);
+      return layer;
+    } catch (err) {
+      console.error(`[LayerManager] Failed to create GeoJSON layer ${id}:`, err);
+      return null;
+    }
+  }
   /**
    * Show a registered layer by ID.
    */
