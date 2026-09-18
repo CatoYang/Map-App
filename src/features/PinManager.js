@@ -148,7 +148,7 @@ export class PinManager {
   }
 
   _getPinColor(feature, marker) {
-    let baseColor = CATEGORY_COLORS[feature.properties.TYP01] || DEFAULT_PIN_COLOR;
+    let baseColor = (feature.properties && feature.properties.TYP01) ? CATEGORY_COLORS[feature.properties.TYP01] || DEFAULT_PIN_COLOR : DEFAULT_PIN_COLOR;
     
     // Check overlays for active modes
     const pt = feature.geometry.coordinates;
