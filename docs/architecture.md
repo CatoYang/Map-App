@@ -149,7 +149,9 @@ The rules this produces:
 
 RLS is switched on for every table. Rules are written as SQL policies and kept in `supabase/migrations/` so they are version-controlled.
 
-Helper functions keep the policies short. They are `security definer` so they can read `memberships` without tripping its own rules:
+The real rules live in `supabase/migrations/` and are tested with `npm run test:db`, which applies every migration to a throwaway Postgres in Docker and checks what a GM, player, outsider and signed-out visitor can and can't do (`supabase/tests/access_rules.sql`). Add a test there whenever a rule changes.
+
+Helper functions keep the policies short. They are `security definer` so they can read `memberships` without tripping its own rules, and they live in a `private` schema that the Supabase API doesn't expose (the examples below omit the `private.` prefix):
 
 ```sql
 create function is_member(c uuid) returns boolean

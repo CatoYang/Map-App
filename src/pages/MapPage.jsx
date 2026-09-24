@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Link } from 'react-router';
+import { Link, useParams } from 'react-router';
 import { mountMap } from '../map/createMap.js';
 
 /**
@@ -9,6 +9,7 @@ import { mountMap } from '../map/createMap.js';
  * The empty containers below are filled in by the map modules, not React.
  */
 export function MapPage() {
+  const { campaignId } = useParams();
   const mapRef = useRef(null);
 
   useEffect(() => mountMap(mapRef.current), []);
@@ -52,7 +53,7 @@ export function MapPage() {
       {/* Top toolbar */}
       <nav id="toolbar" className="toolbar">
         <div className="toolbar__group">
-          <Link to="/campaigns" className="toolbar__btn" title="Back to campaigns">← Campaigns</Link>
+          <Link to={`/c/${campaignId}`} className="toolbar__btn" title="Back to campaign">← Campaign</Link>
         </div>
 
         <div className="toolbar__divider"></div>
