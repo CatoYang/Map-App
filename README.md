@@ -4,7 +4,7 @@ An interactive web application for exploring the history of Shanghai through his
 
 ## Overview
 
-The Map-App is built with **Vite** and **Leaflet**, designed to run completely on the client side without needing a backend database. It parses lightweight JSON/GeoJSON files directly in the browser.
+The Map-App is a campaign companion for tabletop RPGs: a **React** app (Vite, React Router, Mantine) with **Supabase** for Google sign-in and private campaign data, wrapping a **Leaflet** historical map viewer that reads JSON/GeoJSON from `public/data/`. See [docs/architecture.md](docs/architecture.md) for the full design and roadmap.
 
 The architecture is highly modular:
 - **Map & Layers**: `MapManager` and `LayerManager` handle base maps (OpenStreetMap vs Historical Rasters).
@@ -27,27 +27,35 @@ Map-App/
 ├── scripts/                # Node and Python scripts for offline data preprocessing
 │   └── preprocess_pins.py  # Python script to clean and optimize raw GeoJSON into JSON
 ├── src/                    # Source code
-│   ├── main.js             # Application entry point, initialization, and wiring
-│   ├── style.css           # Global stylesheet and UI theme (Dark Theme)
-│   ├── core/               # Core application logic and state management
-│   ├── features/           # High-level map features and interactions (PinManager, FactionOverlay)
-│   ├── ui/                 # UI components and controls (Sidebar, Legend, LayerControl)
-│   └── utils/              # Helper utilities (Geometry ray-casting, constants)
+│   ├── main.jsx            # React entry point
+│   ├── app/                # Routes, auth (session context + route guard)
+│   ├── pages/              # Landing, Login, Campaigns, MapPage, Privacy
+│   ├── components/         # Shared UI (PageShell)
+│   ├── lib/supabase.js     # Supabase client
+│   └── map/                # The Leaflet map viewer
+│       ├── createMap.js    # Builds/tears down the map inside MapPage
+│       ├── map.css         # Map UI theme (scoped to .map-app)
+│       ├── core/           # Core map logic and state management
+│       ├── features/       # Map features (PinManager, FactionOverlay)
+│       ├── ui/             # Map controls (Sidebar, Legend, LayerControl)
+│       └── utils/          # Helpers (geometry, constants)
 ├── TODO.md                 # Project task tracker and roadmap
 └── index.html              # Main HTML skeleton
 ```
 
 ## Running Locally
 
-1. Install Node.js dependencies: 
+1. Install Node.js (v22+) dependencies: 
    ```bash
    npm install
    ```
-2. Start the development server (with Hot Module Replacement): 
+2. Copy `.env.example` to `.env.local` and fill in the Supabase project URL and publishable key
+   (Supabase dashboard → **Connect** → **App Frameworks**).
+3. Start the development server (with Hot Module Replacement) at http://localhost:5173: 
    ```bash
    npm run dev
    ```
-3. Build for production (outputs to `dist/`): 
+4. Build for production (outputs to `dist/`): 
    ```bash
    npm run build
    ```

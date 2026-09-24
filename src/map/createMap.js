@@ -1,9 +1,12 @@
 /**
- * Map-App — Main Entry Point
+ * createMap — builds the Leaflet map app inside a container element.
+ *
+ * Expects the map page markup (sidebar, toolbar, epoch bar — see
+ * src/pages/MapPage.jsx) to already be in the DOM.
  */
 
 import 'leaflet/dist/leaflet.css';
-import './style.css';
+import './map.css';
 
 import L from 'leaflet';
 import markerIcon   from 'leaflet/dist/images/marker-icon.png';
@@ -32,8 +35,13 @@ import { Toolbar }        from './ui/Toolbar.js';
 import { LayerControl }   from './ui/LayerControl.js';
 import { HistoricalScale } from './ui/HistoricalScale.js';
 import { injectSVGPatterns, updatePatternScale } from './utils/StyleEngine.js';
+import { eventBus }       from './core/EventBus.js';
 
-async function init() {
+/**
+ * @param {HTMLElement} container — element the Leaflet map renders into
+ * @returns {Promise<{ destroy: () => void }>}
+ */
+export async function createMap(container) {
   console.log('[Map-App] Initializing...');
   injectSVGPatterns();
 
@@ -50,7 +58,7 @@ async function init() {
   }
 
   // 2. Map
-  const mapManager = new MapManager('map', config.project);
+  const mapManager = new MapManager(container, config.project);
   const map = mapManager.getMap();
   new HistoricalScale().addTo(map);
 
@@ -172,6 +180,42 @@ async function init() {
   });
 
   console.log('[Map-App] Ready.');
+
+  return {
+    destroy() {
+      map.remove();
+      // The event bus is a module-level singleton; drop this instance's listeners
+      eventBus.clear();
+    },
+  };
 }
 
-init().catch((err) => console.error('[Map-App] Fatal error:', err));
+// Map setup is async, so a quick unmount/remount (React StrictMode, fast
+// navigation) could start a second map before the first finishes. Queue
+// mounts so each one waits for the previous to be set up or torn down.
+let queue = Promise.resolve();
+
+/**
+ * Mount the map into a container. Returns an unmount function.
+ * @param {HTMLElement} container
+ * @returns {() => void}
+ */
+export function mountMap(container) {
+  let handle = null;
+  let cancelled = false;
+
+  queue = queue.then(async () => {
+    if (cancelled) return;
+    try {
+      handle = await createMap(container);
+      if (cancelled) handle.destroy();
+    } catch (err) {
+      console.error('[Map-App] Fatal error:', err);
+    }
+  });
+
+  return () => {
+    cancelled = true;
+    if (handle) handle.destroy();
+  };
+}

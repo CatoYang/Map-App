@@ -19,6 +19,10 @@ export class EventBus {
     }
   }
 
+  clear() {
+    this.listeners.clear();
+  }
+
   emit(event, payload) {
     if (!this.listeners.has(event)) return;
     this.listeners.get(event).forEach(cb => cb(payload));

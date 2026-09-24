@@ -17,7 +17,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
 
       - name: Install dependencies
@@ -27,6 +27,9 @@ jobs:
         run: npm run build
         env:
           CF_PAGES: '1'
+          # Public Supabase settings — set under GitHub repo Settings → Secrets and variables → Actions → Variables
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
       # Cloudflare Pages deployment
       # Note: You also need to connect the repo in the Cloudflare dashboard.

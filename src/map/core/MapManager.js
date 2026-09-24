@@ -12,7 +12,7 @@ import 'leaflet-rotate';
 
 export class MapManager {
   /**
-   * @param {string} containerId — DOM element ID for the map
+   * @param {string|HTMLElement} containerId — DOM element (or its ID) for the map
    * @param {object} projectConfig — Project-level config (center, zoom, etc.)
    */
   constructor(containerId, projectConfig = {}) {

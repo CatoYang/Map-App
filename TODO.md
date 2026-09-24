@@ -59,8 +59,8 @@
 - [x] Implement Legend.js — dynamic legend per mode
 - [x] Create initial faction definitions (factions.json)
 - [x] Implement Spatial Join (Turf.js) to auto-assign Locales to POIs based on region polygons
-- [ ] Implement DynamicShapeEngine (Turf.js) to dynamically generate overlay boundaries from pins
-- [ ] Test Buffer, Voronoi, and Concave Hull generation methods to evaluate visual styles
+- [ ] **PERFORMANCE BLOCKER**: The dynamically calculating/moving overlays (Turf.js) are too computationally intensive and lag the page. Revert these to static, pre-calculated overlays for now.
+- [ ] *Future optimization*: Re-develop the dynamic overlay shape engine (Buffer, Voronoi, Concave Hull) using web workers or server-side preprocessing to avoid browser lag.
 - [ ] Create specialized overlay configs (political, military, etc.)
 - [ ] Create Overlays for locales, so its adaptable for inference for the other overlays
 - [ ] Create Overlays for none specified regions, like zhabei or paoshan
@@ -92,6 +92,82 @@
 - [ ] 
 - [ ] 
 
+## Platform — Campaign Companion (see docs/architecture.md)
+
+### P1 — Foundations
+- [x] Create Supabase project; enable Google provider (Google Cloud OAuth client, redirect URLs incl. localhost)
+- [x] Convert app to React + React Router; add Mantine
+- [x] Add Supabase client (`src/lib/supabase.js`) with `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY`
+- [x] Login page, session context, auth guard, sign out
+- [x] Move Leaflet code into `src/map/`; refactor `init()` → `createMap(container)` + `destroy()`
+- [x] `MapPage` mounts the existing map (current data, unchanged) at `/c/:id/map/:mapId`
+- [/] Add Supabase env vars to the build (workflow updated; add `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY` as GitHub Actions *variables*). No `_redirects` needed — Pages serves index.html for unknown paths
+- [x] Add `/privacy` page (what's stored: name, email, campaign content; not shared)
+- [ ] After first deploy: fill Google Branding (home page, privacy link, authorized domain `<site>.pages.dev`), add prod URL to Google JS origins + Supabase Site/Redirect URLs, then **Publish app** (Google OAuth is in Testing mode until then — test users only)
+- [ ] Keep-alive: `ping()` DB function + scheduled GitHub Action every 3 days to stop free-tier pausing (public repos: GitHub disables schedules after 60 days without commits — use a Cloudflare Worker cron if that becomes a problem)
+
+### P2 — Campaigns & Membership
+- [ ] Set up Supabase CLI + `supabase/migrations/`
+- [ ] Tables: `profiles`, `campaigns`, `memberships`, `invites`
+- [ ] Helper functions `is_member`, `is_gm`; RLS policies on all tables
+- [ ] `create_campaign()` and `redeem_invite()` database functions
+- [ ] Pages: `/campaigns`, `/join/:code`, `/c/:id` campaign home
+
+### P3 — Documents
+- [ ] Tables: `documents`, `grants`; `has_grant` helper; RLS for view/edit/create
+- [ ] Document list (by folder) and reader with sanitised markdown (DOMPurify)
+- [ ] Markdown editor with live preview (Milkdown or TipTap)
+- [ ] Import `.md` files; export document / whole campaign as `.md`
+- [ ] Visibility toggle (private / campaign) and per-player share dialog (view / edit)
+- [ ] Warn on save if the document changed since it was opened
+- [ ] Image uploads to Supabase Storage with matching access rules
+
+### P4 — Map Data Split
+- [ ] Create `public/worlds/shanghai-1842-1949/world.json` — move EPOCHS, CATEGORY_COLORS, patterns, base layers, regions out of code
+- [ ] Upload tiles to Cloudflare R2; point tile URL at the bucket; remove `public/tiles/` from repo
+- [ ] Tables: `maps`, `overlays` with RLS
+- [ ] `DataLoader`: world source (static) + campaign source (Supabase)
+- [ ] Build view modes from world pack + campaign overlays (remove hardcoded modes in `ModeManager` / `main.js`)
+- [ ] Move characters, bloodlines, sects out of `public/data/` into Supabase
+- [ ] Fix the review bugs (pin hover, year slider sync, overlay pin colouring) as part of this refactor
+
+### P5 — GM Tools
+- [ ] Admin page: members, roles, invite links (create / revoke / expiry)
+- [ ] Grant management and one-click "reveal to campaign"
+- [ ] Draw and edit overlays on the map (e.g. leaflet-geoman)
+
+### P6 — Generalisation (deferred)
+- [ ] Open campaign creation to other GMs
+- [ ] Select / upload world packs
+- [ ] Ruleset-specific modes driven by `campaigns.ruleset`
+
+## Code Review Findings (2026-09-24)
+
+### Bugs
+- [ ] **Pin hover throws**: `PinManager.js` mouseover/mouseout pass the raw pin item to `_getPinColor`, which reads `feature.geometry.coordinates` (undefined) → TypeError on every hover, highlight never applies
+- [ ] **Likely real cause of the PERFORMANCE BLOCKER**: `_getColorFromOverlay` calls `layer.toGeoJSON()` for every faction layer × every pin (~1,800) on each re-render, including every slider tick. Turf only builds one shape (Green Gang, 15 pins) once at load. Cache each layer's GeoJSON or pre-compute pin → region membership (pins already carry `locale`)
+- [ ] **Regions ignore the year slider**: `RegionManager` renders for `epoch.year`, while factions/legend use `getYear()` — legend and drawn boundaries can disagree (e.g. Treaty Port era, slider at 1850). Pin colouring has the same issue (`currentEpoch.year`)
+- [ ] **Generic overlays never recolour pins**: `_getColorFromOverlay` looks for `overlay.overlayLayers`, but `GenericOverlay` stores `this.layers`, and its entries have no `period`
+- [ ] **Slider tick reloads base map**: `setYear` emits `epoch:changed`, so `main.js` calls `setBaseLayer` on every input — tile layer removed/re-added, rotation reset, manual base layer choice overridden. Emit a separate event for year-only changes
+- [ ] Remove per-feature `console.log` in `LayerManager.loadGeoJSON` style callback
+
+### Incomplete features
+- [ ] Only the 1932 base map is live — OSM and the four Academia Sinica layers are `disabled`, so 6 of 7 epochs have a blank background
+- [ ] Bloodlines & Masquarade overlays have `files: []`; `military_shanghai_1937.geojson` is empty — modes only change the legend
+- [ ] Racial / Political / Organisational modes are selectable in `ModeManager` but have no implementation — hide them until built
+
+### Deployment & repo hygiene
+- [ ] **Move `public/data/acquired/` out of `public/`** — it's gitignored but Vite copies it into `dist/` (local build = 2.3 GB, files up to 419 MB). A manual `wrangler pages deploy` would fail Cloudflare's 25 MiB per-file limit
+- [ ] Stop shipping unused files: `public/assets/maps/` (61 MB, duplicated in top-level `assets/`), `pins/buildings_pre1949.geojson` (1 MB raw), unused regions (`fc_ohm_full`, `fc_sliver`, `is_1863_1943`, `master_locales`, `ohm_boundaries`), and the duplicate `extra_nanshi-stateowned-heavy-industries-.geojson` (trailing dash)
+- [ ] Root-absolute paths ignore `BASE_URL` (flag pattern in `StyleEngine.js`, favicon, `/tiles/...` in `map-sources.json`) — breaks the GitHub Pages subpath that `vite.config.js` supports
+- [ ] Bundle is 606 kB, largely from importing all of `@turf/turf` for one `buffer`/`union` — import only the needed modules (`@turf/buffer`, `@turf/union`)
+- [ ] README says `calc_map_bearing.py` / `requirements.txt` are in `src/utils/` — they're in `scripts/`
+- [ ] Two pin preprocessors (`preprocess_pins.py` and `preprocess_pins.js`) — keep one
+- [ ] Remove dead code: `PinManager._getName`, never-set `suppressed` flag
+- [ ] Rename "Masquarade" → "Masquerade" (mode id, overlay file, UI label)
+- [ ] Escape data values before inserting into `innerHTML` (DetailPanel, Legend, labels) — low risk while data is self-authored
+- [ ] Add a linter and basic tests
+
 ---
 
 ## Data Sources Reference
@@ -104,3 +180,9 @@
 | AliCloud DataV | geo.datav.aliyun.com | Modern Shanghai admin boundaries | GeoJSON |
 | Harvard CHGIS | dataverse.harvard.edu/dataverse/chgis_v6 | Late Qing admin boundaries | Shapefile |
 | PastVu | pastvu.com | Geolocated historical photos | JSON API |
+
+## Infrastructure & Hosting Considerations
+- **Tile File Bloat**: 6,000+ `.png` map tiles take a long time to push to GitHub because of the high file count. Cloudflare Pages also has a hard limit of 20,000 files per project. 
+- **Recommended Future Solution (Dedicated Object Storage)**: If the map grows beyond Cloudflare's 20,000 file limit, offload the `public/tiles/` folder to an Amazon S3 or Cloudflare R2 bucket. Change the Leaflet tile URL to point directly to the bucket (`https://your-bucket-url.com/tiles/{z}/{x}/{y}.png`). **This is the only recommended path** because it maintains the lightning-fast, zero-latency performance of serving pre-rendered static PNGs.
+- **Alternative (Not Considered - Slower)**: Cloud Optimized GeoTIFF (COG). Hosting a single large `_cog.tif` file forces the user's browser to calculate and render pixels on the fly, increasing latency.
+- **Alternative (Not Considered - Slower)**: MBTiles. Packing all tiles into a `.mbtiles` SQLite database requires server-side database queries every time the map moves, ruining the performance benefits of a static CDN.
