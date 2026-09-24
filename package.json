@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test:db": "bash scripts/test-db.sh",
     "content:check": "node scripts/content/check.js",
-    "content:standardise": "node scripts/content/standardise.js"
+    "content:standardise": "node scripts/content/standardise.js",
+    "sync": "node scripts/content/sync.js"
   },
   "dependencies": {
     "@mantine/core": "^9.6.2",
@@ -30,6 +31,7 @@
     "@vitejs/plugin-react": "^6.1.1",
     "mapshaper": "^0.7.61",
     "osmtogeojson": "^3.0.0-beta.5",
+    "sharp": "^0.35.4",
     "supabase": "^2.117.0",
     "vite": "^8.3.0",
     "yaml": "^2.9.1"

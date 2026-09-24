@@ -1,9 +1,10 @@
 import { List, Stack, Text, Title } from '@mantine/core';
 import { PageShell } from '../components/PageShell.jsx';
+import { pageBackground } from '../lib/brand.js';
 
 export function Privacy() {
   return (
-    <PageShell size="sm">
+    <PageShell size="sm" backdrop={pageBackground('landing')}>
       <Stack>
         <Title order={2}>Privacy</Title>
         <Text>

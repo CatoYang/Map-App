@@ -9,6 +9,7 @@ import { DocumentList } from '../components/DocumentList.jsx';
 import { useAuth } from '../app/auth.jsx';
 import { useAsync } from '../lib/useAsync.js';
 import { getCampaign, listMembers } from '../lib/api/campaigns.js';
+import { useCampaignTheme } from '../lib/useCampaignTheme.js';
 import { ROLE_LABELS, WORLD_PACKS } from '../lib/labels.js';
 
 export function CampaignHome() {
@@ -18,6 +19,7 @@ export function CampaignHome() {
     const [campaign, members] = await Promise.all([getCampaign(campaignId), listMembers(campaignId)]);
     return { campaign, members };
   }, [campaignId]);
+  const theme = useCampaignTheme(data?.campaign);
 
   if (loading) return <PageShell><Loading /></PageShell>;
   if (error) return <PageShell><ErrorAlert error={error} /></PageShell>;
@@ -42,7 +44,7 @@ export function CampaignHome() {
   const world = WORLD_PACKS[campaign.world_pack];
 
   return (
-    <PageShell>
+    <PageShell backdrop={theme.background} soften accent={theme.accent}>
       <Stack gap="xl">
         <Stack gap="xs">
           <Anchor component={Link} to="/campaigns" size="sm" c="dimmed">← Your campaigns</Anchor>

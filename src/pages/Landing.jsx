@@ -2,15 +2,16 @@ import { Link } from 'react-router';
 import { Anchor, Button, Stack, Text, Title } from '@mantine/core';
 import { PageShell } from '../components/PageShell.jsx';
 import { useAuth } from '../app/auth.jsx';
+import { pageBackground } from '../lib/brand.js';
 
 export function Landing() {
   const { user } = useAuth();
 
   return (
-    <PageShell>
-      <Stack gap="lg" align="flex-start">
-        <Title order={1}>Map-App</Title>
-        <Text size="lg" c="dimmed">
+    <PageShell backdrop={pageBackground('landing')} dim={0.5}>
+      <Stack gap="lg" align="flex-start" mt={{ base: 40, sm: 120 }} maw={560}>
+        <Title order={1} fz={{ base: 40, sm: 56 }} lh={1.1}>Map-App</Title>
+        <Text size="lg" c="gray.4">
           A campaign companion for tabletop role-playing games: historical maps,
           lore and handouts, shared with your group.
         </Text>

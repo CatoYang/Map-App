@@ -39,14 +39,19 @@ function isSkipped(relPath) {
   return parts.length === 1 || parts.some(p => p.startsWith('_') || p.startsWith('.'));
 }
 
-function walk(dir, root, out = []) {
+export const IMAGE_FILE = /\.(jpe?g|png|webp|gif)$/i;
+
+/** Vault-relative paths of notes (`out.notes`) and images (`out.images`). */
+function walk(dir, root, out = { notes: [], images: [] }) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
     const rel = path.relative(root, full).split(path.sep).join('/');
     if (entry.isDirectory()) {
       if (!entry.name.startsWith('.') && !entry.name.startsWith('_')) walk(full, root, out);
     } else if (entry.name.toLowerCase().endsWith('.md') && !isSkipped(rel)) {
-      out.push(rel);
+      out.notes.push(rel);
+    } else if (IMAGE_FILE.test(entry.name)) {
+      out.images.push(rel);
     }
   }
   return out;
@@ -92,7 +97,8 @@ export function parseNote(text) {
  * more than one means the name is ambiguous.
  */
 export function loadVault(dir) {
-  const notes = walk(dir, dir).sort().map((rel) => {
+  const files = walk(dir, dir);
+  const notes = files.notes.sort().map((rel) => {
     const file = rel.split('/').pop().replace(/\.md$/i, '');
     const folders = rel.split('/').slice(0, -1);
     return {
@@ -112,7 +118,25 @@ export function loadVault(dir) {
     if (!byName.has(key)) byName.set(key, []);
     byName.get(key).push(note);
   }
-  return { dir, notes, byName };
+  // Images, found like Obsidian finds them: by file name anywhere in the vault
+  const images = new Map();
+  for (const rel of files.images.sort()) {
+    const key = rel.split('/').pop().toLowerCase();
+    if (!images.has(key)) images.set(key, []);
+    images.get(key).push(rel);
+  }
+  return { dir, notes, byName, images };
+}
+
+/**
+ * An image field (`"[[photo.jpg]]"`, or a path from the vault root) → the
+ * image's vault path, or null if there's no such image.
+ */
+export function resolveImage(vault, value) {
+  const text = String(value ?? '').trim().replace(/^!?\[\[(.*)\]\]$/, '$1').split('|')[0].trim();
+  if (!text) return null;
+  if (fs.existsSync(path.join(vault.dir, text)) && IMAGE_FILE.test(text)) return text;
+  return vault.images.get(text.split('/').pop().toLowerCase())?.[0] ?? null;
 }
 
 // --- Links -------------------------------------------------------------------
@@ -124,11 +148,12 @@ export function linkTarget(inner) {
   return inner.split('|')[0].split('#')[0].split('/').pop().trim();
 }
 
-/** Targets of the [[links]] in a piece of markdown (embeds excluded). */
+/** Targets of the [[links]] in a piece of markdown (embeds and code excluded). */
 export function bodyLinks(markdown) {
+  const text = markdown.replace(/^(```|~~~)[^\n]*\n[\s\S]*?^\1[^\n]*$/gm, '').replace(/`[^`\n]*`/g, '');
   const out = [];
-  for (const m of markdown.matchAll(WIKILINK)) {
-    if (markdown[m.index - 1] === '!') continue;
+  for (const m of text.matchAll(WIKILINK)) {
+    if (text[m.index - 1] === '!') continue;
     const target = linkTarget(m[1]);
     if (target) out.push(target);
   }

@@ -10,14 +10,17 @@ import { useAuth } from '../app/auth.jsx';
 import { useAsync } from '../lib/useAsync.js';
 import { createCampaign, listMyCampaigns } from '../lib/api/campaigns.js';
 import { ROLE_LABELS } from '../lib/labels.js';
+import { pageBackground } from '../lib/brand.js';
+import { useCampaignThemes } from '../lib/useCampaignTheme.js';
 
 export function Campaigns() {
   const { user } = useAuth();
   const { data: campaigns, error, loading } = useAsync(() => listMyCampaigns(user.id), [user.id]);
   const [creating, { open, close }] = useDisclosure(false);
+  const themes = useCampaignThemes(campaigns);
 
   return (
-    <PageShell>
+    <PageShell backdrop={pageBackground('campaigns')} dim={0.6}>
       <Stack gap="lg">
         <Group justify="space-between">
           <Title order={2}>Your campaigns</Title>
@@ -37,6 +40,7 @@ export function Campaigns() {
           <SimpleGrid cols={{ base: 1, sm: 2 }}>
             {campaigns.map(c => (
               <Card key={c.id} component={Link} to={`/c/${c.id}`} withBorder padding="lg" radius="md">
+                <CampaignCover theme={themes.get(c.id)} />
                 <Group justify="space-between" align="flex-start" wrap="nowrap">
                   <Text fw={600}>{c.name}</Text>
                   <Badge variant="light" color={c.role === 'gm' ? 'grape' : 'blue'}>
@@ -54,6 +58,20 @@ export function Campaigns() {
 
       <NewCampaignModal opened={creating} onClose={close} />
     </PageShell>
+  );
+}
+
+/** The campaign's cover image, or a gradient in its accent colour until it has one. */
+function CampaignCover({ theme }) {
+  const image = theme?.cover
+    ? `url("${theme.cover}")`
+    : `linear-gradient(135deg, ${theme?.accent ?? '#373a40'}, #141517)`;
+  return (
+    <Card.Section
+      h={140}
+      mb="md"
+      style={{ backgroundImage: image, backgroundSize: 'cover', backgroundPosition: 'center' }}
+    />
   );
 }
 

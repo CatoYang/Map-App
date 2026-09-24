@@ -5,7 +5,7 @@
  */
 
 export const TYPES = [
-  'location', 'character', 'kindred', 'faction', 'event',
+  'campaign', 'location', 'character', 'kindred', 'faction', 'event',
   'placard', 'power', 'reference', 'story', 'index',
 ];
 
@@ -28,9 +28,17 @@ const COMMON = {
   aliases: { kind: 'list' },
   tags: { kind: 'tags' },
   visibility: { kind: 'visibility' },
+  campaigns: { kind: 'links', to: ['campaign'] },   // none = shared by every campaign
 };
 
 export const FIELDS = {
+  campaign: {
+    app_id: { kind: 'uuid' },          // the campaign in Map-App this note publishes to
+    active_years: { kind: 'years' },
+    background: { kind: 'image' },
+    cover: { kind: 'image' },
+    accent: { kind: 'color' },
+  },
   location: {
     category: { kind: 'text-or-list' },
     pin: { kind: 'pin' },
@@ -94,6 +102,7 @@ export function fieldsFor(type) {
 
 /** Fields worth having; missing ones are reported as info, not errors. */
 export const RECOMMENDED = {
+  campaign: [['app_id']],
   location: [['pin', 'coords']],   // one of
   kindred: [['clan']],
   event: [['date']],

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { Button, Group, Paper, Stack, Text, Title } from '@mantine/core';
 import { PageShell } from '../components/PageShell.jsx';
+import { pageBackground } from '../lib/brand.js';
 import { ErrorAlert, Loading } from '../components/Status.jsx';
 import { useAsync } from '../lib/useAsync.js';
 import { previewInvite, redeemInvite } from '../lib/api/campaigns.js';
@@ -61,7 +62,7 @@ export function Join() {
   }
 
   return (
-    <PageShell size="xs">
+    <PageShell size="xs" backdrop={pageBackground('campaigns')} dim={0.6}>
       <Paper withBorder p="xl" radius="md">
         <Stack gap="sm">{body}</Stack>
       </Paper>

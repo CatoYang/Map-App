@@ -2,6 +2,8 @@
 
 How notes in the content vault (the Obsidian vault) are written, so that `npm run sync` can publish them to the app. `npm run content:check` checks every note against this guide.
 
+**The vault is a world; campaigns live inside it.** One vault holds a setting, such as Shanghai 1842–1949. Each campaign (chronicle) set in that world is a `type: campaign` note, linked to a campaign in the app. Notes are shared by every campaign unless they say which campaigns they belong to. See [Campaigns](#campaigns).
+
 Three principles:
 
 - **The app reads only a few fields.** Everything else in the YAML and the whole note body is yours: write whatever helps. Unknown fields are kept, not rejected.
@@ -95,6 +97,7 @@ The other types need only `type:`. See [Types](#types).
 | `visibility` | `gm` / `players` / `[alice, bob]` | Who sees it in the app. Missing means `gm`. |
 | `aliases` | `[Justice Bao, Bao Qingtian]` | Other names, for search and matching. |
 | `tags` | `[trivia, nightlife]` | Filtering. |
+| `campaigns` | `["[[Old_Hatreds]]"]` | Which campaigns the note belongs to. Missing means every campaign in this world. |
 
 ## Visibility and secrets
 
@@ -157,10 +160,33 @@ Other notes join the map through their links. A character, Kindred, event or pla
 
 **Not every pin needs a note.** The survey has about 1,800 buildings and most are background. Write a note when a place matters to the story.
 
+## Campaigns
+
+A campaign note describes one chronicle and ties it to a campaign in the app:
+
+```yaml
+---
+type: campaign
+app_id: c363942b-dbe5-4191-a27a-9cd3e9615178   # from the campaign's address in the app: …/c/<id>
+active_years: 1853-1865
+background: "[[Market stalls Shanghai 1890s.jpg]]"   # backdrop inside the campaign
+cover: "[[Market stalls Shanghai 1890s.jpg]]"        # its card on the campaign list
+accent: "#b01c2e"                                     # lines and highlights
+---
+```
+
+- **Creating a campaign.** Create it in the app first, since that's where players get invited. Then copy its id into `app_id`. Each campaign note needs its own `app_id`.
+- **Images** can be anywhere in the vault. Write them as links, like `"[[photo.jpg]]"`, just as Obsidian finds them by file name. The sync shrinks each image for the web (up to 2,400 px wide for a background, 1,200 px for a cover), so large originals are fine.
+- **What a campaign contains:**
+  - Notes **without** `campaigns` are world lore, such as locations, factions and the timeline. Every campaign in this world gets them.
+  - Notes **with** `campaigns: ["[[Old_Hatreds]]"]` go only to those campaigns: that chronicle's cast, plots and handouts.
+  - Either way, a note is GM-only until its `visibility` says otherwise.
+
 ## Types
 
 | `type` | For | Fields the app reads (besides the common ones) |
 |---|---|---|
+| `campaign` | A chronicle set in this world | `app_id`, `active_years`, `background`, `cover`, `accent`. See [Campaigns](#campaigns) |
 | `location` | Places | `pin` (one or a list) or `coords`, `category`, `address`, `active_years`, `mortal_status`, `kindred_status`, `faction` |
 | `character` | Mortals, including ghouls | `category`, `lifespan`, `active_years`, `mortal_status`, `status`, `affiliation`, `faction`, `location`, `domitor` (a ghoul's regnant) |
 | `kindred` | Vampires | `clan`, `generation`, `sire`, `childer`, `active_years`, `kindred_status`, `faction`, `location`, `haven` |
@@ -172,7 +198,7 @@ Other notes join the map through their links. A character, Kindred, event or pla
 | `story` | Chronicle plans, scenarios | – |
 | `index` | Pages that list other notes | – |
 
-Link fields (`faction`, `location`, `sire`, `childer`, `domitor`) take one link or a list of them. They should point at a note of the matching type: `faction` points at `faction` notes, `location` at `location` notes, and `sire`, `childer` and `domitor` at `kindred` notes. A link to a note you haven't written yet is fine.
+Link fields (`faction`, `location`, `sire`, `childer`, `domitor`, `campaigns`) take one link or a list of them. They should point at a note of the matching type: `faction` points at `faction` notes, `location` at `location` notes, `sire`, `childer` and `domitor` at `kindred` notes, and `campaigns` at `campaign` notes. A link to a note you haven't written yet is fine.
 
 When there's no note to link to, use the matching free-text field instead:
 - `affiliation` for a group, e.g. `Foreign Mob`;
@@ -195,12 +221,14 @@ Run these in Map-App. They read the vault folder set by `CONTENT_DIR` in `.env.l
 |---|---|
 | `npm run content:check` | Checks every note and writes `_reports/Content check.md` into the vault. Changes nothing else. |
 | `npm run content:standardise` | Previews rewriting notes' YAML into this format, in `_reports/Standardise preview.md`. Useful after pasting in notes written the old way. |
+| `npm run sync -- --dry-run` | Shows what the sync would publish, without sending anything. |
+| `npm run sync` | Publishes to the app. For now this means each campaign's look; notes come next. Needs `SUPABASE_SECRET_KEY` in Map-App's `.env.sync.local`. |
 | `npm run content:standardise -- --apply` | Writes those changes, after backing up every note to Map-App's `local/vault-backups/`. Only the YAML block changes; note text is never touched. |
 
 The vault was converted to this format on 2026-09-25 with `content:standardise`. The script still understands the old field names (`Category`, `Mortal Status`, `Active Years`…), so notes pasted in the old style can be converted the same way.
 
 ## Not decided yet
 
-- **World vs campaign.** For now the whole vault publishes into one campaign. Splitting shared historical lore (a "world pack" any campaign can use) from one campaign's secrets comes with generalisation.
+- **World vs campaign in the database.** For now, world notes are copied into each campaign that uses them. A shared "world pack" table, so they're stored once, can come with generalisation.
 - **Map-only data.** Region borders, which faction controls which region when, overlay modes and colours still live in `public/data`. P4c decides how they're written.
-- **`_config/players.yaml`**, and how images are uploaded, get settled when `npm run sync` is built.
+- **`_config/players.yaml`** (player name → Google e-mail, for `visibility` lists) and uploading images inside notes get settled when the sync publishes notes.

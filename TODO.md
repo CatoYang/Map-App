@@ -150,6 +150,10 @@ Goal: Map-App repo holds code only; content lives in a private content repo and 
 - [x] Vault clean-up (2026-09-25): merged 20 groups of duplicate notes (same place under several categories, e.g. a hotel + its bar and ballroom; Ezra and Hardoon), renamed the two different Defy Bane powers, removed the 52 generated example Kindred (starting afresh), dated timeline events from their file names. Backups in `local/vault-backups/`
 - [ ] Format for map-only data: regions, faction control of regions, overlay modes/colours (with P4c)
 - [ ] `_config/players.yaml` (player handle → Google e-mail) and image uploads, settled with the sync
+- [x] World + campaigns model: the vault is a world; `type: campaign` notes (with `app_id`) tie chronicles to app campaigns; notes join one with `campaigns: ["[[…]]"]`, else they're shared world lore
+- [x] Campaign look: `background` / `cover` / `accent` on the campaign note → `npm run sync` (first part: shrinks images to WebP, uploads to the private `campaign-assets` bucket, sets `campaigns.theme`)
+- [x] App backgrounds: five swappable SVGs in `src/assets/brand/` (pick per page in `src/lib/brand.js`); campaign pages show the campaign's background and accent, cards its cover
+- [ ] Deferred: rotating placard of trivia (from `placard` notes) on the landing or campaign pages
 - [ ] Build `npm run sync`: files → Supabase (one-way; synced documents read-only in the app; secret sections GM-only)
 
 **P4c — Map reads from Supabase + R2**

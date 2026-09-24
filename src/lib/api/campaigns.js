@@ -14,7 +14,7 @@ function unwrap({ data, error }) {
 export async function listMyCampaigns(userId) {
   const rows = unwrap(await supabase
     .from('memberships')
-    .select('role, campaign:campaigns (id, name, description, world_pack)')
+    .select('role, campaign:campaigns (id, name, description, world_pack, theme)')
     .eq('user_id', userId)
     .order('joined_at', { ascending: false }));
   return rows.map(r => ({ ...r.campaign, role: r.role }));
@@ -24,7 +24,7 @@ export async function listMyCampaigns(userId) {
 export async function getCampaign(campaignId) {
   return unwrap(await supabase
     .from('campaigns')
-    .select('id, name, description, world_pack, owner_id')
+    .select('id, name, description, world_pack, owner_id, theme')
     .eq('id', campaignId)
     .maybeSingle());
 }
@@ -95,4 +95,27 @@ export async function previewInvite(code) {
 /** Join the campaign an invite belongs to. Returns the campaign id. */
 export async function redeemInvite(code) {
   return unwrap(await supabase.rpc('redeem_invite', { p_code: code }));
+}
+
+// --- Theme images ------------------------------------------------------------
+
+const ASSET_BUCKET = 'campaign-assets';
+const SIGNED_FOR = 3600;                 // seconds a link works
+const signedCache = new Map();           // path → { url, until }
+
+/**
+ * Temporary links (members only) for campaign theme images. Returns a Map of
+ * path → url. Links are reused until shortly before they expire, so moving
+ * between pages doesn't download the images again.
+ */
+export async function signCampaignAssets(paths) {
+  const now = Date.now();
+  const missing = [...new Set(paths)].filter(p => !(signedCache.get(p)?.until > now));
+  if (missing.length) {
+    const rows = unwrap(await supabase.storage.from(ASSET_BUCKET).createSignedUrls(missing, SIGNED_FOR));
+    for (const r of rows) {
+      if (r.signedUrl) signedCache.set(r.path, { url: r.signedUrl, until: now + (SIGNED_FOR - 600) * 1000 });
+    }
+  }
+  return new Map(paths.filter(p => signedCache.has(p)).map(p => [p, signedCache.get(p).url]));
 }

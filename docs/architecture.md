@@ -66,14 +66,15 @@ Map-App repo (public)            code + database structure (migrations), no cont
 <campaign>-content (private)     source files: .md, .yaml, .geojson (git history for lore)
 Supabase database                published content: world data, campaigns, documents,
                                  overlays, sharing
-Supabase Storage                 private files: document images, GM-only maps
+Supabase Storage                 private files: document images, campaign theme images, GM-only maps
 Cloudflare R2                    map tiles (public, high volume, free downloads)
 ```
 
 | Data | Home | Why |
 |---|---|---|
 | Campaign content: documents, overlays, characters, sharing | Supabase database | Needs per-player access rules |
-| Private files: document images, secret maps | Supabase Storage | Same access rules, applied to files |
+| Private files: document images, campaign theme images, secret maps | Supabase Storage | Same access rules, applied to files |
+| The app's own images (landing and campaign-list backgrounds) | Map-App repo (`src/assets/brand/`), served by Cloudflare | Not campaign content; setting-neutral |
 | Map tiles (thousands of PNGs per map) | Cloudflare R2 | Public historical data; loaded in volume, and R2 doesn't charge for downloads (Supabase's free tier allows ~5 GB/month) |
 | Historical base: eras, regions, buildings, historical factions | Supabase database, published by the same sync | Small; editable through the same YAML workflow; shared by every campaign using that world |
 
@@ -100,7 +101,8 @@ tiles (generated once per map) ────────────────�
 - YAML (frontmatter in `.md` files, or standalone `.yaml` next to `.geojson`) carries what plain files can't: visibility, who it's shared with, active years, map mode, colours. The sync translates it into rows; the app never reads YAML directly.
 - The sync is **one-way**. Documents published from files are marked as managed by the sync and read-only in the app, so a sync never overwrites in-app edits. Collaborative content (player journals, party documents) lives only in the app.
 - The note format is in [content-format.md](content-format.md); `npm run content:check` checks the vault against it. Map-only data (regions, overlays) is still to be defined (TODO P4b/P4c).
-- The sync runs on the GM's machine with a key that bypasses access rules, kept only in the content repo's gitignored env file — never in this repo.
+- The vault is a **world**; each campaign (chronicle) in it is a `type: campaign` note whose `app_id` names the app campaign it publishes to, and which carries that campaign's look (background, cover, accent → `campaigns.theme` + the `campaign-assets` bucket). Notes without `campaigns:` are world lore shared by every campaign; notes with it belong to those campaigns only. See [content-format.md](content-format.md).
+- The sync (`npm run sync`, in this repo, reading the vault at `CONTENT_DIR`) runs on the GM's machine with the secret key, kept only in the gitignored `.env.sync.local` — never committed, never in a `VITE_` variable (those end up in the browser).
 
 The existing data in `public/data/` isn't secret and may stay in this repo's git history; new secret material only ever goes in the private content repo.
 
@@ -114,6 +116,8 @@ profiles        id (= auth user id), display_name, avatar_url
 campaigns       id, name, description,
                 world_pack       -- e.g. 'shanghai-1842-1949'
                 ruleset          -- e.g. 'vtm'; drives ruleset-specific modes later
+                theme            -- { accent, cover, background }: set by the sync from the
+                                 -- campaign note; images in the 'campaign-assets' bucket
                 owner_id, created_at
 
 memberships     campaign_id, user_id, role ('gm' | 'player'), joined_at

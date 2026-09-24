@@ -8,7 +8,7 @@ import path from 'node:path';
 import YAML from 'yaml';
 import {
   contentDir, loadVault, readLinkField, resolve, findNote, bodyLinks, writeReport,
-  noteType, suggestedType,
+  noteType, suggestedType, resolveImage,
 } from './vault.js';
 import {
   TYPES, LEGACY_KEYS, RECOMMENDED, fieldsFor, isStandardKey, standardKey,
@@ -137,6 +137,16 @@ function checkValue(key, spec, value, add) {
           : `${show}: should be a number`);
       }
       break;
+    case 'uuid':
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(asText(value))) {
+        add('error', `Bad \`${key}\``, `${show}: copy the id from the campaign's address in the app (\`…/c/<id>\`)`);
+      }
+      break;
+    case 'image':
+      if (!resolveImage(vault, value)) {
+        add('error', 'Image not found', `${show}: no such image in the vault (write it as \`"[[photo.jpg]]"\`)`);
+      }
+      break;
     case 'color':
       if (!/^#[0-9a-f]{6}$/i.test(asText(value))) {
         add('error', 'Bad `color`', `${show}: write a colour as \`"#b01c2e"\``);
@@ -196,6 +206,13 @@ function checkValue(key, spec, value, add) {
 
 // --- One note ----------------------------------------------------------------
 
+// Campaign notes by app id, to catch two notes publishing to one campaign
+const byAppId = new Map();
+for (const note of vault.notes) {
+  const id = note.frontmatter?.app_id && asText(note.frontmatter.app_id).toLowerCase();
+  if (id) byAppId.set(id, [...(byAppId.get(id) || []), note]);
+}
+
 function checkNote(note) {
   const issues = [];
   const add = (level, label, text) => issues.push({ level, label, text });
@@ -204,6 +221,12 @@ function checkNote(note) {
   if (dupes.length > 1) {
     const others = dupes.filter(n => n !== note).map(n => `\`${n.path}\``).join(', ');
     add('error', 'Two notes with the same name', `Another note has the same name (${others}). Links to it are ambiguous: merge them, or rename one`);
+  }
+
+  const appId = note.frontmatter?.app_id && asText(note.frontmatter.app_id).toLowerCase();
+  if (appId && byAppId.get(appId).length > 1) {
+    const others = byAppId.get(appId).filter(n => n !== note).map(n => `[[${n.name}]]`).join(', ');
+    add('error', 'Two campaigns with the same `app_id`', `\`app_id\` is also used by ${others}; each campaign note publishes to its own campaign`);
   }
 
   if (note.yamlError) {
@@ -270,7 +293,7 @@ function checkNote(note) {
       renames.push({ from: key, to: standardKey(key), text: `\`${key}\` → \`${standardKey(key)}\`` });
       continue;
     }
-    if (fields[key]) checkValue(key, fields[key], value, add);
+    if (fields[key] && key !== 'type') checkValue(key, fields[key], value, add);   // type: checked above
   }
   if (renames.length) {
     issues.push({ level: 'fix', renames, text: `Rename: ${renames.map(r => r.text).join(' · ')}` });

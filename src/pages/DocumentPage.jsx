@@ -13,6 +13,7 @@ import { VisibilityBadge } from '../components/DocumentList.jsx';
 import { useAuth } from '../app/auth.jsx';
 import { useAsync } from '../lib/useAsync.js';
 import { getCampaign, listMembers } from '../lib/api/campaigns.js';
+import { useCampaignTheme } from '../lib/useCampaignTheme.js';
 import {
   SaveConflictError, deleteDocument, getDocument, getMyGrant, listDocuments, saveDocument, uploadImage,
 } from '../lib/api/documents.js';
@@ -59,6 +60,7 @@ function DocumentScreen({ campaign, doc: initialDoc, members, myGrant, userId })
   const [sharing, share] = useDisclosure(false);
   const [confirmingDelete, confirmDelete] = useDisclosure(false);
   const [deleteError, setDeleteError] = useState(null);
+  const theme = useCampaignTheme(campaign);
 
   function setEditing(on) {
     setSearchParams(on ? { edit: '1' } : {}, { replace: true });
@@ -75,7 +77,7 @@ function DocumentScreen({ campaign, doc: initialDoc, members, myGrant, userId })
   }
 
   return (
-    <PageShell size="xl">
+    <PageShell size="xl" backdrop={theme.background} dim={0.92} soften accent={theme.accent}>
       <Stack gap="lg">
         <Anchor component={Link} to={`/c/${campaign.id}`} size="sm" c="dimmed">← {campaign.name}</Anchor>
 
