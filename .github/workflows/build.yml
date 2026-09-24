@@ -2,8 +2,8 @@ name: Build check
 
 # Deployment is handled by Cloudflare Pages' Git integration (project
 # "campaign-orchestrator" → vtm-shanghai.pages.dev): it builds every push,
-# main → production, other branches → preview URLs. Build settings and
-# VITE_SUPABASE_* variables live in the Cloudflare dashboard.
+# main → production, other branches → preview URLs. Build settings live in
+# the Cloudflare dashboard; Supabase settings come from .env.production.
 #
 # This workflow only verifies that the app builds.
 
