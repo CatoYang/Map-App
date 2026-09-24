@@ -124,7 +124,8 @@
 - [x] Visibility toggle (private / campaign) and per-player share dialog (view / edit)
 - [x] Warn on save if the document changed since it was opened
 - [x] Image uploads to Supabase Storage with matching access rules (button or paste)
-- [ ] Apply migration (`npx supabase db push`) and test on a preview deploy
+- [x] Apply migration (`npx supabase db push`) and test on a preview deploy (GM side)
+- [ ] **Deferred:** test with a second Google account as a player — invite/join flow (P2), shared vs private documents, edit grants, conflict prompt, images visible to the right people
 - [ ] Later: include images in exports; clean up images of deleted documents; links between documents
 
 ### P4 — Map Data Split
