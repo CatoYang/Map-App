@@ -272,7 +272,7 @@ The Leaflet code is kept, not rewritten:
 
 | Piece | Where | Notes |
 |---|---|---|
-| App | Cloudflare Pages | Existing GitHub Actions workflow; add Supabase env vars as build variables |
+| App | Cloudflare Pages (project `campaign-orchestrator`, https://vtm-shanghai.pages.dev) | Cloudflare's Git integration builds every push: `main` → production, other branches → preview URLs (`<branch>.vtm-shanghai.pages.dev`). Supabase env vars are set in the Pages project settings. GitHub Actions only runs a build check |
 | Tiles | Cloudflare R2 | Tile URL in `world.json` points at the bucket |
 | Database, auth, storage | Supabase (free tier) | Free projects pause after about a week without activity and are resumed from the dashboard. Check the tier's backup limits and use the markdown export as a safety net |
 | Google sign-in | Google Cloud OAuth client | Redirect URI is the Supabase auth callback. Add the production and `localhost` URLs to Supabase's allowed redirect list |

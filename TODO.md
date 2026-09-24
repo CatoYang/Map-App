@@ -101,9 +101,9 @@
 - [x] Login page, session context, auth guard, sign out
 - [x] Move Leaflet code into `src/map/`; refactor `init()` → `createMap(container)` + `destroy()`
 - [x] `MapPage` mounts the existing map (current data, unchanged) at `/c/:id/map/:mapId`
-- [/] Add Supabase env vars to the build (workflow updated; add `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY` as GitHub Actions *variables*). No `_redirects` needed — Pages serves index.html for unknown paths
+- [/] Deploy via Cloudflare Pages Git integration (`campaign-orchestrator` → vtm-shanghai.pages.dev): build command `npm run build`, output `dist`, `VITE_SUPABASE_*` vars for Production + Preview; GitHub Actions is a build check only. No `_redirects` needed — Pages serves index.html for unknown paths
 - [x] Add `/privacy` page (what's stored: name, email, campaign content; not shared)
-- [ ] After first deploy: fill Google Branding (home page, privacy link, authorized domain `<site>.pages.dev`), add prod URL to Google JS origins + Supabase Site/Redirect URLs, then **Publish app** (Google OAuth is in Testing mode until then — test users only)
+- [ ] After first deploy: fill Google Branding (home page, privacy link, authorized domain `vtm-shanghai.pages.dev`), add prod URL to Google JS origins + Supabase Site/Redirect URLs, then **Publish app** (Google OAuth is in Testing mode until then — test users only)
 - [ ] Keep-alive: `ping()` DB function + scheduled GitHub Action every 3 days to stop free-tier pausing (public repos: GitHub disables schedules after 60 days without commits — use a Cloudflare Worker cron if that becomes a problem)
 
 ### P2 — Campaigns & Membership
