@@ -128,14 +128,26 @@
 - [ ] **Deferred:** test with a second Google account as a player — invite/join flow (P2), shared vs private documents, edit grants, conflict prompt, images visible to the right people
 - [ ] Later: include images in exports; clean up images of deleted documents; links between documents
 
-### P4 — Map Data Split
-- [ ] Create `public/worlds/shanghai-1842-1949/world.json` — move EPOCHS, CATEGORY_COLORS, patterns, base layers, regions out of code
-- [ ] Upload tiles to Cloudflare R2; point tile URL at the bucket; remove `public/tiles/` from repo
-- [ ] Tables: `maps`, `overlays` with RLS
-- [ ] `DataLoader`: world source (static) + campaign source (Supabase)
-- [ ] Build view modes from world pack + campaign overlays (remove hardcoded modes in `ModeManager` / `main.js`)
-- [ ] Move characters, bloodlines, sects out of `public/data/` into Supabase
-- [ ] Fix the review bugs (pin hover, year slider sync, overlay pin colouring) as part of this refactor
+### P4 — Map Data Split (see docs/architecture.md §4)
+Goal: Map-App repo holds code only; content lives in a private content repo and is published to Supabase / R2.
+
+**P4a — Tiles to Cloudflare R2**
+- [ ] Create R2 bucket + public URL; API token for uploads
+- [ ] Upload `shanghai-1932` tiles (7,326 files, 400 MB) with rclone
+- [ ] Point the tile URL at R2; verify the map on a preview deploy
+- [ ] Remove `public/tiles/` from the repo (keep local copy outside `public/`); also move `public/data/acquired/` out of `public/`
+
+**P4b — Content format & sync** (YAML format owned by Cato — being worked out in Obsidian)
+- [ ] Define the YAML/frontmatter format: documents (visibility, sharing), overlays (mode, colour, active years, geometry file), world data (eras, base maps, regions, categories), characters and their associations to map features
+- [ ] Set up the private content repo (from the Obsidian vault once it's in the agreed format)
+- [ ] Build `npm run sync`: files → Supabase (one-way; synced documents read-only in the app)
+
+**P4c — Map reads from Supabase + R2**
+- [ ] Tables: world data (eras, base maps, regions, buildings), `overlays` (+ `overlay_grants`) with RLS and tests
+- [ ] `DataLoader`: read world + campaign data from Supabase instead of `public/data/`
+- [ ] Move constants out of code: EPOCHS, CATEGORY_COLORS, SVG patterns, hardcoded modes in `ModeManager` / `createMap.js`
+- [ ] Remove `public/data/` from the repo (existing data isn't secret; git history can stay)
+- [ ] Fix the review bugs (pin hover, year slider sync, overlay pin colouring, toGeoJSON perf) as part of this refactor
 
 ### P5 — GM Tools
 - [ ] Admin page: members, roles, invite links (create / revoke / expiry)

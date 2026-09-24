@@ -34,18 +34,19 @@ The main user for now is the owner, running their own campaigns. Opening it to o
 │  /c/:id/map/:mapId ── MapPage wraps the existing   │
 │                       Leaflet code (src/map/)      │
 └──────────────┬─────────────────────────┬───────────┘
-               │ private (logged in)     │ public
+               │ signed in               │ public
                ▼                         ▼
 ┌──────────────────────────┐   ┌──────────────────────────┐
-│  Supabase                │   │  Static world packs      │
-│  • Auth (Google)         │   │  • /worlds/<pack>/       │
-│  • Postgres + RLS        │   │    world.json, regions,  │
-│    campaigns, members,   │   │    pins                  │
-│    documents, overlays,  │   │  • Tiles on Cloudflare R2│
-│    grants                │   │                          │
-│  • Storage (images)      │   │  Not secret; shared by   │
-│                          │   │  every campaign          │
-└──────────────────────────┘   └──────────────────────────┘
+│  Supabase                │   │  Cloudflare R2           │
+│  • Auth (Google)         │   │  • map tiles             │
+│  • Postgres + RLS        │   │                          │
+│    world data, campaigns,│   │  Not secret; shared by   │
+│    members, documents,   │   │  every campaign          │
+│    overlays, grants      │   │                          │
+│  • Storage (images)      │   └──────────────────────────┘
+└──────────────▲───────────┘
+               │ npm run sync (GM's machine)
+        private content repo (.md / .yaml / .geojson)
 ```
 
 ### How login works
@@ -56,33 +57,52 @@ The main user for now is the owner, running their own campaigns. Opening it to o
 
 The app's pages also check whether the user is logged in (the "auth guard"), but only for convenience: it saves loading a page that would come back empty. The **real** protection is §6.
 
-## 4. Data: world vs campaign
+## 4. Where data lives
 
-Every piece of data is one of two kinds, and each kind lives in a different place.
+The app's **code** is separate from the campaign's **content**. The Map-App repo (public) holds code and database structure only; content is authored elsewhere and published into Supabase and R2.
+
+```
+Map-App repo (public)            code + database structure (migrations), no content
+<campaign>-content (private)     source files: .md, .yaml, .geojson (git history for lore)
+Supabase database                published content: world data, campaigns, documents,
+                                 overlays, sharing
+Supabase Storage                 private files: document images, GM-only maps
+Cloudflare R2                    map tiles (public, high volume, free downloads)
+```
+
+| Data | Home | Why |
+|---|---|---|
+| Campaign content: documents, overlays, characters, sharing | Supabase database | Needs per-player access rules |
+| Private files: document images, secret maps | Supabase Storage | Same access rules, applied to files |
+| Map tiles (thousands of PNGs per map) | Cloudflare R2 | Public historical data; loaded in volume, and R2 doesn't charge for downloads (Supabase's free tier allows ~5 GB/month) |
+| Historical base: eras, regions, buildings, historical factions | Supabase database, published by the same sync | Small; editable through the same YAML workflow; shared by every campaign using that world |
+
+Data in the database comes in two scopes:
 
 | | **World data** | **Campaign data** |
 |---|---|---|
-| What | Historical base: tiles, eras, building pins, district boundaries, historical factions | Anything about *this* story: characters, bloodlines, sects, havens, handouts, GM notes |
+| What | Historical base for a setting ("world pack"): eras, base maps, regions, buildings, historical factions | Anything about *this* story: characters, bloodlines, sects, havens, handouts, GM notes |
 | Secret? | No | Yes, per campaign and sometimes per player |
-| Stored in | Static files (`public/worlds/<pack>/`) and R2 for tiles | Supabase database |
-| Loaded via | `fetch` from the CDN | Supabase client (so RLS applies) |
+| Access | Readable by any signed-in user | Campaign members, per the rules in §6 |
 
-### World pack
+Anything that currently lives in `src/map/utils/constants.js`, `StyleEngine.js` or `public/data/config.json` and describes Shanghai becomes world data. The app code must work with **any** world pack.
 
-A world pack is a folder describing one setting, for example `public/worlds/shanghai-1842-1949/`:
+### Content workflow: files → sync → database
+
+Content is authored as files and **published** with a sync command; the app only ever reads the database.
 
 ```
-world.json        name, default centre/zoom, eras (was EPOCHS), pin categories
-                  (was CATEGORY_COLORS), base layers (was map-sources.json),
-                  region list (was config.json regions), fill patterns
-regions/*.geojson
-pins/*.json
-assets/           flags, pattern images
+Obsidian / editor ──▶ content repo (private git) ──npm run sync──▶ Supabase ──▶ app
+tiles (generated once per map) ──────────────────upload─────────▶ R2 ────────▶ app
 ```
 
-Tiles are referenced by URL (R2) and are not stored in the repo.
+- Markdown files become `documents` rows (file name → title, folder → folder, contents → body).
+- YAML (frontmatter in `.md` files, or standalone `.yaml` next to `.geojson`) carries what plain files can't: visibility, who it's shared with, active years, map mode, colours. The sync translates it into rows; the app never reads YAML directly.
+- The sync is **one-way**. Documents published from files are marked as managed by the sync and read-only in the app, so a sync never overwrites in-app edits. Collaborative content (player journals, party documents) lives only in the app.
+- The YAML format is still to be defined — it's being worked out in the Obsidian vault first (see TODO P4).
+- The sync runs on the GM's machine with a key that bypasses access rules, kept only in the content repo's gitignored env file — never in this repo.
 
-Anything that currently lives in `src/utils/constants.js`, `StyleEngine.js` or `config.json` and describes Shanghai moves into `world.json`. The app code must work with **any** world pack.
+The existing data in `public/data/` isn't secret and may stay in this repo's git history; new secret material only ever goes in the private content repo.
 
 ## 5. Data model
 
@@ -242,8 +262,6 @@ src/
   lib/supabase.js       Supabase client
   lib/api/              one file per table: campaigns.js, documents.js, ...
   map/                  the existing Leaflet app (core/, features/, ui/, utils/)
-public/
-  worlds/<pack>/        world packs
 supabase/
   migrations/           schema + RLS policies, applied in order
 docs/
@@ -259,9 +277,10 @@ The Leaflet code is kept, not rewritten:
 2. Turn `init()` in the old `main.js` into `createMap(container, { world, campaign })`, returning a `destroy()` function.
 3. `MapPage` renders the sidebar and toolbar markup (currently in `index.html`), calls `createMap` in a `useEffect`, and calls `destroy()` on unmount.
 4. `DataLoader` gets two sources:
-   - **world**: `fetch('/worlds/<pack>/...')`, as today
+   - **world**: eras, base maps, regions and buildings from Supabase (readable by any signed-in user)
    - **campaign**: overlays and map settings from Supabase (RLS applies automatically)
-5. View modes stop being hardcoded in `ModeManager` / `main.js`. They are built from `world.json` (historical modes) plus the campaign's overlay `mode` values (e.g. bloodlines, sects).
+   - tiles load straight from R2 by URL
+5. View modes stop being hardcoded in `ModeManager` / `main.js`. They are built from the world data (historical modes) plus the campaign's overlay `mode` values (e.g. bloodlines, sects).
 
 ### Document editor
 
@@ -300,11 +319,11 @@ Each phase ends with something usable. Tasks are tracked in `TODO.md` under **Pl
 1. **Foundations**: React shell, Google login, map mounted behind `/c/:id/map` with its current data.
 2. **Campaigns & membership**: schema, RLS, invites, campaign home.
 3. **Documents**: read, write, import/export, visibility and per-player grants.
-4. **Map data split**: world pack extracted, tiles on R2, campaign overlays in Supabase, nothing secret left in `public/`.
+4. **Map data split**: tiles on R2; YAML content format and sync tool; world and campaign map data in Supabase; the map reads from Supabase and R2 instead of `public/`.
 5. **GM tools**: in-app management of members, invites, grants and reveals; overlay editing on the map.
 6. **Generalisation** (deferred): other GMs, selectable or uploadable world packs, ruleset-agnostic modes.
 
-> Until phase 4 is done, campaign data in `public/data/` (characters, bloodlines, sects) is still publicly readable by URL, even behind the login page. Keep genuinely secret material out of `public/` until then.
+> Until phase 4 is done, map data in `public/data/` (characters, bloodlines, sects) is publicly readable by URL and on GitHub. That's fine for the current placeholder data; keep anything genuinely secret out of this repo.
 
 ## 11. Open questions (decide when reached)
 
