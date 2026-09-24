@@ -1,50 +1,10 @@
--- Access rule tests for campaigns, memberships, invites and profiles.
--- Run with scripts/test-db.sh. Each check prints "ok  <label>" or stops with FAIL.
+-- Access rule tests: campaigns, memberships, invites and profiles.
+-- Run with `npm run test:db`. Each check prints "ok  <label>" or stops with FAIL.
 
 \set gm       '00000000-0000-0000-0000-000000000001'
 \set player   '00000000-0000-0000-0000-000000000002'
 \set outsider '00000000-0000-0000-0000-000000000003'
 \set late     '00000000-0000-0000-0000-000000000004'
-
--- ---------------------------------------------------------------------------
--- Test helpers
--- ---------------------------------------------------------------------------
-create schema tests;
-grant usage on schema tests to anon, authenticated;
-
-create function tests.eq(label text, got anyelement, expected anyelement) returns void
-language plpgsql as $$
-begin
-  if got is distinct from expected then
-    raise exception 'FAIL %: got %, expected %', label, got, expected;
-  end if;
-  raise notice 'ok  %', label;
-end $$;
-
--- Passes if the statement raises an error
-create function tests.throws(label text, stmt text) returns void
-language plpgsql as $$
-begin
-  begin
-    execute stmt;
-  exception when others then
-    raise notice 'ok  % (%)', label, sqlerrm;
-    return;
-  end;
-  raise exception 'FAIL %: statement succeeded: %', label, stmt;
-end $$;
-
--- Number of rows an insert/update/delete touched
-create function tests.affected(stmt text) returns bigint
-language plpgsql as $$
-declare n bigint;
-begin
-  execute stmt;
-  get diagnostics n = row_count;
-  return n;
-end $$;
-
-grant execute on all functions in schema tests to anon, authenticated;
 
 -- Users who sign in after the migrations
 insert into auth.users (id, email, raw_user_meta_data) values

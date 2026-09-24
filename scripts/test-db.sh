@@ -21,6 +21,10 @@ for f in supabase/migrations/*.sql; do
   echo "Applying $f"
   run < "$f"
 done
-run < supabase/tests/access_rules.sql 2>&1 >/dev/null | sed -E "s/^(psql:<stdin>:[0-9]+: )?(NOTICE|ERROR): +//"
+run < supabase/tests/helpers.sql
+for f in supabase/tests/*.test.sql; do
+  echo "Running $f"
+  run < "$f" 2>&1 >/dev/null | sed -E "s/^(psql:<stdin>:[0-9]+: )?(NOTICE|ERROR): +//"
+done
 
 echo "All database tests passed."

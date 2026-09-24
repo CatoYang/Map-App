@@ -117,13 +117,15 @@
 - [ ] Later (P5): change member roles, remove members, leave / delete campaign, edit campaign details in the UI (the database rules already allow these)
 
 ### P3 — Documents
-- [ ] Tables: `documents`, `grants`; `has_grant` helper; RLS for view/edit/create
-- [ ] Document list (by folder) and reader with sanitised markdown (DOMPurify)
-- [ ] Markdown editor with live preview (Milkdown or TipTap)
-- [ ] Import `.md` files; export document / whole campaign as `.md`
-- [ ] Visibility toggle (private / campaign) and per-player share dialog (view / edit)
-- [ ] Warn on save if the document changed since it was opened
-- [ ] Image uploads to Supabase Storage with matching access rules
+- [x] Tables: `documents`, `document_grants`; helpers; RLS for view/edit/create/share (tested in `supabase/tests/documents.test.sql`)
+- [x] Document list (by folder) and reader with sanitised markdown (DOMPurify)
+- [x] Markdown editor with toolbar + live preview (plain markdown; WYSIWYG can come with the UI pass)
+- [x] Import `.md` files; export document as `.md` / whole campaign as `.zip`
+- [x] Visibility toggle (private / campaign) and per-player share dialog (view / edit)
+- [x] Warn on save if the document changed since it was opened
+- [x] Image uploads to Supabase Storage with matching access rules (button or paste)
+- [ ] Apply migration (`npx supabase db push`) and test on a preview deploy
+- [ ] Later: include images in exports; clean up images of deleted documents; links between documents
 
 ### P4 — Map Data Split
 - [ ] Create `public/worlds/shanghai-1842-1949/world.json` — move EPOCHS, CATEGORY_COLORS, patterns, base layers, regions out of code

@@ -5,6 +5,7 @@ import {
 import { PageShell } from '../components/PageShell.jsx';
 import { ErrorAlert, Loading } from '../components/Status.jsx';
 import { InvitePanel } from '../components/InvitePanel.jsx';
+import { DocumentList } from '../components/DocumentList.jsx';
 import { useAuth } from '../app/auth.jsx';
 import { useAsync } from '../lib/useAsync.js';
 import { getCampaign, listMembers } from '../lib/api/campaigns.js';
@@ -63,6 +64,10 @@ export function CampaignHome() {
           ) : (
             <Text c="dimmed">No map available for world "{campaign.world_pack}".</Text>
           )}
+        </Section>
+
+        <Section title="Documents">
+          <DocumentList campaign={campaign} userId={user.id} isGm={isGm} />
         </Section>
 
         <Section title={`Members (${members.length})`}>

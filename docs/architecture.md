@@ -117,9 +117,10 @@ overlays        id, campaign_id, map_id, mode (e.g. 'bloodlines', 'sects'),
                 geojson (json)   -- polygons and/or points
                 visibility ('private' | 'campaign')
 
-grants          id, campaign_id,
-                item_type ('document' | 'map' | 'overlay'), item_id,
-                user_id, permission ('view' | 'edit')
+document_grants document_id, user_id, permission ('view' | 'edit')
+overlay_grants  (later) overlay_id, user_id, permission — one grants table per
+                item type, so grants are deleted with their item and can't
+                point at missing rows
 ```
 
 ### Visibility and permissions
@@ -168,8 +169,8 @@ $$;
 
 create function has_grant(t text, i uuid, perm text) returns boolean
 language sql stable security definer set search_path = public as $$
-  select exists (select 1 from grants
-                 where item_type = t and item_id = i and user_id = auth.uid()
+  select exists (select 1 from document_grants   -- simplified; see migrations
+                 where document_id = i and user_id = auth.uid()
                    and (permission = perm or permission = 'edit'));  -- edit implies view
 $$;
 ```
@@ -264,11 +265,12 @@ The Leaflet code is kept, not rewritten:
 
 ### Document editor
 
-- Markdown is the storage format. The editor is a markdown component with live preview; Milkdown and TipTap (with markdown) are the candidates.
-- **Import**: upload one or more `.md` files into a folder. This keeps the current local workflow usable.
-- **Export**: download a document, or a whole campaign, as `.md` files. This also serves as a personal backup.
-- **Concurrent edits**: no live co-editing at first. On save, if `updated_at` changed since the document was opened, warn instead of overwriting.
-- **Images**: uploaded to Supabase Storage, with access rules that mirror the owning document.
+- Markdown is the storage format. The editor (`MarkdownEditor.jsx`) is a plain markdown text area with a formatting toolbar and a live preview (write / split / preview). Nothing is lost converting to and from a rich-text model; a WYSIWYG editor (Milkdown, TipTap) can come with the UI pass if players find markdown awkward.
+- Rendering goes through `src/lib/markdown.js`: `marked` → HTML → DOMPurify, so scripts and other active content are stripped.
+- **Import**: upload one or more `.md` files; the title comes from the file name. Imports start private.
+- **Export**: download a document as `.md`, or everything you can see in a campaign as a `.zip` with folders as directories. This also serves as a personal backup. Images aren't included in the export yet.
+- **Concurrent edits**: no live co-editing. Saving only succeeds if `updated_at` still matches the version the edit started from; otherwise the editor offers "keep editing", "load their version" or "replace with mine".
+- **Images**: private bucket `document-images`, paths `<campaign id>/<document id>/<file>`; storage rules mirror the document (view it → see its images, edit it → add or remove them). Markdown refers to them as `![alt](storage:<path>)`, and `MarkdownView` swaps in a one-hour signed URL. Uploading: toolbar button or paste. Images of a deleted document stay in storage for now.
 
 ## 8. Deployment
 
