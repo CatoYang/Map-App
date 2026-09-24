@@ -139,6 +139,14 @@
 - [ ] Grant management and one-click "reveal to campaign"
 - [ ] Draw and edit overlays on the map (e.g. leaflet-geoman)
 
+### UI & Visual Design (deferred)
+- [ ] Define a visual identity: colour palette, typography, overall mood (period / noir fit for the setting)
+- [ ] Backgrounds and imagery for the non-map pages (landing, login, campaigns, campaign home)
+- [ ] Mantine theme (colours, fonts, radius) so every page shares one style
+- [ ] Bring the map UI (`src/map/map.css`, own dark theme) in line with the rest of the app
+- [ ] Landing page design
+- [ ] Mobile / small-screen layout pass
+
 ### P6 — Generalisation (deferred)
 - [ ] Open campaign creation to other GMs
 - [ ] Select / upload world packs
