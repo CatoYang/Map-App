@@ -114,6 +114,8 @@ export class MapManager {
           attribution: source.attribution || '',
           minZoom: source.minZoom || 0,
           maxZoom: source.maxZoom || 19,
+          // Zoom past the deepest tiles by enlarging them, instead of showing nothing
+          maxNativeZoom: source.maxNativeZoom,
           opacity: source.opacity ?? 1,
         });
       }

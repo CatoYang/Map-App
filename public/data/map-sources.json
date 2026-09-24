@@ -14,12 +14,13 @@
       "id": "shanghai-1907",
       "name": "Shanghai 1907 (Outline Plan)",
       "type": "xyz",
-      "url": "https://gis.sinica.edu.tw/shanghai/file-exists.php?img=Shanghai_1907-png-{z}-{x}-{y}",
+      "url": "https://pub-1ad0a1b477eb435da7cb742dd295579b.r2.dev/shanghai-1907/{z}/{x}/{y}.png",
       "attribution": "Academia Sinica Center for GIS",
       "opacity": 0.8,
+      "minZoom": 10,
       "maxZoom": 18,
-      "period": { "start": 1907, "end": 1907 },
-      "disabled": true
+      "maxNativeZoom": 16,
+      "period": { "start": 1907, "end": 1907 }
     },
     {
       "id": "shanghai-1910",

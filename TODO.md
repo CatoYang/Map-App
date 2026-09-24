@@ -139,6 +139,7 @@ Goal: Map-App repo holds code only; content lives in a private content repo and 
 - [x] Raw scanned maps (`assets/`, `public/assets/maps/` — duplicates, unused by the app) moved to gitignored `local/raw-maps/`
 - [x] Rewrite git history to drop old tiles and raw maps (repo ~460 MB → a few MB)
 - [ ] Later: R2 on a custom domain if the rate-limited r2.dev URL becomes a problem
+- [x] 1907 base map (Outline Plan, zoom 10–16) copied to R2 as `shanghai-1907` and enabled for the 1895–1911 era; `scripts/mirror-tiles.mjs` copies any XYZ tile layer
 
 **P4b — Content format & sync** (format in [docs/content-format.md](docs/content-format.md); the vault is Cato's)
 - [x] Note format for documents, characters, Kindred, factions, events and locations: types, visibility, secret sections, years, links, `pin`/`coords`
