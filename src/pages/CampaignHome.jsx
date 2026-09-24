@@ -1,6 +1,6 @@
 import { Link, useParams } from 'react-router';
 import {
-  Anchor, Avatar, Badge, Button, Card, Group, Stack, Text, Title,
+  Anchor, Avatar, Badge, Box, Button, Card, Group, Stack, Text, Title,
 } from '@mantine/core';
 import { PageShell } from '../components/PageShell.jsx';
 import { ErrorAlert, Loading } from '../components/Status.jsx';
@@ -44,7 +44,7 @@ export function CampaignHome() {
   const world = WORLD_PACKS[campaign.world_pack];
 
   return (
-    <PageShell backdrop={theme.background} soften accent={theme.accent}>
+    <PageShell backdrop={theme.background} soften panel={!!theme.background}>
       <Stack gap="xl">
         <Stack gap="xs">
           <Anchor component={Link} to="/campaigns" size="sm" c="dimmed">← Your campaigns</Anchor>
@@ -52,7 +52,8 @@ export function CampaignHome() {
             <Title order={2}>{campaign.name}</Title>
             {myRole && <Badge variant="light" color={isGm ? 'grape' : 'blue'}>{ROLE_LABELS[myRole]}</Badge>}
           </Group>
-          {campaign.description && <Text c="dimmed" style={{ whiteSpace: 'pre-wrap' }}>{campaign.description}</Text>}
+          {theme.accent && <Box w={56} h={3} bg={theme.accent} style={{ borderRadius: 2 }} />}
+          {campaign.description && <Text c="gray.4" style={{ whiteSpace: 'pre-wrap' }}>{campaign.description}</Text>}
         </Stack>
 
         <Section title="Maps">

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import {
-  Badge, Button, Card, Group, Modal, SimpleGrid, Stack, Text, TextInput, Textarea, Title,
+  Badge, Button, Group, Modal, SimpleGrid, Stack, Text, TextInput, Textarea, Title,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { PageShell } from '../components/PageShell.jsx';
@@ -12,6 +12,7 @@ import { createCampaign, listMyCampaigns } from '../lib/api/campaigns.js';
 import { ROLE_LABELS } from '../lib/labels.js';
 import { pageBackground } from '../lib/brand.js';
 import { useCampaignThemes } from '../lib/useCampaignTheme.js';
+import classes from './Campaigns.module.css';
 
 export function Campaigns() {
   const { user } = useAuth();
@@ -39,18 +40,7 @@ export function Campaigns() {
         {campaigns?.length > 0 && (
           <SimpleGrid cols={{ base: 1, sm: 2 }}>
             {campaigns.map(c => (
-              <Card key={c.id} component={Link} to={`/c/${c.id}`} withBorder padding="lg" radius="md">
-                <CampaignCover theme={themes.get(c.id)} />
-                <Group justify="space-between" align="flex-start" wrap="nowrap">
-                  <Text fw={600}>{c.name}</Text>
-                  <Badge variant="light" color={c.role === 'gm' ? 'grape' : 'blue'}>
-                    {ROLE_LABELS[c.role]}
-                  </Badge>
-                </Group>
-                {c.description && (
-                  <Text size="sm" c="dimmed" mt="xs" lineClamp={2}>{c.description}</Text>
-                )}
-              </Card>
+              <CampaignCard key={c.id} campaign={c} theme={themes.get(c.id)} />
             ))}
           </SimpleGrid>
         )}
@@ -61,17 +51,23 @@ export function Campaigns() {
   );
 }
 
-/** The campaign's cover image, or a gradient in its accent colour until it has one. */
-function CampaignCover({ theme }) {
+/** A campaign as a card: its cover fills the card, name and description over a dark fade. */
+function CampaignCard({ campaign, theme }) {
   const image = theme?.cover
     ? `url("${theme.cover}")`
     : `linear-gradient(135deg, ${theme?.accent ?? '#373a40'}, #141517)`;
   return (
-    <Card.Section
-      h={140}
-      mb="md"
-      style={{ backgroundImage: image, backgroundSize: 'cover', backgroundPosition: 'center' }}
-    />
+    <Link to={`/c/${campaign.id}`} className={classes.card}>
+      <div className={classes.image} style={{ backgroundImage: image }} />
+      <div className={classes.fade} />
+      <Badge className={classes.badge} variant="filled" color={campaign.role === 'gm' ? 'grape' : 'blue'}>
+        {ROLE_LABELS[campaign.role]}
+      </Badge>
+      <Stack gap={4} className={classes.text}>
+        <Text fw={700} fz="xl" c="white" lh={1.2}>{campaign.name}</Text>
+        {campaign.description && <Text size="sm" c="gray.3" lineClamp={2}>{campaign.description}</Text>}
+      </Stack>
+    </Link>
   );
 }
 

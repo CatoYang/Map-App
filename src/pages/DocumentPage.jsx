@@ -77,7 +77,7 @@ function DocumentScreen({ campaign, doc: initialDoc, members, myGrant, userId })
   }
 
   return (
-    <PageShell size="xl" backdrop={theme.background} dim={0.92} soften accent={theme.accent}>
+    <PageShell size="xl" backdrop={theme.background} soften panel={!!theme.background}>
       <Stack gap="lg">
         <Anchor component={Link} to={`/c/${campaign.id}`} size="sm" c="dimmed">← {campaign.name}</Anchor>
 
