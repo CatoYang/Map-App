@@ -367,6 +367,36 @@
   font-weight: 600;
 }
 
+/* ---------- Note snippets (pin / coords lines for content notes) ---------- */
+.note-snippet {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.note-snippet code {
+  font-family: ui-monospace, monospace;
+  padding: 2px 5px;
+  border-radius: 3px;
+  background: rgba(127, 127, 127, 0.18);
+  user-select: all;
+}
+
+.note-snippet__copy {
+  font: inherit;
+  padding: 1px 8px;
+  border: 1px solid rgba(127, 127, 127, 0.5);
+  border-radius: 3px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.note-snippet-popup .leaflet-popup-content {
+  margin: 8px 10px;
+}
+
 /* ---------- Epoch Bar (bottom) ---------- */
 #epoch-bar {
   position: absolute;

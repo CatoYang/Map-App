@@ -140,10 +140,17 @@ Goal: Map-App repo holds code only; content lives in a private content repo and 
 - [x] Rewrite git history to drop old tiles and raw maps (repo ~460 MB → a few MB)
 - [ ] Later: R2 on a custom domain if the rate-limited r2.dev URL becomes a problem
 
-**P4b — Content format & sync** (YAML format owned by Cato — being worked out in Obsidian)
-- [ ] Define the YAML/frontmatter format: documents (visibility, sharing), overlays (mode, colour, active years, geometry file), world data (eras, base maps, regions, categories), characters and their associations to map features
-- [ ] Set up the private content repo (from the Obsidian vault once it's in the agreed format)
-- [ ] Build `npm run sync`: files → Supabase (one-way; synced documents read-only in the app)
+**P4b — Content format & sync** (format in [docs/content-format.md](docs/content-format.md); the vault is Cato's)
+- [x] Note format for documents, characters, Kindred, factions, events and locations: types, visibility, secret sections, years, links, `pin`/`coords`
+- [x] `npm run content:check` (report in the vault's `_reports/`)
+- [x] `npm run content:standardise`: converted all 767 notes to the format on 2026-09-25 (YAML only; backup in `local/vault-backups/`)
+- [x] `pin` takes a list (a place can be several buildings, e.g. a bank's branches). Bulk pin matching was dropped: which buildings a place covers needs research, so pins are added as the story needs them
+- [x] Map helpers: a building's panel shows its `pin:` line; right-click copies `coords:`
+- [x] Vault is a private repo (CatoYang/Songs-of-Shanghai, git via Obsidian Git on Windows); `CONTENT_DIR` in `.env.local` points at it
+- [ ] Cato: merge or rename the 7 pairs of notes that share a name (e.g. Farren's, The Del Monte, 3_Defy Bane); fix the 4 years the script couldn't read (see Content check)
+- [ ] Format for map-only data: regions, faction control of regions, overlay modes/colours (with P4c)
+- [ ] `_config/players.yaml` (player handle → Google e-mail) and image uploads, settled with the sync
+- [ ] Build `npm run sync`: files → Supabase (one-way; synced documents read-only in the app; secret sections GM-only)
 
 **P4c — Map reads from Supabase + R2**
 - [ ] Tables: world data (eras, base maps, regions, buildings), `overlays` (+ `overlay_grants`) with RLS and tests

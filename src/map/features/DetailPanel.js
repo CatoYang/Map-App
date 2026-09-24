@@ -1,3 +1,6 @@
+import { pinRef } from '../utils/pinRef.js';
+import { noteSnippet } from '../ui/NoteSnippet.js';
+
 export class DetailPanel {
   constructor(sidebar, containerId = 'detail-panel') {
     this.sidebar = sidebar;
@@ -51,8 +54,8 @@ export class DetailPanel {
 
       const props = properties || {};
       
-      const name = props.name || props.name_en || props.NAME_EN || props.IDBAT || 'Unnamed Pin';
-      const zhName = props.name_zh || props.NAME_CH || props.NAME_PY || '';
+      const name = props.name || props.name_en || props.NAME_EN || props.NAME || props.IDBAT || 'Unnamed Pin';
+      const zhName = props.name_zh || props.NAME_CH || props.CHINESE || props.NAME_PY || '';
       const start = props.start_date || props.START || '?';
       const end = props.end_date || props.END || '?';
       const address = props.F_ADDRESS || props['addr:street'] || props.address || 'Unknown address';
@@ -78,13 +81,18 @@ export class DetailPanel {
           ${zhName ? `<p class="detail-panel__zh">${zhName}</p>` : ''}
           <p class="detail-panel__dates">Timeline: ${start} &mdash; ${end}</p>
           <p class="detail-panel__address">📍 ${address}</p>
-          
+          <div class="detail-panel__note-ref"></div>
+
           <h4 class="detail-panel__subtitle">Details</h4>
           <ul class="detail-panel__list">
             ${detailsHtml}
           </ul>
         </div>
       `;
+
+      // How a location note links to this pin
+      const ref = pinRef(props);
+      if (ref) container.querySelector('.detail-panel__note-ref').append(noteSnippet(`pin: ${ref}`));
     } catch (err) {
       console.error('[DetailPanel] Error in showPin:', err);
       const container = document.getElementById('detail-panel');

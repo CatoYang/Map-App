@@ -99,7 +99,7 @@ tiles (generated once per map) ────────────────�
 - Markdown files become `documents` rows (file name → title, folder → folder, contents → body).
 - YAML (frontmatter in `.md` files, or standalone `.yaml` next to `.geojson`) carries what plain files can't: visibility, who it's shared with, active years, map mode, colours. The sync translates it into rows; the app never reads YAML directly.
 - The sync is **one-way**. Documents published from files are marked as managed by the sync and read-only in the app, so a sync never overwrites in-app edits. Collaborative content (player journals, party documents) lives only in the app.
-- The YAML format is still to be defined — it's being worked out in the Obsidian vault first (see TODO P4).
+- The note format is in [content-format.md](content-format.md); `npm run content:check` checks the vault against it. Map-only data (regions, overlays) is still to be defined (TODO P4b/P4c).
 - The sync runs on the GM's machine with a key that bypasses access rules, kept only in the content repo's gitignored env file — never in this repo.
 
 The existing data in `public/data/` isn't secret and may stay in this repo's git history; new secret material only ever goes in the private content repo.

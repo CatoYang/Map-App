@@ -34,7 +34,9 @@ import { Sidebar }        from './ui/Sidebar.js';
 import { Toolbar }        from './ui/Toolbar.js';
 import { LayerControl }   from './ui/LayerControl.js';
 import { HistoricalScale } from './ui/HistoricalScale.js';
+import { noteSnippet }    from './ui/NoteSnippet.js';
 import { injectSVGPatterns, updatePatternScale } from './utils/StyleEngine.js';
+import { formatCoords }   from './utils/pinRef.js';
 import { eventBus }       from './core/EventBus.js';
 
 /**
@@ -177,6 +179,12 @@ export async function createMap(container) {
   // 15. Clear selection on bare map click
   map.on('click', (e) => {
     if (e.originalEvent.target.id === 'map') regionHover.clearSelection();
+  });
+
+  // 16. Right-click: this position as `coords:` for a location note with no pin
+  map.on('contextmenu', (e) => {
+    const snippet = noteSnippet(`coords: ${formatCoords(e.latlng.lat, e.latlng.lng)}`);
+    L.popup({ className: 'note-snippet-popup' }).setLatLng(e.latlng).setContent(snippet).openOn(map);
   });
 
   console.log('[Map-App] Ready.');
