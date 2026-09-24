@@ -104,7 +104,7 @@
 - [x] Deploy via Cloudflare Pages Git integration (`campaign-orchestrator` → vtm-shanghai.pages.dev): build command `npm run build`, output `dist`, Supabase settings from committed `.env.production`; GitHub Actions is a build check only. No `_redirects` needed — Pages serves index.html for unknown paths
 - [x] Add `/privacy` page (what's stored: name, email, campaign content; not shared)
 - [x] After first deploy: fill Google Branding (home page, privacy link, authorized domain `vtm-shanghai.pages.dev`), add prod URL to Google JS origins + Supabase Site/Redirect URLs, then **Publish app** (Google OAuth is in Testing mode until then — test users only)
-- [/] Keep-alive: `ping()` DB function + scheduled GitHub Action every 3 days (`.github/workflows/supabase-keepalive.yml`; live once the P2 migration is applied) to stop free-tier pausing (public repos: GitHub disables schedules after 60 days without commits — use a Cloudflare Worker cron if that becomes a problem)
+- [x] Keep-alive: `ping()` DB function + scheduled GitHub Action every 3 days (`.github/workflows/supabase-keepalive.yml`) to stop free-tier pausing (public repos: GitHub disables schedules after 60 days without commits — use a Cloudflare Worker cron if that becomes a problem)
 
 ### P2 — Campaigns & Membership
 - [x] Set up Supabase CLI + `supabase/migrations/`
@@ -113,7 +113,7 @@
 - [x] `create_campaign()`, `invite_preview()` and `redeem_invite()` database functions
 - [x] Access rule tests against throwaway Postgres (`npm run test:db`)
 - [x] Pages: `/campaigns` (list + create), `/join/:code`, `/c/:id` campaign home (map, members, GM invite links)
-- [ ] Apply migration to the hosted project (`supabase db push`) and test with a second Google account
+- [x] Apply migration to the hosted project (`supabase db push`) and test on a preview deploy
 - [ ] Later (P5): change member roles, remove members, leave / delete campaign, edit campaign details in the UI (the database rules already allow these)
 
 ### P3 — Documents
