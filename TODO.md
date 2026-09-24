@@ -147,7 +147,7 @@ Goal: Map-App repo holds code only; content lives in a private content repo and 
 - [x] `pin` takes a list (a place can be several buildings, e.g. a bank's branches). Bulk pin matching was dropped: which buildings a place covers needs research, so pins are added as the story needs them
 - [x] Map helpers: a building's panel shows its `pin:` line; right-click copies `coords:`
 - [x] Vault is a private repo (CatoYang/Songs-of-Shanghai, git via Obsidian Git on Windows); `CONTENT_DIR` in `.env.local` points at it
-- [ ] Cato: merge or rename the 7 pairs of notes that share a name (e.g. Farren's, The Del Monte, 3_Defy Bane); fix the 4 years the script couldn't read (see Content check)
+- [x] Vault clean-up (2026-09-25): merged 20 groups of duplicate notes (same place under several categories, e.g. a hotel + its bar and ballroom; Ezra and Hardoon), renamed the two different Defy Bane powers, removed the 52 generated example Kindred (starting afresh), dated timeline events from their file names. Backups in `local/vault-backups/`
 - [ ] Format for map-only data: regions, faction control of regions, overlay modes/colours (with P4c)
 - [ ] `_config/players.yaml` (player handle → Google e-mail) and image uploads, settled with the sync
 - [ ] Build `npm run sync`: files → Supabase (one-way; synced documents read-only in the app; secret sections GM-only)

@@ -127,6 +127,14 @@ The map's time slider reads these, so they must be numbers. Put nuance ("c.", "p
 
 A decade or century becomes its span: "1930s" → `1930-1939`, "late 1930s" → `1937-1939`, "late 19th century" → `1867-1899`. For years before AD 1000, leading zeros are fine (`0751`).
 
+When one span hides detail, keep the exact years in a matching `_detail` field. Examples: two brothers in one note, or someone with two stays in Shanghai:
+```yaml
+lifespan: 1866-1956
+lifespan_detail: Kwok Chuen 1877-1956, Kwok Lam 1866-1933
+```
+
+Timeline events take their `date` from the file name, e.g. `1913-03-20_Assassination of Song Jiaoren` → `date: 1913-03-20`. A `00` month or day means it isn't known: `1901-00-00_…` → `date: 1901`.
+
 ## Places on the map
 
 A **location** note appears on the map when it has one of these:

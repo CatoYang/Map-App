@@ -39,10 +39,13 @@ const plainNumber = t => (/^[1-9]\d*$/.test(t) ? Number(t) : t);
 const years = v => (isEmpty(v) || /^unknown(\s*-\s*unknown)?$/i.test(asText(v)) ? null : plainNumber(isValidYears(v) ? asText(v) : parseYears(v) ?? asText(v)));
 const date = v => (isEmpty(v) ? null : plainNumber(isValidDate(v) ? asText(v) : parseDate(v) ?? asText(v)));
 
-/** The date in a timeline file name ("1928-07-00_…" → "1928-07"), if it agrees with `year`. */
-function dateFromName(name, year) {
+/**
+ * The date in a timeline file name ("1928-07-00_…" → "1928-07"). With `year`,
+ * only if the two agree.
+ */
+function dateFromName(name, year = null) {
   const m = name.match(/^(\d{4})-(\d{2})-(\d{2})_/);
-  if (!m || Number(m[1]) !== Number(asText(year))) return null;
+  if (!m || (year != null && Number(m[1]) !== Number(asText(year)))) return null;
   return parseDate(`${m[1]}-${m[2]}-${m[3]}`);
 }
 
@@ -209,6 +212,11 @@ function standardise(note, fm) {
       default:
         set(isStandardKey(key) ? key : standardKey(key), isPlaceholder(value) ? null : value);
     }
+  }
+  // Events without a date: timeline file names carry one ("1913-03-20_…")
+  if (type === 'event' && isEmpty(out.get('date'))) {
+    const fromName = dateFromName(note.name);
+    if (fromName) set('date', plainNumber(fromName));
   }
   return out;
 }
