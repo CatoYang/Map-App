@@ -36,7 +36,7 @@
       "id": "shanghai-1932",
       "name": "Shanghai 1932 (Virtual Shanghai)",
       "type": "xyz",
-      "url": "/tiles/shanghai-1932/{z}/{x}/{y}.png",
+      "url": "https://pub-1ad0a1b477eb435da7cb742dd295579b.r2.dev/shanghai-1932/{z}/{x}/{y}.png",
       "attribution": "Virtual Shanghai Project (Stanford EarthWorks)",
       "opacity": 0.8,
       "minZoom": 13,

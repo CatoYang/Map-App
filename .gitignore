@@ -22,10 +22,10 @@ dist/
 *.log
 npm-debug.log*
 
-# Generated Assets
-# public/tiles/
+# Local-only assets (tiles are uploaded to R2 with scripts/upload-tiles.sh;
+# raw downloads for georectification). Kept out of git and out of public/.
+local/
 
 # Large/Raw Map Data
 *.tif
 *.tiff
-public/data/acquired/

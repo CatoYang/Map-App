@@ -7,7 +7,7 @@
 #        R2_SECRET_ACCESS_KEY=...
 #        R2_BUCKET=map-tiles
 #   2. bash scripts/upload-tiles.sh <local folder> <name in bucket>
-#        e.g. bash scripts/upload-tiles.sh public/tiles/shanghai-1932 shanghai-1932
+#        e.g. bash scripts/upload-tiles.sh local/tiles/shanghai-1932 shanghai-1932
 #
 # Safe to re-run: files already uploaded and unchanged are skipped.
 set -euo pipefail

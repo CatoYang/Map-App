@@ -132,10 +132,12 @@
 Goal: Map-App repo holds code only; content lives in a private content repo and is published to Supabase / R2.
 
 **P4a — Tiles to Cloudflare R2**
-- [ ] Create R2 bucket + public URL; API token for uploads
-- [ ] Upload `shanghai-1932` tiles (7,326 files, 400 MB) with rclone
-- [ ] Point the tile URL at R2; verify the map on a preview deploy
-- [ ] Remove `public/tiles/` from the repo (keep local copy outside `public/`); also move `public/data/acquired/` out of `public/`
+- [x] Create R2 bucket `map-tiles` + public URL (pub-1ad0a1b477eb435da7cb742dd295579b.r2.dev); API token in `.env.r2.local`
+- [x] Upload `shanghai-1932` tiles (7,326 files, 400 MB) with `scripts/upload-tiles.sh` (verified: 0 differences)
+- [x] Point the tile URL at R2; verify the map on a preview deploy
+- [x] Remove `public/tiles/` from the repo (local copy in gitignored `local/tiles/`); `public/data/acquired/` moved to `local/acquired/`
+- [ ] Optional: rewrite git history to drop the old tiles (repo stays ~460 MB until then; not urgent)
+- [ ] Later: R2 on a custom domain if the rate-limited r2.dev URL becomes a problem
 
 **P4b — Content format & sync** (YAML format owned by Cato — being worked out in Obsidian)
 - [ ] Define the YAML/frontmatter format: documents (visibility, sharing), overlays (mode, colour, active years, geometry file), world data (eras, base maps, regions, categories), characters and their associations to map features

@@ -23,7 +23,6 @@ Map-App/
 │   │   ├── pins/             # GeoJSON and clean JSON for historical buildings/POIs
 │   │   ├── regions/          # GeoJSON for administrative boundaries
 │   │   └── factions/         # GeoJSON and configs for faction overlays
-│   └── tiles/              # Locally hosted raster map tiles (e.g., 1932 map)
 ├── scripts/                # Node and Python scripts for offline data preprocessing
 │   └── preprocess_pins.py  # Python script to clean and optimize raw GeoJSON into JSON
 ├── src/                    # Source code
