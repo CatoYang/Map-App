@@ -11,6 +11,18 @@
       "disabled": true
     },
     {
+      "id": "shanghai-1855",
+      "name": "Shanghai c. 1855 (Reconstruction)",
+      "type": "xyz",
+      "url": "https://pub-1ad0a1b477eb435da7cb742dd295579b.r2.dev/shanghai-1855/{z}/{x}/{y}.png",
+      "attribution": "Reconstruction drawn from &copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors",
+      "opacity": 0.9,
+      "minZoom": 11,
+      "maxZoom": 18,
+      "maxNativeZoom": 16,
+      "period": { "start": 1842, "end": 1894 }
+    },
+    {
       "id": "shanghai-1907",
       "name": "Shanghai 1907 (Outline Plan)",
       "type": "xyz",

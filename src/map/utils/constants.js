@@ -24,7 +24,7 @@ export const EPOCHS = [
     year:       1870,
     start:      1842,
     end:        1894,
-    mapLayerId: 'osm',           // placeholder — georectify German 1903 map when ready
+    mapLayerId: 'shanghai-1855',   // drawn reconstruction: scripts/maps/shanghai-1855.mjs
   },
   {
     id:         'industrialization',
