@@ -158,6 +158,8 @@ Finding the value on the map:
 
 Other notes join the map through their links. A character, Kindred, event or placard with `location: "[[Some Place]]"` belongs to that place.
 
+**Starting a new place:** the vault's `_templates/Location.md` has every location field, with a fold-out box explaining each one. Insert it with Obsidian's *Templates: Insert template* command.
+
 **Not every pin needs a note.** The survey has about 1,800 buildings and most are background. Write a note when a place matters to the story.
 
 ## Campaigns

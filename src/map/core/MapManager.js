@@ -96,9 +96,6 @@ export class MapManager {
    * @param {object} mapSources — parsed map-sources.json
    */
   registerMapSources(mapSources) {
-    const select = document.getElementById('base-layer-select');
-    if (!select) return;
-
     const layers = mapSources.baseLayers || [];
     this.mapSourceConfigs = layers;
 
@@ -108,7 +105,6 @@ export class MapManager {
       let tileLayer;
       if (source.disabled) {
         tileLayer = L.layerGroup();
-        source.name += " (Disabled)";
       } else {
         tileLayer = L.tileLayer(source.url, {
           attribution: source.attribution || '',
@@ -121,18 +117,6 @@ export class MapManager {
       }
 
       this.baseLayers.set(source.id, tileLayer);
-
-      // Add option to the select dropdown
-      const option = document.createElement('option');
-      option.value = source.id;
-      option.textContent = source.name || source.id;
-      if (source.default) option.selected = true;
-      select.appendChild(option);
-
-      // If this is the default, activate it
-      if (source.default && this.activeBaseLayerId === 'osm') {
-        this.setBaseLayer(source.id);
-      }
     }
   }
 
@@ -158,12 +142,6 @@ export class MapManager {
         opacityControl.style.display = layerId === 'osm' ? 'none' : 'flex';
       }
 
-      // Sync the dropdown UI in case the change was triggered programmatically (e.g. Timeline)
-      const select = document.getElementById('base-layer-select');
-      if (select && select.value !== layerId) {
-        select.value = layerId;
-      }
-      
       this.applyRotation();
     } else {
       console.warn(`[MapManager] Unknown base layer ID: ${layerId}`);
@@ -203,16 +181,6 @@ export class MapManager {
     this.baseLayers.set('osm', emptyLayer);
     emptyLayer.addTo(this.map);
     this.activeBaseLayerId = 'osm';
-
-    // Add OSM as first option in selector
-    const select = document.getElementById('base-layer-select');
-    if (select) {
-      const option = document.createElement('option');
-      option.value = 'osm';
-      option.textContent = 'Modern (Disabled)';
-      option.selected = true;
-      select.appendChild(option);
-    }
   }
 
 }

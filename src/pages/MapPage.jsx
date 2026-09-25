@@ -84,14 +84,6 @@ export function MapPage() {
 
         <div className="toolbar__divider"></div>
 
-        {/* Base layer selector — populated by MapManager.js */}
-        <div className="toolbar__group">
-          <label className="toolbar__label">Map:</label>
-          <select id="base-layer-select" className="toolbar__select"></select>
-        </div>
-
-        <div className="toolbar__divider"></div>
-
         {/* Map rotation dropdown */}
         <div className="toolbar__group">
           <label className="toolbar__label">Orientation:</label>

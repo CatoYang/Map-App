@@ -19,7 +19,7 @@
       "sublabel": "1842–1895",
       "year": 1855,
       "start": 1842,
-      "end": 1894,
+      "end": 1895,
       "mapLayerId": "shanghai-1855",
       "regions": false,
       "pins": []
@@ -30,7 +30,7 @@
       "sublabel": "1895–1911",
       "year": 1903,
       "start": 1895,
-      "end": 1910,
+      "end": 1911,
       "mapLayerId": "shanghai-1907",
       "regions": true,
       "pins": [
@@ -43,7 +43,7 @@
       "sublabel": "1911–1927",
       "year": 1917,
       "start": 1911,
-      "end": 1926,
+      "end": 1927,
       "mapLayerId": "shanghai-1910",
       "regions": true,
       "pins": [
@@ -56,7 +56,7 @@
       "sublabel": "1927–1937",
       "year": 1932,
       "start": 1927,
-      "end": 1936,
+      "end": 1937,
       "mapLayerId": "shanghai-1932",
       "regions": true,
       "pins": [
@@ -69,7 +69,7 @@
       "sublabel": "1937–1941",
       "year": 1939,
       "start": 1937,
-      "end": 1940,
+      "end": 1941,
       "mapLayerId": "shanghai-1937",
       "regions": true,
       "pins": [
@@ -82,7 +82,7 @@
       "sublabel": "1941–1945",
       "year": 1943,
       "start": 1941,
-      "end": 1944,
+      "end": 1945,
       "mapLayerId": "shanghai-1948",
       "regions": true,
       "pins": [

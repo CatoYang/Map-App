@@ -7,7 +7,6 @@ export class Toolbar {
     this.mapManager = mapManager;
 
     this._initPinToggle();
-    this._initBaseLayerSelect();
     this._initOpacitySlider();
     this._initRotateToggle();
   }
@@ -20,16 +19,6 @@ export class Toolbar {
         const visible = this.pinManager.toggleVisibility();
         pinToggle.classList.toggle('toolbar__btn--active', visible);
         pinToggle.title = visible ? 'Hide buildings' : 'Show buildings';
-      });
-    }
-  }
-
-  _initBaseLayerSelect() {
-    const baseLayerSelect = document.getElementById('base-layer-select');
-    if (baseLayerSelect) {
-      baseLayerSelect.addEventListener('change', (e) => {
-        if (!this.mapManager) return;
-        this.mapManager.setBaseLayer(e.target.value);
       });
     }
   }

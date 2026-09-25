@@ -19,6 +19,7 @@ export class EpochSelector {
     const epochs  = this.em.getEpochs();
     const current = this.em.getEpoch();
     const currentYear = this.em.getYear();
+    this.renderedEpochId = current.id;
 
     this.container.innerHTML = `
       <div style="display: flex; align-items: center; gap: 12px; width: 100%;">
@@ -56,10 +57,11 @@ export class EpochSelector {
   _updateActive() {
     const current = this.em.getEpoch();
     const currentYear = this.em.getYear();
-    
-    const dropdown = this.container.querySelector('#epoch-dropdown');
-    if (dropdown && dropdown.value !== current.id) {
-      this._render(); // Re-render entirely if epoch changed (to update slider bounds)
+
+    // A new era needs a new slider range. (Picking from the dropdown has
+    // already changed its value, so compare with the era last drawn.)
+    if (current.id !== this.renderedEpochId) {
+      this._render();
       return;
     }
 
