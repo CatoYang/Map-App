@@ -41,23 +41,18 @@ import { eventBus }       from './core/EventBus.js';
 
 /**
  * @param {HTMLElement} container — element the Leaflet map renders into
+ * @param {{ year?: number }} [options] — `year` opens the map in the era
+ *   containing it (a campaign's `map_year`); otherwise config.json `defaultEpoch`
  * @returns {Promise<{ destroy: () => void }>}
  */
-export async function createMap(container) {
+export async function createMap(container, { year } = {}) {
   console.log('[Map-App] Initializing...');
   injectSVGPatterns();
 
   // 1. Config
   const dataLoader = new DataLoader();
-  let config;
-  try {
-    config = await dataLoader.load('data/config.json');
-  } catch (err) {
-    config = {
-      project: { name: 'Historical Map Viewer', defaultCenter: [31.23, 121.47], defaultZoom: 13 },
-      regions: [], pins: [], factions: 'factions/factions.json',
-    };
-  }
+  // The world's eras, regions, pin sets and overlays: nothing works without it
+  const config = await dataLoader.load('data/config.json');
 
   // 2. Map
   const mapManager = new MapManager(container, config.project);
@@ -76,7 +71,7 @@ export async function createMap(container) {
   } catch { /* OSM fallback already loaded */ }
 
   // 4. Core state
-  const epochManager = new EpochManager();
+  const epochManager = new EpochManager(config.epochs, { year, epochId: config.defaultEpoch });
   const modeManager  = new ModeManager();
 
   // 5. Layer infrastructure
@@ -94,10 +89,8 @@ export async function createMap(container) {
 
   // 7. Pins — circle markers, time-filtered
   const pinManager = new PinManager(map, dataLoader, detailPanel);
-  if (config.pins?.length > 0) {
-    for (const pinPath of config.pins) {
-      await pinManager.loadPins(`data/${pinPath}`);
-    }
+  for (const [setId, file] of Object.entries(config.pinSets || {})) {
+    await pinManager.loadPins(`data/${file}`, setId);
   }
 
   // 8. Factions & Overlays
@@ -208,14 +201,14 @@ let queue = Promise.resolve();
  * @param {HTMLElement} container
  * @returns {() => void}
  */
-export function mountMap(container) {
+export function mountMap(container, options) {
   let handle = null;
   let cancelled = false;
 
   queue = queue.then(async () => {
     if (cancelled) return;
     try {
-      handle = await createMap(container);
+      handle = await createMap(container, options);
       if (cancelled) handle.destroy();
     } catch (err) {
       console.error('[Map-App] Fatal error:', err);

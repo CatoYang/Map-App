@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { Link, useParams } from 'react-router';
 import { mountMap } from '../map/createMap.js';
+import { useAsync } from '../lib/useAsync.js';
+import { getCampaign } from '../lib/api/campaigns.js';
 
 /**
  * Full-screen map viewer. Renders the markup the Leaflet modules expect
@@ -12,7 +14,14 @@ export function MapPage() {
   const { campaignId } = useParams();
   const mapRef = useRef(null);
 
-  useEffect(() => mountMap(mapRef.current), []);
+  // The campaign decides where the map opens (its `map_year`, set in the vault)
+  const { data: campaign, loading } = useAsync(() => getCampaign(campaignId), [campaignId]);
+  const startYear = campaign?.settings?.map_year;
+
+  useEffect(() => {
+    if (loading) return undefined;   // wait for the campaign's start year
+    return mountMap(mapRef.current, { year: Number.isFinite(startYear) ? startYear : undefined });
+  }, [loading, startYear]);
 
   return (
     <div className="map-app">

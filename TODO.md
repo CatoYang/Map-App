@@ -140,6 +140,7 @@ Goal: Map-App repo holds code only; content lives in a private content repo and 
 - [x] Rewrite git history to drop old tiles and raw maps (repo ~460 MB → a few MB)
 - [ ] Later: R2 on a custom domain if the rate-limited r2.dev URL becomes a problem
 - [x] 1907 base map (Outline Plan, zoom 10–16) copied to R2 as `shanghai-1907` and enabled for the 1895–1911 era; `scripts/mirror-tiles.mjs` copies any XYZ tile layer
+- [x] 1910, 1937 and 1948 base maps (zoom 10–17) copied to R2 and enabled; every era now has a working base map
 
 **P4b — Content format & sync** (format in [docs/content-format.md](docs/content-format.md); the vault is Cato's)
 - [x] Note format for documents, characters, Kindred, factions, events and locations: types, visibility, secret sections, years, links, `pin`/`coords`
@@ -158,6 +159,9 @@ Goal: Map-App repo holds code only; content lives in a private content repo and 
 - [ ] Build `npm run sync`: files → Supabase (one-way; synced documents read-only in the app; secret sections GM-only)
 
 **P4c — Map reads from Supabase + R2**
+- [x] Eras moved out of code into `public/data/config.json` (`epochs`, `defaultEpoch`); each era sets its base map, whether region shapes/overlays show (`regions`), and which pin sets show (`pins`, from `pinSets`). The 1855 era shows none yet
+- [x] Per-campaign start: `map_year` on the campaign note → `campaigns.settings` via `npm run sync` → the map opens in that era (Old Hatreds: 1855)
+- [ ] 1850s pins and shapes: designate them (likely location notes with `coords`/`pin` + `campaigns`), then add a pin set / region periods for the 1855 era
 - [ ] Tables: world data (eras, base maps, regions, buildings), `overlays` (+ `overlay_grants`) with RLS and tests
 - [ ] `DataLoader`: read world + campaign data from Supabase instead of `public/data/`
 - [ ] Move constants out of code: EPOCHS, CATEGORY_COLORS, SVG patterns, hardcoded modes in `ModeManager` / `createMap.js`

@@ -1,20 +1,27 @@
-import { EPOCHS, DEFAULT_EPOCH_ID } from '../utils/constants.js';
 import { eventBus } from './EventBus.js';
 
 /**
- * EpochManager — replaces TimelineManager's continuous slider with discrete
- * historical epochs. All time-sensitive systems subscribe via onChange().
+ * EpochManager — the historical eras (from config.json `epochs`) and the
+ * current year within one. All time-sensitive systems subscribe via onChange().
  *
- * Emits { epoch, year } on every change so downstream systems can filter.
+ * Each era says what it shows: `mapLayerId` (base map), `regions` (whether
+ * region shapes and overlays appear; default true) and `pins` (which pin sets
+ * from config.json `pinSets`; default all).
  */
 export class EpochManager {
-  constructor() {
-    this.epochs    = EPOCHS;
-    this.current   = EPOCHS.find(e => e.id === DEFAULT_EPOCH_ID) || EPOCHS[3];
-    this.currentYear = this.current.year;
+  /**
+   * @param {object[]} epochs — config.json `epochs`
+   * @param {{ year?: number, epochId?: string }} start — where to open: a year
+   *   (e.g. a campaign's `map_year`) picks the era containing it
+   */
+  constructor(epochs, { year, epochId } = {}) {
+    if (!epochs?.length) throw new Error('No epochs in config.json');
+    this.epochs = epochs;
+    const byYear = Number.isFinite(year) ? epochs.find(e => year >= e.start && year <= e.end) : null;
+    this.current = byYear || epochs.find(e => e.id === epochId) || epochs[0];
+    this.currentYear = byYear ? year : this.current.year;
   }
 
-  // Backwards compatibility for now, though we should migrate callers
   onChange(fn) {
     eventBus.on('epoch:changed', fn);
   }
@@ -31,14 +38,18 @@ export class EpochManager {
   setYear(year) {
     this.currentYear = year;
     eventBus.emit('year:changed', this.currentYear);
-    // For legacy subscribers to onChange (which expects an epoch object, wait, some expect year!)
-    // Actually, onChange currently receives this.current but components check getYear().
     eventBus.emit('epoch:changed', this.current);
   }
 
   getEpoch()  { return this.current; }
   getYear()   { return this.currentYear; }
   getEpochs() { return this.epochs; }
+
+  /** Whether the current era shows region shapes and overlays. */
+  showsRegions() { return this.current.regions !== false; }
+
+  /** Whether the current era shows pins from the given pin set. */
+  showsPins(setId) { return !this.current.pins || this.current.pins.includes(setId); }
 
   /** Compatibility shim — some systems call isActive({start, end}) */
   isActive(period) {

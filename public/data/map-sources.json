@@ -38,12 +38,13 @@
       "id": "shanghai-1910",
       "name": "Shanghai 1910 (Commercial Press)",
       "type": "xyz",
-      "url": "https://gis.sinica.edu.tw/shanghai/file-exists.php?img=Shanghai_12K_1910-png-{z}-{x}-{y}",
+      "url": "https://pub-1ad0a1b477eb435da7cb742dd295579b.r2.dev/shanghai-1910/{z}/{x}/{y}.png",
       "attribution": "Academia Sinica Center for GIS",
       "opacity": 0.8,
+      "minZoom": 10,
       "maxZoom": 18,
-      "period": { "start": 1910, "end": 1910 },
-      "disabled": true
+      "maxNativeZoom": 17,
+      "period": { "start": 1910, "end": 1910 }
     },
     {
       "id": "shanghai-1932",
@@ -61,23 +62,25 @@
       "id": "shanghai-1937",
       "name": "Shanghai 1937 (The New Map)",
       "type": "xyz",
-      "url": "https://gis.sinica.edu.tw/shanghai/file-exists.php?img=Shanghai_20K_1937_1-png-{z}-{x}-{y}",
+      "url": "https://pub-1ad0a1b477eb435da7cb742dd295579b.r2.dev/shanghai-1937/{z}/{x}/{y}.png",
       "attribution": "Academia Sinica Center for GIS",
       "opacity": 0.8,
+      "minZoom": 10,
       "maxZoom": 18,
-      "period": { "start": 1937, "end": 1937 },
-      "disabled": true
+      "maxNativeZoom": 17,
+      "period": { "start": 1937, "end": 1937 }
     },
     {
       "id": "shanghai-1948",
       "name": "Shanghai 1948 (Urban Planning)",
       "type": "xyz",
-      "url": "https://gis.sinica.edu.tw/shanghai/file-exists.php?img=Shanghai_13K_1948-png-{z}-{x}-{y}",
+      "url": "https://pub-1ad0a1b477eb435da7cb742dd295579b.r2.dev/shanghai-1948/{z}/{x}/{y}.png",
       "attribution": "Academia Sinica Center for GIS",
       "opacity": 0.8,
+      "minZoom": 10,
       "maxZoom": 18,
-      "period": { "start": 1948, "end": 1948 },
-      "disabled": true
+      "maxNativeZoom": 17,
+      "period": { "start": 1948, "end": 1948 }
     }
   ]
 }

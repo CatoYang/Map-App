@@ -17,11 +17,14 @@ select public.redeem_invite(:'code');
 
 select tests.eq('new campaigns have an empty theme',
   (select theme from public.campaigns where id = :'cid'), '{}'::jsonb);
+select tests.eq('new campaigns have no settings',
+  (select settings from public.campaigns where id = :'cid'), '{}'::jsonb);
 
 -- The sync uses the secret key, which bypasses the rules (here: superuser)
 reset role;
 update public.campaigns
-  set theme = jsonb_build_object('accent', '#b01c2e', 'background', :'cid' || '/background-1a2b3c4d.webp')
+  set theme = jsonb_build_object('accent', '#b01c2e', 'background', :'cid' || '/background-1a2b3c4d.webp'),
+      settings = jsonb_build_object('map_year', 1855)
   where id = :'cid';
 insert into storage.objects (bucket_id, name) values
   ('campaign-assets', :'cid' || '/background-1a2b3c4d.webp'),
@@ -33,6 +36,8 @@ set role authenticated;
 \warn '== Members read the theme and its images; nobody changes them'
 -- ---------------------------------------------------------------------------
 select set_config('request.jwt.claim.sub', :'player', false);
+select tests.eq('player reads the map start year',
+  (select (settings->>'map_year')::int from public.campaigns where id = :'cid'), 1855);
 select tests.eq('player reads the accent colour',
   (select theme->>'accent' from public.campaigns where id = :'cid'), '#b01c2e');
 select tests.eq('player sees this campaign''s theme image only',
@@ -45,6 +50,8 @@ select tests.eq('player cannot delete theme images',
 select set_config('request.jwt.claim.sub', :'gm', false);
 select tests.throws('gm cannot change the theme in the app (published from the vault)',
   format($$update public.campaigns set theme = '{}' where id = %L$$, :'cid'));
+select tests.throws('gm cannot change settings in the app (published from the vault)',
+  format($$update public.campaigns set settings = '{}' where id = %L$$, :'cid'));
 select tests.throws('gm cannot upload theme images in the app',
   format($$insert into storage.objects (bucket_id, name) values ('campaign-assets', %L)$$, :'cid' || '/x.webp'));
 

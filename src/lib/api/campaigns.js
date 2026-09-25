@@ -24,7 +24,7 @@ export async function listMyCampaigns(userId) {
 export async function getCampaign(campaignId) {
   return unwrap(await supabase
     .from('campaigns')
-    .select('id, name, description, world_pack, owner_id, theme')
+    .select('id, name, description, world_pack, owner_id, theme, settings')
     .eq('id', campaignId)
     .maybeSingle());
 }

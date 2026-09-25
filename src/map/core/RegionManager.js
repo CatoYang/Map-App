@@ -20,8 +20,8 @@ export class RegionManager {
     this.active  = false;
 
     // Subscribe to epoch changes
-    this.epochManager.onChange((epoch) => {
-      if (this.active) this._renderForYear(epoch.year);
+    this.epochManager.onChange(() => {
+      if (this.active) this._renderForYear(this.epochManager.getYear());
     });
   }
 
@@ -72,8 +72,9 @@ export class RegionManager {
 
   /** @param {number} year */
   _renderForYear(year) {
+    const shown = this.epochManager.showsRegions();   // some eras show no shapes
     for (const region of this.regions) {
-      const activePeriod = (region.periods || []).find(
+      const activePeriod = shown && (region.periods || []).find(
         p => year >= p.start && year <= p.end
       );
 

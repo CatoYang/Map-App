@@ -172,6 +172,7 @@ active_years: 1853-1865
 background: "[[Market stalls Shanghai 1890s.jpg]]"   # backdrop inside the campaign
 cover: "[[Market stalls Shanghai 1890s.jpg]]"        # its card on the campaign list
 accent: "#b01c2e"                                     # lines and highlights
+map_year: 1855                                        # the map opens in the era containing this year
 ---
 ```
 
@@ -186,7 +187,7 @@ accent: "#b01c2e"                                     # lines and highlights
 
 | `type` | For | Fields the app reads (besides the common ones) |
 |---|---|---|
-| `campaign` | A chronicle set in this world | `app_id`, `active_years`, `background`, `cover`, `accent`. See [Campaigns](#campaigns) |
+| `campaign` | A chronicle set in this world | `app_id`, `active_years`, `background`, `cover`, `accent`, `map_year`. See [Campaigns](#campaigns) |
 | `location` | Places | `pin` (one or a list) or `coords`, `category`, `address`, `active_years`, `mortal_status`, `kindred_status`, `faction` |
 | `character` | Mortals, including ghouls | `category`, `lifespan`, `active_years`, `mortal_status`, `status`, `affiliation`, `faction`, `location`, `domitor` (a ghoul's regnant) |
 | `kindred` | Vampires | `clan`, `generation`, `sire`, `childer`, `active_years`, `kindred_status`, `faction`, `location`, `haven` |
@@ -222,7 +223,7 @@ Run these in Map-App. They read the vault folder set by `CONTENT_DIR` in `.env.l
 | `npm run content:check` | Checks every note and writes `_reports/Content check.md` into the vault. Changes nothing else. |
 | `npm run content:standardise` | Previews rewriting notes' YAML into this format, in `_reports/Standardise preview.md`. Useful after pasting in notes written the old way. |
 | `npm run sync -- --dry-run` | Shows what the sync would publish, without sending anything. |
-| `npm run sync` | Publishes to the app. For now this means each campaign's look; notes come next. Needs `SUPABASE_SECRET_KEY` in Map-App's `.env.sync.local`. |
+| `npm run sync` | Publishes to the app. For now this means each campaign's look and `map_year`; notes come next. Needs `SUPABASE_SECRET_KEY` in Map-App's `.env.sync.local`. |
 | `npm run content:standardise -- --apply` | Writes those changes, after backing up every note to Map-App's `local/vault-backups/`. Only the YAML block changes; note text is never touched. |
 
 The vault was converted to this format on 2026-09-25 with `content:standardise`. The script still understands the old field names (`Category`, `Mortal Status`, `Active Years`…), so notes pasted in the old style can be converted the same way.

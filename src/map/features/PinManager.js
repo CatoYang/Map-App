@@ -41,7 +41,11 @@ export class PinManager {
     }
   }
 
-  async loadPins(path) {
+  /**
+   * @param {string} path — pin file under public/
+   * @param {string} setId — its key in config.json `pinSets`; eras list the sets they show
+   */
+  async loadPins(path, setId) {
     try {
       const data = await this.dataLoader.load(path);
 
@@ -77,13 +81,14 @@ export class PinManager {
           marker, 
           name: item.name.toLowerCase(), 
           category: item.category, 
+          set: setId,
           suppressed: false 
         });
       }
 
       console.log(`[PinManager] Successfully loaded ${this.allFeatures.length} pins from ${path}`);
       
-      this.filterByEpoch(this.currentEpoch || { start: 1930, end: 1930 });
+      if (this.currentEpoch) this.filterByEpoch(this.currentEpoch);   // createMap filters on start-up
     } catch (err) {
       console.error('Error loading pins:', err);
     }
@@ -115,6 +120,9 @@ export class PinManager {
     let shown = 0;
     for (const item of this.allFeatures) {
       if (item.suppressed) continue; // Skip suppressed
+
+      // Only the pin sets this era shows (none listed = all)
+      if (epoch.pins && !epoch.pins.includes(item.set)) continue;
 
       // Filter by category
       if (!this.filters.categories.has(item.category)) {

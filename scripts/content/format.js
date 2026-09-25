@@ -38,6 +38,7 @@ export const FIELDS = {
     background: { kind: 'image' },
     cover: { kind: 'image' },
     accent: { kind: 'color' },
+    map_year: { kind: 'number' },      // the year the campaign's map opens at
   },
   location: {
     category: { kind: 'text-or-list' },

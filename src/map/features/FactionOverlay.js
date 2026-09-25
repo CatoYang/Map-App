@@ -163,10 +163,11 @@ export class FactionOverlay {
 
   _renderForYear(year) {
     const activeLabelMarkers = new Set();
+    const shown = this.epochManager.showsRegions();   // some eras show no shapes
     
     for (const [, entries] of this.factionLayers) {
       for (const { period, layerId, labelMarker } of entries) {
-        const isActive = year >= period[0] && year <= period[1];
+        const isActive = shown && year >= period[0] && year <= period[1];
         if (isActive) {
           this.layerManager.show(layerId);
           if (labelMarker) activeLabelMarkers.add(labelMarker);

@@ -118,6 +118,7 @@ campaigns       id, name, description,
                 ruleset          -- e.g. 'vtm'; drives ruleset-specific modes later
                 theme            -- { accent, cover, background }: set by the sync from the
                                  -- campaign note; images in the 'campaign-assets' bucket
+                settings         -- { map_year }: set by the sync; the map opens in that era
                 owner_id, created_at
 
 memberships     campaign_id, user_id, role ('gm' | 'player'), joined_at

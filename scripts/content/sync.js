@@ -5,7 +5,8 @@
  *   npm run sync -- --dry-run  show what would be published (no key needed)
  *
  * For now this publishes each campaign note's look (background, cover,
- * accent) to its campaign in the app. Notes themselves come next.
+ * accent) and settings (map_year) to its campaign in the app. Notes
+ * themselves come next.
  *
  * Needs SUPABASE_SECRET_KEY in .env.sync.local (gitignored). That key
  * bypasses every access rule: never commit it, never put it in a VITE_ variable.
@@ -76,7 +77,11 @@ async function planCampaigns(vault) {
     }
     if (problem) { plans.push({ note, problem }); continue; }
     if (/^#[0-9a-f]{6}$/i.test(asText(fm.accent))) theme.accent = asText(fm.accent);
-    plans.push({ note, appId, theme, uploads });
+
+    const settings = {};
+    const year = parseInt(asText(fm.map_year), 10);
+    if (Number.isFinite(year)) settings.map_year = year;   // where the campaign's map opens
+    plans.push({ note, appId, theme, settings, uploads });
   }
   return plans;
 }
@@ -97,7 +102,8 @@ async function publishCampaign(supabase, plan) {
     if (upError) throw upError;
   }
 
-  const { error: updateError } = await supabase.from('campaigns').update({ theme: plan.theme }).eq('id', plan.appId);
+  const { error: updateError } = await supabase.from('campaigns')
+    .update({ theme: plan.theme, settings: plan.settings }).eq('id', plan.appId);
   if (updateError) throw updateError;
 
   // Remove images the theme no longer uses
@@ -129,6 +135,7 @@ for (const plan of plans) {
     console.log(`• ${label} → app campaign ${plan.appId}`);
     for (const u of plan.uploads) console.log(`    ${u.path}  ${(u.data.length / 1024).toFixed(0)} KB  (from ${u.source})`);
     console.log(`    theme: ${JSON.stringify(plan.theme)}`);
+    console.log(`    settings: ${JSON.stringify(plan.settings)}`);
     continue;
   }
   try {

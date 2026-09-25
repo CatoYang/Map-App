@@ -70,11 +70,12 @@ export class GenericOverlay {
   }
 
   _renderForYear(year) {
+    const shown = this.epochManager.showsRegions();   // some eras show no shapes
     for (const overlay of this.overlays) {
       const entries = this.layers.get(overlay.id);
       if (!entries) continue;
 
-      const isActive = year >= overlay.active.start && year <= overlay.active.end;
+      const isActive = shown && year >= overlay.active.start && year <= overlay.active.end;
       for (const { layerId } of entries) {
         if (isActive) {
           this.layerManager.show(layerId);
