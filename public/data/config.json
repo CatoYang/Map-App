@@ -343,8 +343,12 @@
       ]
     }
   ],
-  "factions": "factions/factions.json",
-  "overlays": [],
+  "overlayModes": [
+    { "id": "control",  "label": "Mortal control",  "icon": "⚔️", "scope": "world",    "description": "Who governs each area" },
+    { "id": "military", "label": "Military",        "icon": "🪖", "scope": "world",    "description": "Battle lines and occupied zones" },
+    { "id": "domains",  "label": "Kindred domains", "icon": "🦇", "scope": "campaign", "description": "Which sect or Kindred holds which territory" },
+    { "id": "clans",    "label": "Clan presence",   "icon": "🩸", "scope": "campaign", "description": "Where each clan is strong" }
+  ],
   "pinSets": {
     "buildings": "pins/clean_pins.json"
   },

@@ -1,5 +1,6 @@
 import { pinRef } from '../utils/pinRef.js';
 import { noteSnippet } from '../ui/NoteSnippet.js';
+import { escapeHtml } from '../utils/html.js';
 
 export class DetailPanel {
   constructor(sidebar, containerId = 'detail-panel') {
@@ -41,6 +42,25 @@ export class DetailPanel {
     } catch (err) {
       console.error('[DetailPanel] Error in showRegion:', err);
     }
+  }
+
+  /** A territory from an overlay (see OverlayManager). */
+  showTerritory(row) {
+    if (!this.container) return;
+    this.sidebar?.open();
+    const years = row.from_year || row.to_year
+      ? `<p class="detail-panel__dates">${row.from_year ?? '…'} &mdash; ${row.to_year ?? '…'}</p>` : '';
+    this.container.innerHTML = `
+      <div class="detail-panel__content">
+        <h3 class="detail-panel__title">
+          <span class="legend__swatch" style="background:${escapeHtml(row.color)}"></span>
+          ${escapeHtml(row.name)}
+        </h3>
+        ${years}
+        ${row.faction ? `<p>Held by <strong>${escapeHtml(row.faction)}</strong></p>` : ''}
+        ${row.campaign_id && row.visibility === 'private' ? '<p class="detail-panel__dates">Hidden from players</p>' : ''}
+      </div>
+    `;
   }
 
   showPin(properties) {

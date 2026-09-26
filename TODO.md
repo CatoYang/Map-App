@@ -7,211 +7,136 @@
 
 ---
 
-## Phase 0 — Project Scaffolding
-- [x] Create Vite project (package.json, vite.config.js)
-- [x] Create index.html with map container, sidebar, controls layout
-- [x] Create src/ folder structure with module stubs
-- [x] Create public/data/ folder structure with placeholder configs
-- [x] Move existing assets into public/assets/maps/
-- [x] Delete old script.js, style.css placeholders
-- [x] Set up .github/workflows/deploy.yml (Cloudflare Pages)
-- [x] Update .gitignore for node_modules, dist
-- [x] npm install + verify dev server starts
-- [x] Verify basic map renders (OSM base layer, centered on Shanghai)
+## Next up (in order)
+1. **1855 places for Old Hatreds** — `[/]` Cato is writing the location notes in the vault (not pushed yet). Then: `npm run sync` publishes them → a "places" pin set the 1855 era shows (see P4b/P4c below)
+2. **Test as a player** with a second Google account, before inviting real players (P3) — now also checks that players only see revealed territories
+3. **Draw territories**: Kindred domains, clan presence and military for each era, on the map (see *Territories*)
+4. **Document sync**: vault notes → app documents, with `_config/players.yaml` for who sees what (P4b)
 
-## Data Acquisition Phase
-- [x] **Virtual Shanghai** — Download building dataset (1,790 pre-1949 buildings, Resource ID 204) & concession boundary shapefiles from virtualshanghai.net/Data/Tables
-- [x] **Stanford EarthWorks** — Download French Concession boundary polygons (1849-1861, 1861-1900, 1914-1943) from earthworks.stanford.edu
-- [x] **Academia Sinica WMTS** — Test tile service at gis.sinica.edu.tw/shanghai/wmts; verify 1907/1910/1937/1948 map layers load in Leaflet
-- [x] **OpenHistoricalMap** — Query Overpass API for historical Shanghai features (boundaries, buildings, historic POIs)
-- [x] Evaluate datasets: compare coverage, quality, coordinate systems, licensing
-- [x] Convert best sources from Shapefile to GeoJSON (ogr2ogr / mapshaper)
-- [x] Validate coordinate systems (WGS-84 vs GCJ-02) and convert if needed
-
-## Georectification (Manual — Your Task)
-- [x] **Primary map**: Georectify 15988000.jpg (1937 Shanghai) via MapWarper or Allmaps (Completed via Stanford Earthworks download of 15988000 COG/TIF)
-- [x] **Secondary maps**: Georectify additional maps as needed (German 1903, German 1907, etc.)
-- [x] Test Academia Sinica pre-georectified tiles as interim base layers
-- [x] Register all georectified map sources in public/data/map-sources.json
-- [ ] Rasterise additional historical maps for local CDN deployment (Currently blocked by Stanford EarthWorks preview bug, delaying for now)
-
-## Phase 1 — Base Map & Historical Overlay
-- [x] Implement MapManager.js — init Leaflet, base layer switching
-- [x] Implement DataLoader.js — fetch wrapper with BASE_URL + caching
-- [x] Integrate georectified historical map tiles as overlay
-- [x] Add opacity control for historical overlay
-- [x] Add base layer switcher (modern OSM vs historical maps)
-
-## Phase 2 — Regions & Hover System
-- [x] Implement LayerManager.js — load GeoJSON, manage layer groups
-- [x] Implement RegionHover.js — hover highlight, click selection
-- [x] Implement DetailPanel.js — render region details in sidebar
-- [x] Implement Sidebar.js — collapsible panel, responsive
-- [x] Populate region GeoJSON from acquired data
-- [x] Style regions with configurable fill/stroke
-
-## Phase 3 — Factions & Overlay Modes
-- [x] Implement ModeManager.js — mode switching, layer group swap
-- [x] Implement FactionOverlay.js — faction coloring, symbols, patterns
-- [x] Implement EpochManager.js — timeline state, discrete epoch filtering (Replaces TimelineManager)
-- [x] Implement ModeSelector.js — UI for switching modes
-- [x] Implement EpochSelector.js — discrete epoch UI (Replaces TimelineSlider)
-- [x] Implement Legend.js — dynamic legend per mode
-- [x] Create initial faction definitions (factions.json)
-- [x] Implement Spatial Join (Turf.js) to auto-assign Locales to POIs based on region polygons
-- [ ] **PERFORMANCE BLOCKER**: The dynamically calculating/moving overlays (Turf.js) are too computationally intensive and lag the page. Revert these to static, pre-calculated overlays for now.
-- [ ] *Future optimization*: Re-develop the dynamic overlay shape engine (Buffer, Voronoi, Concave Hull) using web workers or server-side preprocessing to avoid browser lag.
-- [ ] Create specialized overlay configs (political, military, etc.)
-- [ ] Create Overlays for locales, so its adaptable for inference for the other overlays
-- [ ] Create Overlays for none specified regions, like zhabei or paoshan
-
-## Phase 4 — Pins & Points of Interest
-- [x] Implement PinManager.js — markers, clustering, popups
-- [x] Implement LayerControl.js — custom layer toggle UI
-- [x] Integrate leaflet.markercluster
-- [x] Category-specific pin icons
-- [x] Rich popups with images, dates, descriptions
-- [x] Pin filtering by category and time period
-- [x] Clean up pin data (manually or assisted) to list buildings instead of streets/addresses
-- [x] Create a search function for users to search for specific buildings
-- [x] Create different colour representation when a pin is associated with another faction when in certain view modes 
-
-## Phase 5 — Polish & Deployment
-- [x] Connect repo to Cloudflare Pages (dashboard setup)
-- [x] Verify production build deploys correctly
-- [ ] Write docs/georectification-guide.md
-- [ ] Write docs/adding-content.md
-- [ ] Performance audit (Lighthouse)
-- [ ] Mobile responsiveness pass
-
-## Phase 6 — Data population
-- [ ] Include information regarding each faction
-- [ ] Include historical information regarding specific buildings
-- [ ] Include major events into a timeline for tracking events happening in the universe
-- [ ] 
-- [ ] 
-- [ ] 
+---
 
 ## Platform — Campaign Companion (see docs/architecture.md)
 
 ### P1 — Foundations
-- [x] Create Supabase project; enable Google provider (Google Cloud OAuth client, redirect URLs incl. localhost)
-- [x] Convert app to React + React Router; add Mantine
-- [x] Add Supabase client (`src/lib/supabase.js`) with `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY`
-- [x] Login page, session context, auth guard, sign out
-- [x] Move Leaflet code into `src/map/`; refactor `init()` → `createMap(container)` + `destroy()`
-- [x] `MapPage` mounts the existing map (current data, unchanged) at `/c/:id/map/:mapId`
-- [x] Deploy via Cloudflare Pages Git integration (`campaign-orchestrator` → vtm-shanghai.pages.dev): build command `npm run build`, output `dist`, Supabase settings from committed `.env.production`; GitHub Actions is a build check only. No `_redirects` needed — Pages serves index.html for unknown paths
-- [x] Add `/privacy` page (what's stored: name, email, campaign content; not shared)
-- [x] After first deploy: fill Google Branding (home page, privacy link, authorized domain `vtm-shanghai.pages.dev`), add prod URL to Google JS origins + Supabase Site/Redirect URLs, then **Publish app** (Google OAuth is in Testing mode until then — test users only)
+- [x] Supabase project, Google sign-in, React + React Router + Mantine, login / session / sign out
+- [x] Leaflet code in `src/map/`, mounted by `MapPage` at `/c/:id/map/:mapId`
+- [x] Deploy via Cloudflare Pages Git integration (`campaign-orchestrator` → vtm-shanghai.pages.dev): build command `npm run build`, output `dist`, Supabase settings from committed `.env.production`; GitHub Actions (`build.yml`) is a build check only
+- [x] `/privacy` page; Google OAuth branding done and app published
 - [x] Keep-alive: `ping()` DB function + scheduled GitHub Action every 3 days (`.github/workflows/supabase-keepalive.yml`) to stop free-tier pausing (public repos: GitHub disables schedules after 60 days without commits — use a Cloudflare Worker cron if that becomes a problem)
 
 ### P2 — Campaigns & Membership
-- [x] Set up Supabase CLI + `supabase/migrations/`
-- [x] Tables: `profiles`, `campaigns`, `memberships`, `invites`
-- [x] Helper functions `is_member`, `is_gm`; RLS policies on all tables
-- [x] `create_campaign()`, `invite_preview()` and `redeem_invite()` database functions
-- [x] Access rule tests against throwaway Postgres (`npm run test:db`)
+- [x] Tables `profiles`, `campaigns`, `memberships`, `invites` with RLS; `create_campaign()`, `invite_preview()`, `redeem_invite()`; tests (`npm run test:db`)
 - [x] Pages: `/campaigns` (list + create), `/join/:code`, `/c/:id` campaign home (map, members, GM invite links)
-- [x] Apply migration to the hosted project (`supabase db push`) and test on a preview deploy
 - [ ] Later (P5): change member roles, remove members, leave / delete campaign, edit campaign details in the UI (the database rules already allow these)
 
 ### P3 — Documents
-- [x] Tables: `documents`, `document_grants`; helpers; RLS for view/edit/create/share (tested in `supabase/tests/documents.test.sql`)
-- [x] Document list (by folder) and reader with sanitised markdown (DOMPurify)
-- [x] Markdown editor with toolbar + live preview (plain markdown; WYSIWYG can come with the UI pass)
-- [x] Import `.md` files; export document as `.md` / whole campaign as `.zip`
-- [x] Visibility toggle (private / campaign) and per-player share dialog (view / edit)
-- [x] Warn on save if the document changed since it was opened
-- [x] Image uploads to Supabase Storage with matching access rules (button or paste)
-- [x] Apply migration (`npx supabase db push`) and test on a preview deploy (GM side)
-- [ ] **Deferred:** test with a second Google account as a player — invite/join flow (P2), shared vs private documents, edit grants, conflict prompt, images visible to the right people
+- [x] Tables `documents`, `document_grants` with RLS and tests; list, reader (DOMPurify), markdown editor with preview
+- [x] Import / export (`.md`, whole campaign as `.zip`); visibility and per-player sharing; save-conflict warning; image uploads to Supabase Storage
+- [ ] **Test with a second Google account as a player** — invite/join flow (P2), shared vs private documents, edit grants, conflict prompt, images visible to the right people. Do this before inviting real players
 - [ ] Later: include images in exports; clean up images of deleted documents; links between documents
 
 ### P4 — Map Data Split (see docs/architecture.md §4)
-Goal: Map-App repo holds code only; content lives in a private content repo and is published to Supabase / R2.
+Goal: Map-App repo holds code only; content lives in the private vault and is published to Supabase / R2.
 
-**P4a — Tiles to Cloudflare R2**
-- [x] Create R2 bucket `map-tiles` + public URL (pub-1ad0a1b477eb435da7cb742dd295579b.r2.dev); API token in `.env.r2.local`
-- [x] Upload `shanghai-1932` tiles (7,326 files, 400 MB) with `scripts/upload-tiles.sh` (verified: 0 differences)
-- [x] Point the tile URL at R2; verify the map on a preview deploy
-- [x] Remove `public/tiles/` from the repo (local copy in gitignored `local/tiles/`); `public/data/acquired/` moved to `local/acquired/`
-- [x] Raw scanned maps (`assets/`, `public/assets/maps/` — duplicates, unused by the app) moved to gitignored `local/raw-maps/`
-- [x] Rewrite git history to drop old tiles and raw maps (repo ~460 MB → a few MB)
+**P4a — Tiles to Cloudflare R2** (done)
+- [x] R2 bucket `map-tiles` (pub-1ad0a1b477eb435da7cb742dd295579b.r2.dev); API token in `.env.r2.local`; `scripts/upload-tiles.sh` and `scripts/mirror-tiles.mjs`
+- [x] Every era has a base map on R2: drawn c. 1855, 1907, 1910, 1932, 1937, 1948
+- [x] Tiles, scans and acquired data moved out of the repo into gitignored `local/`; git history rewritten (~460 MB → a few MB)
 - [ ] Later: R2 on a custom domain if the rate-limited r2.dev URL becomes a problem
-- [x] 1907 base map (Outline Plan, zoom 10–16) copied to R2 as `shanghai-1907` and enabled for the 1895–1911 era; `scripts/mirror-tiles.mjs` copies any XYZ tile layer
-- [x] 1910, 1937 and 1948 base maps (zoom 10–17) copied to R2 and enabled; every era now has a working base map
 
 **P4b — Content format & sync** (format in [docs/content-format.md](docs/content-format.md); the vault is Cato's)
-- [x] Note format for documents, characters, Kindred, factions, events and locations: types, visibility, secret sections, years, links, `pin`/`coords`
-- [x] `npm run content:check` (report in the vault's `_reports/`)
-- [x] `npm run content:standardise`: converted all 767 notes to the format on 2026-09-25 (YAML only; backup in `local/vault-backups/`)
-- [x] `pin` takes a list (a place can be several buildings, e.g. a bank's branches). Bulk pin matching was dropped: which buildings a place covers needs research, so pins are added as the story needs them
-- [x] Map helpers: a building's panel shows its `pin:` line; right-click copies `coords:`
-- [x] Vault is a private repo (CatoYang/Songs-of-Shanghai, git via Obsidian Git on Windows); `CONTENT_DIR` in `.env.local` points at it
-- [x] Vault clean-up (2026-09-25): merged 20 groups of duplicate notes (same place under several categories, e.g. a hotel + its bar and ballroom; Ezra and Hardoon), renamed the two different Defy Bane powers, removed the 52 generated example Kindred (starting afresh), dated timeline events from their file names. Backups in `local/vault-backups/`
-- [ ] Format for map-only data: regions, faction control of regions, overlay modes/colours (with P4c)
+- [x] Note format, `npm run content:check`, `npm run content:standardise` (all 767 notes converted 2026-09-25; backups in `local/vault-backups/`)
+- [x] Vault is a private repo (CatoYang/Songs-of-Shanghai, Obsidian Git on Windows); `CONTENT_DIR` in `.env.local` points at it
+- [x] `pin` takes a list; building panels show their `pin:` line; right-click copies `coords:`
+- [x] Vault clean-up 2026-09-25: merged duplicate notes, removed generated example Kindred, dated timeline events from file names
+- [x] World + campaigns model: `type: campaign` notes (with `app_id`); notes join one with `campaigns: ["[[…]]"]`, else they're world lore
+- [x] Campaign look (`background` / `cover` / `accent`) and `map_year` published by `npm run sync`; app backgrounds in `src/assets/brand/`
+- [x] Location note template in the vault (`_templates/Location.md`, every field with a fold-out explanation)
+- [ ] `npm run sync`, part 2: location notes → Supabase so the map can show them as pins (needed for **Next up #1**)
+- [ ] `npm run sync`, part 3: notes → app documents (one-way; synced documents read-only in the app; secret sections GM-only)
 - [ ] `_config/players.yaml` (player handle → Google e-mail) and image uploads, settled with the sync
-- [x] World + campaigns model: the vault is a world; `type: campaign` notes (with `app_id`) tie chronicles to app campaigns; notes join one with `campaigns: ["[[…]]"]`, else they're shared world lore
-- [x] Campaign look: `background` / `cover` / `accent` on the campaign note → `npm run sync` (first part: shrinks images to WebP, uploads to the private `campaign-assets` bucket, sets `campaigns.theme`)
-- [x] App backgrounds: five swappable SVGs in `src/assets/brand/` (pick per page in `src/lib/brand.js`); campaign pages show the campaign's background and accent, cards its cover
+- [x] Territories are drawn on the map and stored in Supabase, not written in the vault (they link to faction notes by name). Overlay modes live in config.json `overlayModes`
+- [ ] Format for region borders (Explore mode), with P4c
 - [ ] Deferred: rotating placard of trivia (from `placard` notes) on the landing or campaign pages
-- [ ] Build `npm run sync`: files → Supabase (one-way; synced documents read-only in the app; secret sections GM-only)
 
 **P4c — Map reads from Supabase + R2**
-- [x] Eras moved out of code into `public/data/config.json` (`epochs`, `defaultEpoch`); each era sets its base map, whether region shapes/overlays show (`regions`), and which pin sets show (`pins`, from `pinSets`). The 1855 era shows none yet
-- [x] Per-campaign start: `map_year` on the campaign note → `campaigns.settings` via `npm run sync` → the map opens in that era (Old Hatreds: 1855)
-- [ ] 1850s pins and shapes: designate them (likely location notes with `coords`/`pin` + `campaigns`), then add a pin set / region periods for the 1855 era
-- [ ] Tables: world data (eras, base maps, regions, buildings), `overlays` (+ `overlay_grants`) with RLS and tests
+- [x] Eras live in `public/data/config.json` (`epochs`, `defaultEpoch`): base map, whether regions show, which pin sets show. Era years match their labels (boundary years belong to both neighbours)
+- [x] The era picks the base map (the separate Map dropdown is gone); the year slider redraws when the era changes
+- [x] Per-campaign start: `map_year` on the campaign note → the map opens in that era (Old Hatreds: 1855)
+- [ ] "Places" pin set: synced location notes with `coords`/`pin`, filtered by campaign and visibility; turned on for the 1855 era (needed for **Next up #1**)
+- [ ] 1855 shapes (walled city, early concession lines) drawn in geojson.io, added as region periods
+- [x] `overlays` + `world_editors` tables with RLS and tests (migration `20260928120000_overlays.sql`, applied 2026-09-26); the map reads them
+- [ ] Tables: world data (eras, base maps, regions, buildings) with RLS and tests
+- [ ] Later: `overlay_grants`, to reveal a territory to one player instead of the whole campaign
 - [ ] `DataLoader`: read world + campaign data from Supabase instead of `public/data/`
-- [ ] Move constants out of code: EPOCHS, CATEGORY_COLORS, SVG patterns, hardcoded modes in `ModeManager` / `createMap.js`
+- [ ] Move remaining constants out of code: CATEGORY_COLORS, SVG patterns
 - [ ] Remove `public/data/` from the repo (existing data isn't secret; git history can stay)
-- [ ] Fix the review bugs (pin hover, year slider sync, overlay pin colouring, toGeoJSON perf) as part of this refactor
 
 ### P5 — GM Tools
 - [ ] Admin page: members, roles, invite links (create / revoke / expiry)
-- [ ] Grant management and one-click "reveal to campaign"
-- [ ] Draw and edit overlays on the map (e.g. leaflet-geoman)
+- [ ] Grant management for documents and territories (territories already have "Players can see this")
+- [x] Draw and edit territories on the map (Leaflet-Geoman, `OverlayEditor.js`): new, reshape, remove shapes, delete, copy an empty era from the one before
 
 ### UI & Visual Design (deferred)
 - [ ] Define a visual identity: colour palette, typography, overall mood (period / noir fit for the setting)
-- [ ] Backgrounds and imagery for the non-map pages (landing, login, campaigns, campaign home)
+- [/] Backgrounds and imagery for the non-map pages (five brand backgrounds and campaign looks done; landing and login still plain)
 - [ ] Mantine theme (colours, fonts, radius) so every page shares one style
 - [ ] Bring the map UI (`src/map/map.css`, own dark theme) in line with the rest of the app
 - [ ] Landing page design
-- [ ] Mobile / small-screen layout pass
+- [ ] Mobile / small-screen layout pass (app and map)
+- [ ] Performance audit (Lighthouse)
 
 ### P6 — Generalisation (deferred)
 - [ ] Open campaign creation to other GMs
 - [ ] Select / upload world packs
 - [ ] Ruleset-specific modes driven by `campaigns.ruleset`
 
-## Code Review Findings (2026-09-24)
+---
 
-### Bugs
-- [ ] **Pin hover throws**: `PinManager.js` mouseover/mouseout pass the raw pin item to `_getPinColor`, which reads `feature.geometry.coordinates` (undefined) → TypeError on every hover, highlight never applies
-- [ ] **Likely real cause of the PERFORMANCE BLOCKER**: `_getColorFromOverlay` calls `layer.toGeoJSON()` for every faction layer × every pin (~1,800) on each re-render, including every slider tick. Turf only builds one shape (Green Gang, 15 pins) once at load. Cache each layer's GeoJSON or pre-compute pin → region membership (pins already carry `locale`)
-- [ ] **Regions ignore the year slider**: `RegionManager` renders for `epoch.year`, while factions/legend use `getYear()` — legend and drawn boundaries can disagree (e.g. Treaty Port era, slider at 1850). Pin colouring has the same issue (`currentEpoch.year`)
-- [ ] **Generic overlays never recolour pins**: `_getColorFromOverlay` looks for `overlay.overlayLayers`, but `GenericOverlay` stores `this.layers`, and its entries have no `period`
-- [ ] **Slider tick reloads base map**: `setYear` emits `epoch:changed`, so `main.js` calls `setBaseLayer` on every input — tile layer removed/re-added, rotation reset, manual base layer choice overridden. Emit a separate event for year-only changes
-- [ ] Remove per-feature `console.log` in `LayerManager.loadGeoJSON` style callback
+## Map fixes (from the 2026-09-24 code review, re-checked 2026-09-26)
 
-### Incomplete features
-- [ ] Only the 1932 base map is live — OSM and the four Academia Sinica layers are `disabled`, so 6 of 7 epochs have a blank background
-- [ ] Bloodlines & Masquarade overlays have `files: []`; `military_shanghai_1937.geojson` is empty — modes only change the legend
-- [ ] Racial / Political / Organisational modes are selectable in `ModeManager` but have no implementation — hide them until built
+### Bugs (fixed 2026-09-26)
+- [x] **Pin hover threw** a TypeError on every hover; the highlight now works
+- [x] **Slider moves reloaded the base map**: `EpochManager` now has two signals — `onChange` (new era: base map, which pins) and `onYearChange` (any new year: regions, overlays, legend, pin colours)
+- [x] **Pin colours ignored the year slider**; they now follow the overlay shapes actually on the map (so mode, era and year all apply), else the pin's category colour
+- [x] **Generic overlays never recoloured pins** (looked for the wrong property)
+- [x] Removed per-feature `console.log` in `LayerManager.loadGeoJSON`; removed dead code in `PinManager` (`_getName`, `suppressed`)
+- [x] Racial / Political / Organisational modes hidden until built
 
-### Deployment & repo hygiene
-- [ ] **Move `public/data/acquired/` out of `public/`** — it's gitignored but Vite copies it into `dist/` (local build = 2.3 GB, files up to 419 MB). A manual `wrangler pages deploy` would fail Cloudflare's 25 MiB per-file limit
-- [ ] Stop shipping unused files: `public/assets/maps/` (61 MB, duplicated in top-level `assets/`), `pins/buildings_pre1949.geojson` (1 MB raw), unused regions (`fc_ohm_full`, `fc_sliver`, `is_1863_1943`, `master_locales`, `ohm_boundaries`), and the duplicate `extra_nanshi-stateowned-heavy-industries-.geojson` (trailing dash)
-- [ ] Root-absolute paths ignore `BASE_URL` (flag pattern in `StyleEngine.js`, favicon, `/tiles/...` in `map-sources.json`) — breaks the GitHub Pages subpath that `vite.config.js` supports
-- [ ] Bundle is 606 kB, largely from importing all of `@turf/turf` for one `buffer`/`union` — import only the needed modules (`@turf/buffer`, `@turf/union`)
+### Territories (reworked 2026-09-26)
+- [x] One territory per era (snapshot), optional years inside the era; world history (mortal control, military) shared by all campaigns, campaign overlays (Kindred domains, clan presence) hidden from players until "Players can see this"
+- [x] Old faction data moved in as 24 *Mortal control* territories (the Green Gang's zones worked out once, so Turf left the app); old overlay code and `factions.json` / `overlays/*.json` removed. A copy of the moved rows is in `local/overlays-seed.json`
+- [x] **Caching**: each shape works out which pins it holds once, so a slider step in an overlay mode takes ~15 ms instead of ~130 ms
+- [ ] Draw Kindred domains, clan presence and military territories (content work, in the app)
+- [ ] Check the moved *Mortal control* data: Japan and the Republic of China both hold the International Settlement in 1943–1945; the Qing territory links to *The Shanghai Daotai* note; no territories yet for the 1855 era
+- [ ] Areas no faction holds yet (Zhabei, Paoshan, Pudong, Siccawei, Nanshi) — draw them if they matter to the story
+
+### Tidy-up
+- [ ] Stop shipping unused data: `pins/buildings_pre1949.geojson` (1 MB raw), unused regions (`fc_ohm_full`, `fc_sliver`, `is_1863_1943`, `master_locales`, `ohm_boundaries`), the duplicate `extra_nanshi-stateowned-heavy-industries-.geojson` (trailing dash)
+- [ ] Remove the unused `osm` entry's `default: true` in `map-sources.json`
+- [ ] Root-absolute paths ignore `BASE_URL` (flag pattern in `StyleEngine.js`, favicon) — only matters if the app is ever served from a subpath
 - [ ] README says `calc_map_bearing.py` / `requirements.txt` are in `src/utils/` — they're in `scripts/`
 - [ ] Two pin preprocessors (`preprocess_pins.py` and `preprocess_pins.js`) — keep one
-- [ ] Remove dead code: `PinManager._getName`, never-set `suppressed` flag
-- [ ] Rename "Masquarade" → "Masquerade" (mode id, overlay file, UI label)
-- [ ] Escape data values before inserting into `innerHTML` (DetailPanel, Legend, labels) — low risk while data is self-authored
-- [ ] Add a linter and basic tests
+- [/] Escape data values before inserting into `innerHTML` — done for territories (names typed in the app); still to do for region and building details (DetailPanel, Legend)
+- [ ] Add a linter and JavaScript tests (database tests exist)
+
+---
+
+## Content (in the vault, not this repo)
+- [ ] Information about each faction
+- [ ] Historical information about specific buildings
+- [ ] Major events on the timeline
+- [ ] Optional: a georectification guide (how the drawn and scanned maps were aligned)
+
+---
+
+## Done — original map build (Phases 0–4, before the platform work)
+- [x] Vite project, folder structure, Leaflet map with OSM base, deploy pipeline
+- [x] Data gathered: Virtual Shanghai buildings (1,790) and concession boundaries, Stanford EarthWorks French Concession polygons, Academia Sinica WMTS maps, OpenHistoricalMap features; converted to WGS-84 GeoJSON
+- [x] 1937 map georectified (Stanford EarthWorks COG); Academia Sinica maps tested, then mirrored to R2 (P4a)
+- [x] Regions with hover/click details, sidebar, configurable styles
+- [x] Modes, faction overlays (with Turf spatial join), eras and year slider, legend, `factions.json`
+- [x] Building pins with clustering, category icons, rich popups, filtering by category and time, search, faction colouring
 
 ---
 
@@ -225,9 +150,3 @@ Goal: Map-App repo holds code only; content lives in a private content repo and 
 | AliCloud DataV | geo.datav.aliyun.com | Modern Shanghai admin boundaries | GeoJSON |
 | Harvard CHGIS | dataverse.harvard.edu/dataverse/chgis_v6 | Late Qing admin boundaries | Shapefile |
 | PastVu | pastvu.com | Geolocated historical photos | JSON API |
-
-## Infrastructure & Hosting Considerations
-- **Tile File Bloat**: 6,000+ `.png` map tiles take a long time to push to GitHub because of the high file count. Cloudflare Pages also has a hard limit of 20,000 files per project. 
-- **Recommended Future Solution (Dedicated Object Storage)**: If the map grows beyond Cloudflare's 20,000 file limit, offload the `public/tiles/` folder to an Amazon S3 or Cloudflare R2 bucket. Change the Leaflet tile URL to point directly to the bucket (`https://your-bucket-url.com/tiles/{z}/{x}/{y}.png`). **This is the only recommended path** because it maintains the lightning-fast, zero-latency performance of serving pre-rendered static PNGs.
-- **Alternative (Not Considered - Slower)**: Cloud Optimized GeoTIFF (COG). Hosting a single large `_cog.tif` file forces the user's browser to calculate and render pixels on the fly, increasing latency.
-- **Alternative (Not Considered - Slower)**: MBTiles. Packing all tiles into a `.mbtiles` SQLite database requires server-side database queries every time the map moves, ruining the performance benefits of a static CDN.

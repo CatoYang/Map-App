@@ -22,10 +22,7 @@ export class LayerManager {
     try {
       const data = await this.dataLoader.load(path);
       const layer = L.geoJSON(data, {
-        style: (feature) => {
-          console.log(`[LayerManager] Styling feature in ${id}`, styleOptions);
-          return styleOptions;
-        },
+        style: () => styleOptions,
         onEachFeature: (feature, layer) => {
           if (this.hoverManager) {
             this.hoverManager.attach(feature, layer);

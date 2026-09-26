@@ -12,7 +12,7 @@ export class EpochSelector {
     if (!this.container) return;
 
     this._render();
-    this.em.onChange(() => this._updateActive());
+    this.em.onYearChange(() => this._updateActive());
   }
 
   _render() {

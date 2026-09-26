@@ -19,9 +19,9 @@ export class RegionManager {
     this.regions = [];
     this.active  = false;
 
-    // Subscribe to epoch changes
-    this.epochManager.onChange(() => {
-      if (this.active) this._renderForYear(this.epochManager.getYear());
+    // Show the boundaries for the current year
+    this.epochManager.onYearChange((year) => {
+      if (this.active) this._renderForYear(year);
     });
   }
 

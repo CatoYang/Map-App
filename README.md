@@ -8,7 +8,7 @@ The Map-App is a campaign companion for tabletop RPGs: a **React** app (Vite, Re
 
 The architecture is highly modular:
 - **Map & Layers**: `MapManager` and `LayerManager` handle base maps (OpenStreetMap vs Historical Rasters).
-- **Regions & Factions**: `RegionManager` and `FactionOverlay` parse polygon GeoJSONs and color them dynamically based on the active mode (e.g., Factions) and epoch (timeline).
+- **Regions & Territories**: `RegionManager` draws region borders for the current year; `OverlayManager` draws the territories stored in Supabase for the active mode (Mortal control, Military, Kindred domains, Clan presence) and era, and `OverlayEditor` lets GMs and world editors draw them on the map.
 - **Pins & Search**: `PinManager` renders thousands of historical buildings (points of interest), with category filtering and full-text search built into the client.
 - **Data Loading**: `DataLoader` fetches and caches JSON files from the `public/data/` directory.
 
@@ -35,7 +35,7 @@ Map-App/
 │       ├── createMap.js    # Builds/tears down the map inside MapPage
 │       ├── map.css         # Map UI theme (scoped to .map-app)
 │       ├── core/           # Core map logic and state management
-│       ├── features/       # Map features (PinManager, FactionOverlay)
+│       ├── features/       # Map features (PinManager, OverlayManager)
 │       ├── ui/             # Map controls (Sidebar, Legend, LayerControl)
 │       └── utils/          # Helpers (geometry, constants)
 ├── TODO.md                 # Project task tracker and roadmap

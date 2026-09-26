@@ -2,7 +2,9 @@ import { eventBus } from './EventBus.js';
 
 /**
  * EpochManager — the historical eras (from config.json `epochs`) and the
- * current year within one. All time-sensitive systems subscribe via onChange().
+ * current year within one. Systems subscribe via onChange() (a new era:
+ * base map, which pins) or onYearChange() (any new year, including the one a
+ * new era starts at: regions, overlays, legend).
  *
  * Each era says what it shows: `mapLayerId` (base map), `regions` (whether
  * region shapes and overlays appear; default true) and `pins` (which pin sets
@@ -22,8 +24,14 @@ export class EpochManager {
     this.currentYear = byYear ? year : this.current.year;
   }
 
+  /** Called when the era changes. */
   onChange(fn) {
     eventBus.on('epoch:changed', fn);
+  }
+
+  /** Called whenever the year changes: a slider move, or a new era. */
+  onYearChange(fn) {
+    eventBus.on('year:changed', fn);
   }
 
   setEpoch(epochId) {
@@ -37,8 +45,7 @@ export class EpochManager {
 
   setYear(year) {
     this.currentYear = year;
-    eventBus.emit('year:changed', this.currentYear);
-    eventBus.emit('epoch:changed', this.current);
+    eventBus.emit('year:changed', this.currentYear);   // same era, so no epoch:changed
   }
 
   getEpoch()  { return this.current; }

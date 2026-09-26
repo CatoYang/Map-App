@@ -14,7 +14,7 @@ export class PinManager {
 
     this.pinsRenderer = L.svg({ pane: 'pinsPane' });
 
-    this.allFeatures = []; // { feature, marker, name, category, suppressed }
+    this.allFeatures = []; // { feature, marker, name, category, set }
     this.layerGroup  = L.layerGroup().addTo(map);
     this.visible     = true;
 
@@ -24,21 +24,16 @@ export class PinManager {
     };
     
     this.currentEpoch = null;
-    this.overlays = {};
-    this.activeModes = new Set();
-    this.modeManager = null;
+    this.overlays = [];
+    this.pinsInShape = new WeakMap();   // overlay layer → Set of pins inside it
   }
 
-  setOverlays(overlays, modeManager) {
+  /**
+   * Overlays whose shapes recolour the pins inside them. Each has
+   * `visibleShapes()` → [{ layer, color }] for the shapes on the map now.
+   */
+  setOverlays(overlays) {
     this.overlays = overlays;
-    this.modeManager = modeManager;
-    if (this.modeManager) {
-      this.modeManager.onChange((modes) => {
-        this.activeModes = modes;
-        if (this.currentEpoch) this.filterByEpoch(this.currentEpoch);
-      });
-      this.activeModes = new Set(this.modeManager.activeModes);
-    }
   }
 
   /**
@@ -53,6 +48,7 @@ export class PinManager {
         const marker = L.circleMarker([item.lat, item.lng], { 
           ...PIN_STYLE, 
           renderer: this.pinsRenderer,
+          pmIgnore: true, snapIgnore: true,   // the territory editor ignores pins
           fillColor: CATEGORY_COLORS[item.category] || DEFAULT_PIN_COLOR
         });
 
@@ -66,25 +62,27 @@ export class PinManager {
           }
         });
 
+        const pin = {
+          feature: {
+            geometry: { coordinates: [item.lng, item.lat] },
+            properties: { ...item.props, start: item.start, end: item.end }
+          },
+          marker,
+          name: item.name.toLowerCase(),
+          category: item.category,
+          set: setId
+        };
+
         marker.on('mouseover', () => {
-          marker.setStyle({ ...PIN_STYLE_HOVER, fillColor: this._getPinColor(item, marker) });
+          marker.setStyle({ ...PIN_STYLE_HOVER, fillColor: this._getPinColor(pin) });
         });
         marker.on('mouseout', () => {
-          marker.setStyle({ ...PIN_STYLE, fillColor: this._getPinColor(item, marker) });
+          marker.setStyle({ ...PIN_STYLE, fillColor: this._getPinColor(pin) });
         });
 
-        this.allFeatures.push({ 
-          feature: { 
-            geometry: { coordinates: [item.lng, item.lat] }, 
-            properties: { ...item.props, start: item.start, end: item.end } 
-          }, 
-          marker, 
-          name: item.name.toLowerCase(), 
-          category: item.category, 
-          set: setId,
-          suppressed: false 
-        });
+        this.allFeatures.push(pin);
       }
+      this.pinsInShape = new WeakMap();   // new pins: work the shapes out again
 
       console.log(`[PinManager] Successfully loaded ${this.allFeatures.length} pins from ${path}`);
       
@@ -119,8 +117,6 @@ export class PinManager {
 
     let shown = 0;
     for (const item of this.allFeatures) {
-      if (item.suppressed) continue; // Skip suppressed
-
       // Only the pin sets this era shows (none listed = all)
       if (epoch.pins && !epoch.pins.includes(item.set)) continue;
 
@@ -148,62 +144,48 @@ export class PinManager {
 
       const overlap = start <= epoch.end && end >= epoch.start;
       if (overlap) {
-        item.marker.setStyle({ fillColor: this._getPinColor(item.feature, item.marker) });
+        item.marker.setStyle({ fillColor: this._getPinColor(item) });
         this.layerGroup.addLayer(item.marker);
         shown++;
       }
     }
   }
 
-  _getPinColor(feature, marker) {
-    let baseColor = (feature.properties && feature.properties.TYP01) ? CATEGORY_COLORS[feature.properties.TYP01] || DEFAULT_PIN_COLOR : DEFAULT_PIN_COLOR;
-    
-    // Check overlays for active modes
-    const pt = feature.geometry.coordinates;
-    const year = this.currentEpoch ? this.currentEpoch.year : 1930;
-
-    for (const [modeId, overlay] of Object.entries(this.overlays)) {
-      if (this.activeModes.has(modeId)) {
-        // Find which region contains this point
-        const color = this._getColorFromOverlay(pt, year, overlay);
-        if (color) return color;
+  /** Recolour the pins on show, after overlays change (new year or mode). */
+  refreshColours() {
+    for (const item of this.allFeatures) {
+      if (this.layerGroup.hasLayer(item.marker)) {
+        item.marker.setStyle({ fillColor: this._getPinColor(item) });
       }
     }
-
-    return baseColor;
   }
 
-  _getColorFromOverlay(pt, year, overlay) {
-    // Both FactionOverlay and GenericOverlay have a similar structure?
-    // Let's rely on their layers.
-    let layersMap = null;
-    if (overlay.factionLayers) layersMap = overlay.factionLayers;
-    else if (overlay.overlayLayers) layersMap = overlay.overlayLayers;
-    
-    if (!layersMap) return null;
-
-    for (const [id, entries] of layersMap) {
-      for (const { period, layer } of entries) {
-        if (year >= period[0] && year <= period[1]) {
-          const geojson = layer.toGeoJSON();
-          if (geojson.features) {
-             for (const f of geojson.features) {
-               if (pointInGeoJSON(pt, f.geometry)) {
-                 // Return the faction/overlay color
-                 const defs = overlay.factions || overlay.overlays || [];
-                 const def = defs.find(d => d.id === id);
-                 return def ? def.color : null;
-               }
-             }
-          } else if (pointInGeoJSON(pt, geojson.geometry)) {
-             const defs = overlay.factions || overlay.overlays || [];
-             const def = defs.find(d => d.id === id);
-             return def ? def.color : null;
-          }
-        }
+  /** A pin takes the colour of the overlay shape it sits in, else its category's. */
+  _getPinColor(item) {
+    for (const overlay of this.overlays) {
+      for (const { layer, color } of overlay.visibleShapes()) {
+        if (this._pinsInside(layer).has(item)) return color;
       }
     }
-    return null;
+    return CATEGORY_COLORS[item.category] || DEFAULT_PIN_COLOR;
+  }
+
+  /** A shape was redrawn in place: work out its pins again. */
+  forgetShape(layer) {
+    this.pinsInShape.delete(layer);
+  }
+
+  /** The pins inside an overlay shape, worked out the first time it's asked. */
+  _pinsInside(layer) {
+    let inside = this.pinsInShape.get(layer);
+    if (!inside) {
+      const geojson = layer.toGeoJSON();
+      const shapes = geojson.features ? geojson.features.map(f => f.geometry) : [geojson.geometry];
+      inside = new Set(this.allFeatures.filter(item =>
+        shapes.some(g => pointInGeoJSON(item.feature.geometry.coordinates, g))));
+      this.pinsInShape.set(layer, inside);
+    }
+    return inside;
   }
 
   toggleVisibility() {
@@ -217,10 +199,4 @@ export class PinManager {
   }
 
   isVisible() { return this.visible; }
-
-  _getName(props) {
-    const rawName = props.NAME_EN || props.NAME || props.name || props.name_en || props.IDBAT || '';
-    if (String(rawName).trim() === '') return '';
-    return String(rawName);
-  }
 }

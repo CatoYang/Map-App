@@ -1,13 +1,19 @@
+import { escapeHtml } from '../utils/html.js';
+
 /**
  * Legend — dynamic legend reflecting the active mode and current epoch.
  */
 export class Legend {
-  constructor(modeManager, factionOverlay, regionManager, epochManager, genericOverlays = {}) {
+  /**
+   * @param {object} overlayManager — OverlayManager
+   * @param {object[]} overlayModes — config.json `overlayModes`
+   */
+  constructor(modeManager, regionManager, epochManager, overlayManager, overlayModes = []) {
     this.mm = modeManager;
-    this.fo = factionOverlay;
     this.rm = regionManager;
     this.em = epochManager;
-    this.go = genericOverlays;
+    this.om = overlayManager;
+    this.overlayModes = overlayModes;
     this.container = null;
   }
 
@@ -16,9 +22,13 @@ export class Legend {
     if (!this.container) return;
 
     this._render();
-    this.mm.onChange(() => this._render());
-    this.em.onChange(() => this._render());
   }
+
+  /**
+   * Redraw. createMap calls this after the mode or year changes (once the
+   * overlays have moved), and after a territory is saved.
+   */
+  refresh() { this._render(); }
 
   _render() {
     if (!this.container) return;
@@ -49,47 +59,30 @@ export class Legend {
       `;
     }
 
-    if (activeModes.has('faction')) {
-      const active = this.fo.getActiveFactions(year);
+    // Overlay modes: one entry per territory name + colour on the map now
+    const mode = this.overlayModes.find(m => activeModes.has(m.id));
+    if (mode) {
+      const seen = new Map();
+      for (const row of this.om.shownRows()) {
+        const key = `${row.name}|${row.color}`;
+        if (!seen.has(key)) seen.set(key, row);
+      }
+      const entries = [...seen.values()];
       html += `
-        <h4 class="legend__title" style="margin-top: ${activeModes.has('explore') ? '12px' : '0'};">Factions</h4>
-        ${active.length === 0 ? `
-          <p class="legend__empty">No factions defined yet.<br>Add entries to factions.json.</p>
+        <h4 class="legend__title">${escapeHtml(mode.label)} <span style="opacity:0.5;font-weight:400">${year}</span></h4>
+        ${entries.length === 0 ? `
+          <p class="legend__empty">Nothing drawn for ${escapeHtml(epoch.label)} yet.</p>
         ` : `
           <ul class="legend__list">
-            ${active.map(f => `
+            ${entries.map(r => `
               <li class="legend__item">
-                ${f.icon ? (f.icon.endsWith('.png') || f.icon.endsWith('.svg') ? `<img src="${f.icon}" class="legend__icon" alt="" />` : `<span style="font-size:14px;line-height:1;margin-right:2px;">${f.icon}</span>`) : ''}
-                <span class="legend__swatch" style="background:${f.color}"></span>
-                <span class="legend__name">${f.name}</span>
+                <span class="legend__swatch" style="background:${escapeHtml(r.color)}"></span>
+                <span class="legend__name">${escapeHtml(r.name)}</span>
               </li>
             `).join('')}
           </ul>
         `}
       `;
-    }
-
-    // Handle generic overlays (military, racial, political, etc)
-    for (const [modeId, overlayMgr] of Object.entries(this.go)) {
-      if (activeModes.has(modeId)) {
-        const active = overlayMgr.overlays.filter(o => year >= o.active.start && year <= o.active.end);
-        html += `
-          <h4 class="legend__title" style="margin-top: ${html ? '12px' : '0'};">${overlayMgr.modeId.charAt(0).toUpperCase() + overlayMgr.modeId.slice(1)} Overlays</h4>
-          ${active.length === 0 ? `
-            <p class="legend__empty">No active ${modeId} data in ${year}.</p>
-          ` : `
-            <ul class="legend__list">
-              ${active.map(o => `
-                <li class="legend__item">
-                  ${o.icon ? `<img src="${o.icon}" class="legend__icon" alt="" />` : ''}
-                  <span class="legend__swatch" style="background:${o.color}"></span>
-                  <span class="legend__name">${o.name}</span>
-                </li>
-              `).join('')}
-            </ul>
-          `}
-        `;
-      }
     }
     this.container.innerHTML = html;
   }

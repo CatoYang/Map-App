@@ -49,35 +49,83 @@ export class MapManager {
     // Sync rotation events with our dropdown and fix tooltip
     this.map.on('rotate', this._syncRotationUI.bind(this));
     
-    // Fix tooltip after control is added
+    // Fix tooltip and add toggle functionality to compass
     setTimeout(() => {
       const compassBtn = document.querySelector('.leaflet-control-rotate');
       if (compassBtn) {
-        compassBtn.title = "Snap to True North";
-        // leaflet-rotate might put it on the <a> tag
         const link = compassBtn.querySelector('a');
-        if (link) link.title = "Snap to True North";
+        if (link) {
+          link.title = "Toggle True North / Map North";
+          
+          // Overide click behavior to toggle when already at True North
+          link.addEventListener('click', (e) => {
+            if (this.map.getBearing() === 0) {
+              e.preventDefault();
+              e.stopPropagation();
+              this.setRotationMode('map-north');
+              const select = document.getElementById('bearing-select');
+              if (select) select.value = 'map-north';
+            } else {
+              // Let leaflet-rotate snap it to 0 (True North)
+              this.rotationMode = 'true-north';
+              const select = document.getElementById('bearing-select');
+              if (select) select.value = 'true-north';
+            }
+          });
+        }
       }
     }, 500);
   }
 
   _syncRotationUI() {
-    const currentBearing = this.map.getBearing ? this.map.getBearing() : 0;
+    let currentBearing = this.map.getBearing ? this.map.getBearing() : 0;
+    
+    // Normalize to -180 to 180 for the slider
+    let normalized = currentBearing % 360;
+    if (normalized > 180) normalized -= 360;
+    if (normalized < -180) normalized += 360;
+    
+    const slider = document.getElementById('bearing-slider');
     const select = document.getElementById('bearing-select');
+    
+    if (slider && this.rotationMode === 'custom') {
+      slider.value = normalized;
+    }
+
     if (!select) return;
 
-    if (currentBearing === 0) {
-      if (select.value !== 'true-north') {
+    // We only want to update the dropdown if the map ended up at an exact snap point.
+    // If it's animating, we let it animate.
+    const config = this.mapSourceConfigs?.find(c => c.id === this.activeBaseLayerId);
+    const expectedBearing = config?.bearing || 0;
+
+    const isTrueNorth = Math.abs(currentBearing) < 0.1;
+    const isMapNorth = expectedBearing !== 0 && Math.abs(currentBearing - expectedBearing) < 0.1;
+
+    // If it perfectly matches True North or Map North AND we are not actively using the custom slider
+    // wait, if we ARE actively using the custom slider, we don't want it to vanish just because we pass 0!
+    // So we only update the dropdown mode if we are NOT in custom mode.
+    // BUT if the user shift-drags the map (which we want to update the UI for), how do we know?
+    // Let's just always update the slider visually, but NEVER hide the slider in _syncRotationUI.
+    // Let setRotationMode be the ONLY place that hides the slider.
+    
+    if (isTrueNorth) {
+      if (this.rotationMode !== 'custom' && select.value !== 'true-north') {
         select.value = 'true-north';
         this.rotationMode = 'true-north';
       }
+    } else if (isMapNorth) {
+      if (this.rotationMode !== 'custom' && select.value !== 'map-north') {
+        select.value = 'map-north';
+        this.rotationMode = 'map-north';
+      }
     } else {
-      const config = this.mapSourceConfigs?.find(c => c.id === this.activeBaseLayerId);
-      const expectedBearing = config?.bearing || 0;
-      if (Math.abs(currentBearing - expectedBearing) < 0.1 && expectedBearing !== 0) {
-        if (select.value !== 'map-north') {
-          select.value = 'map-north';
-          this.rotationMode = 'map-north';
+      if (select.value !== 'custom') {
+        select.value = 'custom';
+        this.rotationMode = 'custom';
+        if (slider) {
+          slider.style.display = 'inline-block';
+          slider.value = normalized;
         }
       }
     }
@@ -150,10 +198,20 @@ export class MapManager {
 
   /**
    * Set rotation mode
-   * @param {string} mode - 'true-north' or 'map-north'
+   * @param {string} mode - 'true-north', 'map-north', or 'custom'
+   * @param {number} [customAngle] - optional angle for custom mode
    */
-  setRotationMode(mode) {
+  setRotationMode(mode, customAngle) {
     this.rotationMode = mode;
+    if (mode === 'custom' && customAngle !== undefined) {
+       this.customBearing = customAngle;
+    }
+    
+    const slider = document.getElementById('bearing-slider');
+    if (slider) {
+      slider.style.display = mode === 'custom' ? 'inline-block' : 'none';
+    }
+    
     this.applyRotation();
   }
 
@@ -165,7 +223,9 @@ export class MapManager {
       const config = this.mapSourceConfigs?.find(c => c.id === this.activeBaseLayerId);
       const bearing = config?.bearing || 0;
       this.map.setBearing(bearing);
-    } else {
+    } else if (this.rotationMode === 'custom' && this.customBearing !== undefined) {
+      this.map.setBearing(this.customBearing);
+    } else if (this.rotationMode === 'true-north') {
       this.map.setBearing(0);
     }
   }

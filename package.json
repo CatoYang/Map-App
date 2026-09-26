@@ -13,10 +13,10 @@
     "sync": "node scripts/content/sync.js"
   },
   "dependencies": {
+    "@geoman-io/leaflet-geoman-free": "^2.20.2",
     "@mantine/core": "^9.6.2",
     "@mantine/hooks": "^9.6.2",
     "@supabase/supabase-js": "^2.117.1",
-    "@turf/turf": "^6.5.0",
     "dompurify": "^3.4.16",
     "fflate": "^0.8.3",
     "leaflet": "^1.9.4",

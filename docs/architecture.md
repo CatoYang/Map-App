@@ -73,6 +73,7 @@ Cloudflare R2                    map tiles (public, high volume, free downloads)
 | Data | Home | Why |
 |---|---|---|
 | Campaign content: documents, overlays, characters, sharing | Supabase database | Needs per-player access rules |
+| Territories (overlays): world history and campaign domains | Supabase database, drawn on the map | Edited visually, so the map is where they're made; campaign ones need per-player access rules |
 | Private files: document images, campaign theme images, secret maps | Supabase Storage | Same access rules, applied to files |
 | The app's own images (landing and campaign-list backgrounds) | Map-App repo (`src/assets/brand/`), served by Cloudflare | Not campaign content; setting-neutral |
 | Map tiles (thousands of PNGs per map) | Cloudflare R2 | Public historical data; loaded in volume, and R2 doesn't charge for downloads (Supabase's free tier allows ~5 GB/month) |
@@ -137,10 +138,14 @@ maps            id, campaign_id, name, world_pack,
                 settings (json)  -- per-campaign overrides: default era, enabled modes
                 visibility ('private' | 'campaign')
 
-overlays        id, campaign_id, map_id, mode (e.g. 'bloodlines', 'sects'),
-                name, color, icon, active_start, active_end,
-                geojson (json)   -- polygons and/or points
-                visibility ('private' | 'campaign')
+overlays        id, campaign_id (null = world history) or world_pack,
+                mode ('control', 'military', 'domains', 'clans' — config.json
+                  `overlayModes`), era (config.json epoch id),
+                from_year, to_year (optional, a change partway through the era),
+                name, faction (vault faction note), color, pattern,
+                geojson (FeatureCollection), visibility ('private' | 'campaign')
+                -- one territory in one era; drawn on the map (OverlayEditor)
+world_editors   user_id — who may draw world history (added with the secret key)
 
 document_grants document_id, user_id, permission ('view' | 'edit')
 overlay_grants  (later) overlay_id, user_id, permission — one grants table per

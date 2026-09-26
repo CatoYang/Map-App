@@ -20,6 +20,7 @@
       "minZoom": 11,
       "maxZoom": 18,
       "maxNativeZoom": 16,
+      "bearing": 0.0,
       "period": { "start": 1842, "end": 1894 }
     },
     {
@@ -32,6 +33,7 @@
       "minZoom": 10,
       "maxZoom": 18,
       "maxNativeZoom": 16,
+      "bearing": 22.8,
       "period": { "start": 1907, "end": 1907 }
     },
     {
@@ -44,6 +46,7 @@
       "minZoom": 10,
       "maxZoom": 18,
       "maxNativeZoom": 17,
+      "bearing": 2.23,
       "period": { "start": 1910, "end": 1910 }
     },
     {
@@ -68,6 +71,7 @@
       "minZoom": 10,
       "maxZoom": 18,
       "maxNativeZoom": 17,
+      "bearing": 21.0,
       "period": { "start": 1937, "end": 1937 }
     },
     {
@@ -80,6 +84,7 @@
       "minZoom": 10,
       "maxZoom": 18,
       "maxNativeZoom": 17,
+      "bearing": 13.0,
       "period": { "start": 1948, "end": 1948 }
     }
   ]

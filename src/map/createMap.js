@@ -25,14 +25,14 @@ import { ModeManager }    from './core/ModeManager.js';
 import { DetailPanel }    from './features/DetailPanel.js';
 import { RegionHover }    from './features/RegionHover.js';
 import { PinManager }     from './features/PinManager.js';
-import { FactionOverlay } from './features/FactionOverlay.js';
-import { GenericOverlay } from './features/GenericOverlay.js';
+import { OverlayManager } from './features/OverlayManager.js';
 import { EpochSelector }  from './ui/EpochSelector.js';
 import { ModeSelector }   from './ui/ModeSelector.js';
 import { Legend }         from './ui/Legend.js';
 import { Sidebar }        from './ui/Sidebar.js';
 import { Toolbar }        from './ui/Toolbar.js';
 import { LayerControl }   from './ui/LayerControl.js';
+import { OverlayEditor }  from './ui/OverlayEditor.js';
 import { HistoricalScale } from './ui/HistoricalScale.js';
 import { noteSnippet }    from './ui/NoteSnippet.js';
 import { injectSVGPatterns, updatePatternScale } from './utils/StyleEngine.js';
@@ -41,11 +41,13 @@ import { eventBus }       from './core/EventBus.js';
 
 /**
  * @param {HTMLElement} container — element the Leaflet map renders into
- * @param {{ year?: number }} [options] — `year` opens the map in the era
- *   containing it (a campaign's `map_year`); otherwise config.json `defaultEpoch`
+ * @param {{ year?: number, overlays?: object }} [options] — `year` opens the
+ *   map in the era containing it (a campaign's `map_year`); otherwise
+ *   config.json `defaultEpoch`. `overlays` reads the campaign's territories
+ *   (`overlaySource` in src/lib/api/overlays.js); without it there are none.
  * @returns {Promise<{ destroy: () => void }>}
  */
-export async function createMap(container, { year } = {}) {
+export async function createMap(container, { year, overlays } = {}) {
   console.log('[Map-App] Initializing...');
   injectSVGPatterns();
 
@@ -72,7 +74,6 @@ export async function createMap(container, { year } = {}) {
 
   // 4. Core state
   const epochManager = new EpochManager(config.epochs, { year, epochId: config.defaultEpoch });
-  const modeManager  = new ModeManager();
 
   // 5. Layer infrastructure
   const sidebar = new Sidebar();
@@ -93,27 +94,26 @@ export async function createMap(container, { year } = {}) {
     await pinManager.loadPins(`data/${file}`, setId);
   }
 
-  // 8. Factions & Overlays
-  const factionOverlay = new FactionOverlay(map, dataLoader, layerManager, epochManager);
-  if (config.factions) {
-    try { await factionOverlay.load(`data/${config.factions}`, config.regions || []); } catch { /* empty is fine */ }
+  // 8. Overlays — territories drawn per era, from the database
+  const overlayModes = config.overlayModes || [];
+  const overlayManager = new OverlayManager(map, epochManager, detailPanel);
+  let overlayRights = { gm: false, worldEditor: false };
+  if (overlays) {
+    try {
+      const [rows, rights] = await Promise.all([overlays.list(), overlays.rights()]);
+      overlayManager.setRows(rows);
+      overlayRights = rights;
+    } catch (err) {
+      console.error('[Map-App] Could not load overlays:', err);
+    }
   }
+  pinManager.setOverlays([overlayManager]);
 
-  const militaryOverlay = new GenericOverlay(map, dataLoader, layerManager, epochManager, 'military', 'data/overlays/military.json');
-  await militaryOverlay.load();
-  
-  const bloodlinesOverlay = new GenericOverlay(map, dataLoader, layerManager, epochManager, 'bloodlines', 'data/overlays/bloodlines.json');
-  await bloodlinesOverlay.load();
-
-  const masquaradeOverlay = new GenericOverlay(map, dataLoader, layerManager, epochManager, 'masquarade', 'data/overlays/masquarade.json');
-  await masquaradeOverlay.load();
-
-  pinManager.setOverlays({
-    faction: factionOverlay,
-    military: militaryOverlay,
-    bloodlines: bloodlinesOverlay,
-    masquarade: masquaradeOverlay
-  }, modeManager);
+  // Offer the overlay modes that have something drawn, or that this user can draw
+  const canDraw = (mode) => mode.scope === 'world' ? overlayRights.worldEditor : overlayRights.gm;
+  const withData = overlayManager.modesWithData();
+  const modeManager = new ModeManager(overlayModes.filter(m => withData.has(m.id) || canDraw(m)));
+  const overlayModeIds = new Set(overlayModes.map(m => m.id));
 
   // 9. UI — epoch selector (replaces slider), mode buttons, legend
   const epochSelector = new EpochSelector(epochManager);
@@ -122,50 +122,46 @@ export async function createMap(container, { year } = {}) {
   const modeSelector = new ModeSelector(modeManager);
   modeSelector.mount('mode-selector');
 
-  const legend = new Legend(modeManager, factionOverlay, regionManager, epochManager, { 
-    military: militaryOverlay,
-    bloodlines: bloodlinesOverlay,
-    masquarade: masquaradeOverlay
-  });
+  const legend = new Legend(modeManager, regionManager, epochManager, overlayManager, overlayModes);
   legend.mount('legend');
+
+  // Drawing territories (only shown to those who may draw the active mode)
+  if (overlays) {
+    new OverlayEditor(map, {
+      overlayManager, epochManager, modeManager, overlayModes, canDraw,
+      source: overlays,
+      onSaved: () => { pinManager.refreshColours(); legend.refresh(); },
+    }).mount('overlay-editor');
+  }
 
   // Instantiate UI controllers
   const toolbar = new Toolbar(pinManager, mapManager);
   const layerControl = new LayerControl(pinManager);
 
-  // 12. React to epoch changes — swap map, update regions and pins
+  // 12. A new era — swap the base map, show the buildings of that era
   epochManager.onChange((epoch) => {
-    const year = epochManager.getYear();
-    
-    // Swap base map to the epoch's designated tile layer
     mapManager.setBaseLayer(epoch.mapLayerId);
-
-    // Sync the base layer selector dropdown
-    // Filter pins to buildings that existed during this epoch
     pinManager.filterByEpoch(epoch);
+  });
 
-    // Notify overlays
-    factionOverlay.onYearChange(year);
-    militaryOverlay.onYearChange(year);
-    bloodlinesOverlay.onYearChange(year);
-    masquaradeOverlay.onYearChange(year);
+  // Any new year (slider or new era) — move the overlays to it, then recolour
+  // the pins to match. The base map stays put while the slider moves.
+  epochManager.onYearChange(() => {
+    overlayManager.render();
+    pinManager.refreshColours();
+    legend.refresh();
   });
 
   // 13. React to mode changes
   modeManager.onChange((activeModes) => {
-    activeModes.has('faction') ? factionOverlay.enable() : factionOverlay.disable();
     activeModes.has('explore') ? regionManager.enable() : regionManager.disable();
-    activeModes.has('military') ? militaryOverlay.enable() : militaryOverlay.disable();
-    activeModes.has('bloodlines') ? bloodlinesOverlay.enable() : bloodlinesOverlay.disable();
-    activeModes.has('masquarade') ? masquaradeOverlay.enable() : masquaradeOverlay.disable();
+    overlayManager.setMode([...activeModes].find(id => overlayModeIds.has(id)) || null);
+    pinManager.refreshColours();
+    legend.refresh();
   });
 
   // 14. Start up — enable active modes, filter pins for default epoch
   if (modeManager.isActive('explore')) regionManager.enable();
-  if (modeManager.isActive('faction')) factionOverlay.enable();
-  if (modeManager.isActive('military')) militaryOverlay.enable();
-  if (modeManager.isActive('bloodlines')) bloodlinesOverlay.enable();
-  if (modeManager.isActive('masquarade')) masquaradeOverlay.enable();
   pinManager.filterByEpoch(epochManager.getEpoch());
   mapManager.setBaseLayer(epochManager.getEpoch().mapLayerId);
 

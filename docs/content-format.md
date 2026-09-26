@@ -233,5 +233,5 @@ The vault was converted to this format on 2026-09-25 with `content:standardise`.
 ## Not decided yet
 
 - **World vs campaign in the database.** For now, world notes are copied into each campaign that uses them. A shared "world pack" table, so they're stored once, can come with generalisation.
-- **Map-only data.** Region borders, which faction controls which region when, overlay modes and colours still live in `public/data`. P4c decides how they're written.
+- **Territories** (who holds which area in each era: mortal control, military, Kindred domains, clan presence) aren't notes. They're drawn on the map by GMs and world editors and stored in Supabase; each links to its faction note by name (`faction`). Region borders for Explore mode still live in `public/data` (P4c).
 - **`_config/players.yaml`** (player name → Google e-mail, for `visibility` lists) and uploading images inside notes get settled when the sync publishes notes.

@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router';
 import { mountMap } from '../map/createMap.js';
 import { useAsync } from '../lib/useAsync.js';
 import { getCampaign } from '../lib/api/campaigns.js';
+import { overlaySource } from '../lib/api/overlays.js';
 
 /**
  * Full-screen map viewer. Renders the markup the Leaflet modules expect
@@ -20,8 +21,11 @@ export function MapPage() {
 
   useEffect(() => {
     if (loading) return undefined;   // wait for the campaign's start year
-    return mountMap(mapRef.current, { year: Number.isFinite(startYear) ? startYear : undefined });
-  }, [loading, startYear]);
+    return mountMap(mapRef.current, {
+      year: Number.isFinite(startYear) ? startYear : undefined,
+      overlays: campaign ? overlaySource(campaign) : undefined,
+    });
+  }, [loading, campaign, startYear]);
 
   return (
     <div className="map-app">
@@ -44,6 +48,12 @@ export function MapPage() {
             <div id="detail-panel">
               <p className="sidebar__placeholder">Click a region or building to see details.</p>
             </div>
+          </section>
+
+          {/* Drawing territories — populated by OverlayEditor.js (hidden unless you can draw) */}
+          <section className="sidebar__section" style={{ display: 'none' }}>
+            <h2 className="sidebar__section-title">Draw</h2>
+            <div id="overlay-editor"></div>
           </section>
 
           {/* Layer Control — populated by LayerControl.js */}
@@ -90,7 +100,9 @@ export function MapPage() {
           <select id="bearing-select" className="toolbar__select" defaultValue="map-north">
             <option value="true-north">True North</option>
             <option value="map-north">Map North</option>
+            <option value="custom">Custom</option>
           </select>
+          <input type="range" id="bearing-slider" className="toolbar__slider" min="-180" max="180" defaultValue="0" style={{ width: '80px', display: 'none' }} title="Drag to rotate map" />
         </div>
 
         {/* Opacity slider for historical overlay */}
