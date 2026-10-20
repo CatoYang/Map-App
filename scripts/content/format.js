@@ -60,6 +60,7 @@ export const FIELDS = {
     faction: { kind: 'links', to: ['faction'] },
     location: { kind: 'links', to: ['location'] },
     domitor: { kind: 'links', to: ['kindred'] },
+    player: { kind: 'text' },          // a player character: the player's handle
   },
   kindred: {
     clan: { kind: 'enum', values: CLANS },
@@ -71,6 +72,7 @@ export const FIELDS = {
     haven: { kind: 'text' },
     faction: { kind: 'links', to: ['faction'] },
     location: { kind: 'links', to: ['location'] },
+    player: { kind: 'text' },
   },
   faction: {
     sphere: { kind: 'enum', values: ['mortal', 'kindred'] },

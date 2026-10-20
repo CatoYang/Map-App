@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react';
+import { useNavigate } from 'react-router';
 import { Typography } from '@mantine/core';
 import { renderMarkdown } from '../lib/markdown.js';
 import { signImageUrls } from '../lib/api/documents.js';
@@ -27,10 +28,22 @@ async function resolveImages(container, isCancelled) {
   }
 }
 
-/** Renders a markdown string as sanitised, styled HTML. */
-export function MarkdownView({ markdown }) {
-  const html = useMemo(() => renderMarkdown(markdown), [markdown]);
+/**
+ * Renders a markdown string as sanitised, styled HTML.
+ * `resolveLink` turns a [[note name]] into an app URL (see lib/markdown.js).
+ */
+export function MarkdownView({ markdown, resolveLink }) {
+  const html = useMemo(() => renderMarkdown(markdown, { resolveLink }), [markdown, resolveLink]);
   const ref = useRef(null);
+  const navigate = useNavigate();
+
+  // Links between notes stay inside the app instead of reloading the page
+  function handleClick(e) {
+    const link = e.target.closest('a[data-internal]');
+    if (!link || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    navigate(link.getAttribute('href'));
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -40,7 +53,7 @@ export function MarkdownView({ markdown }) {
 
   return (
     <Typography>
-      <div ref={ref} dangerouslySetInnerHTML={{ __html: html }} />
+      <div ref={ref} onClick={handleClick} dangerouslySetInnerHTML={{ __html: html }} />
     </Typography>
   );
 }

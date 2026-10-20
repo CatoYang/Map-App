@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { Anchor, Badge, Button, FileButton, Group, Stack, Text } from '@mantine/core';
+import { Accordion, Anchor, Badge, Button, FileButton, Group, Stack, Text, TextInput } from '@mantine/core';
 import { ErrorAlert, Loading } from './Status.jsx';
 import { useAsync } from '../lib/useAsync.js';
 import { createDocument, createDocuments, exportDocuments, listDocuments } from '../lib/api/documents.js';
@@ -46,13 +46,9 @@ export function DocumentList({ campaign, userId, isGm }) {
     downloadZip(campaign.name, await exportDocuments(campaign.id));
   });
 
-  // Group by folder; documents without a folder come first
-  const groups = new Map();
-  for (const doc of docs || []) {
-    const key = doc.folder || '';
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(doc);
-  }
+  // Documents written in the app, grouped by folder (no folder first); vault notes listed separately
+  const appDocs = (docs || []).filter(d => !d.source_path);
+  const vaultNotes = (docs || []).filter(d => d.source_path);
 
   return (
     <Stack gap="sm">
@@ -71,7 +67,7 @@ export function DocumentList({ campaign, userId, isGm }) {
       {notice && <Text size="sm" c="teal">{notice}</Text>}
       {loading && !docs && <Loading />}
 
-      {docs?.length === 0 && (
+      {appDocs.length === 0 && docs && (
         <Text size="sm" c="dimmed">
           No documents yet. {isGm
             ? 'Write lore and handouts here, or keep private GM notes.'
@@ -79,24 +75,79 @@ export function DocumentList({ campaign, userId, isGm }) {
         </Text>
       )}
 
-      {[...groups].map(([folder, items]) => (
-        <Stack key={folder} gap={4}>
-          {folder && <Text size="xs" fw={700} tt="uppercase" c="dimmed" mt="xs">{folder}</Text>}
-          {items.map(doc => (
-            <Group key={doc.id} justify="space-between" wrap="nowrap">
-              <Anchor component={Link} to={`/c/${campaign.id}/docs/${doc.id}`} size="sm" truncate>
-                {doc.title}
-              </Anchor>
-              <Group gap="xs" wrap="nowrap">
-                {doc.author_id !== userId && doc.author?.display_name && (
-                  <Text size="xs" c="dimmed" visibleFrom="sm">by {doc.author.display_name}</Text>
-                )}
-                <VisibilityBadge doc={doc} userId={userId} />
-              </Group>
-            </Group>
-          ))}
-        </Stack>
+      <FolderGroups docs={appDocs} campaignId={campaign.id} userId={userId} />
+
+      {vaultNotes.length > 0 && <VaultNotes notes={vaultNotes} campaignId={campaign.id} userId={userId} />}
+    </Stack>
+  );
+}
+
+/** Documents grouped under their folder names. */
+function FolderGroups({ docs, campaignId, userId, stripPrefix = '' }) {
+  const groups = new Map();
+  for (const doc of docs) {
+    const key = (doc.folder || '').slice(stripPrefix.length).replace(/^ \/ /, '');
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(doc);
+  }
+  return [...groups].map(([folder, items]) => (
+    <Stack key={folder} gap={4}>
+      {folder && <Text size="xs" fw={700} tt="uppercase" c="dimmed" mt="xs">{folder}</Text>}
+      {items.map(doc => (
+        <Group key={doc.id} justify="space-between" wrap="nowrap">
+          <Anchor component={Link} to={`/c/${campaignId}/docs/${doc.id}`} size="sm" truncate>
+            {doc.title}
+          </Anchor>
+          <Group gap="xs" wrap="nowrap">
+            {doc.author_id !== userId && doc.author?.display_name && (
+              <Text size="xs" c="dimmed" visibleFrom="sm">by {doc.author.display_name}</Text>
+            )}
+            <VisibilityBadge doc={doc} userId={userId} />
+          </Group>
+        </Group>
       ))}
+    </Stack>
+  ));
+}
+
+/** Notes published from the vault: one fold-out section per top-level folder, and a search box. */
+function VaultNotes({ notes, campaignId, userId }) {
+  const [query, setQuery] = useState('');
+  const q = query.trim().toLowerCase();
+  const shown = q ? notes.filter(n => n.title.toLowerCase().includes(q) || n.folder?.toLowerCase().includes(q)) : notes;
+
+  const sections = new Map();   // top folder → notes
+  for (const note of shown) {
+    const top = note.folder?.split(' / ')[0] || 'Other';
+    if (!sections.has(top)) sections.set(top, []);
+    sections.get(top).push(note);
+  }
+
+  return (
+    <Stack gap="xs" mt="md">
+      <Group justify="space-between" align="flex-end">
+        <Text size="sm" fw={600}>From the vault ({notes.length})</Text>
+        <TextInput size="xs" placeholder="Search notes" value={query} onChange={e => setQuery(e.currentTarget.value)} w={220} />
+      </Group>
+      {shown.length === 0 && <Text size="sm" c="dimmed">No notes match.</Text>}
+      <Accordion multiple variant="separated" radius="md" key={q ? 'search' : 'browse'}
+        defaultValue={q ? [...sections.keys()] : []}>
+        {[...sections].map(([top, items]) => (
+          <Accordion.Item key={top} value={top}>
+            <Accordion.Control>
+              <Group gap="xs">
+                <Text size="sm" fw={600}>{top}</Text>
+                <Text size="xs" c="dimmed">{items.length}</Text>
+              </Group>
+            </Accordion.Control>
+            <Accordion.Panel>
+              <Stack gap={4}>
+                <FolderGroups docs={items} campaignId={campaignId} userId={userId} stripPrefix={top} />
+              </Stack>
+            </Accordion.Panel>
+          </Accordion.Item>
+        ))}
+      </Accordion>
     </Stack>
   );
 }
@@ -106,6 +157,8 @@ export function VisibilityBadge({ doc, userId }) {
   let label, color;
   if (doc.visibility === 'campaign') {
     [label, color] = ['Everyone', 'green'];
+  } else if (doc.source_path) {
+    [label, color] = doc.grantCount > 0 ? ['Shared', 'blue'] : ['GM only', 'gray'];
   } else if (doc.author_id === userId) {
     [label, color] = doc.grantCount > 0 ? [`Shared (${doc.grantCount})`, 'blue'] : ['Private', 'gray'];
   } else {

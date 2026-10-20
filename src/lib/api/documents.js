@@ -1,6 +1,10 @@
 /**
  * Documents, sharing and document images. Access is decided by the database
- * rules (supabase/migrations/…_documents.sql); this file just asks.
+ * rules (supabase/migrations/…_documents.sql, …_vault_notes.sql); this file
+ * just asks.
+ *
+ * Notes published from the vault (`npm run sync`) are documents with a
+ * `source_path`; they're read-only in the app.
  */
 import { supabase } from '../supabase.js';
 
@@ -12,12 +16,13 @@ function unwrap({ data, error }) {
 }
 
 const LIST_FIELDS = `
-  id, title, folder, visibility, author_id, updated_at,
+  id, title, folder, visibility, author_id, updated_at, source_path, note_type,
   author:profiles!documents_author_id_fkey (display_name),
   document_grants (count)`;
 
 const DOC_FIELDS = `
   id, campaign_id, author_id, title, body, folder, visibility, created_at, updated_at, updated_by,
+  source_path, note_name, note_type, meta,
   author:profiles!documents_author_id_fkey (display_name),
   editor:profiles!documents_updated_by_fkey (display_name),
   document_grants (count)`;
@@ -27,15 +32,61 @@ function withGrantCount({ document_grants, ...doc }) {
   return { ...doc, grantCount: document_grants?.[0]?.count ?? 0 };
 }
 
+const PAGE = 1000;   // the most rows the API returns per request
+
+/** Every row of a query, a page at a time. `makeQuery` must give the same order each time. */
+async function selectAll(makeQuery) {
+  const rows = [];
+  for (let from = 0; ; from += PAGE) {
+    const page = unwrap(await makeQuery().range(from, from + PAGE - 1));
+    rows.push(...page);
+    if (page.length < PAGE) return rows;
+  }
+}
+
 /** Documents the user can see in a campaign, by folder then title. */
 export async function listDocuments(campaignId) {
-  const rows = unwrap(await supabase
+  const rows = await selectAll(() => supabase
     .from('documents')
     .select(LIST_FIELDS)
     .eq('campaign_id', campaignId)
     .order('folder', { nullsFirst: true })
-    .order('title'));
+    .order('title')
+    .order('id'));
   return rows.map(withGrantCount);
+}
+
+/** Published notes the user can see, as Map lowercased note name → document id (for [[links]]). */
+export async function listNoteIds(campaignId) {
+  const rows = await selectAll(() => supabase
+    .from('documents')
+    .select('id, note_name')
+    .eq('campaign_id', campaignId)
+    .not('note_name', 'is', null)
+    .order('id'));
+  return new Map(rows.map(r => [r.note_name.toLowerCase(), r.id]));
+}
+
+/** GMs only: the whole note, GM-only sections included, or null if it has none (or you're not a GM). */
+export async function getFullNote(docId) {
+  const row = unwrap(await supabase.from('document_secrets').select('body').eq('document_id', docId).maybeSingle());
+  return row?.body ?? null;
+}
+
+/** Notes that link to this one (that the user can see), by title. */
+export async function listBacklinks(docId) {
+  const rows = unwrap(await supabase
+    .from('document_links')
+    .select('field, from:documents!document_links_from_id_fkey (id, title, note_type, meta)')
+    .eq('to_id', docId));
+  const byId = new Map();
+  for (const { field, from } of rows) {
+    if (!from) continue;
+    const entry = byId.get(from.id) ?? { ...from, fields: [] };
+    entry.fields.push(field);
+    byId.set(from.id, entry);
+  }
+  return [...byId.values()].sort((a, b) => a.title.localeCompare(b.title));
 }
 
 /** A document, or null if it doesn't exist or the user can't see it. */
@@ -101,12 +152,13 @@ export async function deleteDocument(docId) {
 
 /** Everything visible in a campaign, with bodies, for export. */
 export async function exportDocuments(campaignId) {
-  return unwrap(await supabase
+  return selectAll(() => supabase
     .from('documents')
     .select('title, folder, body')
     .eq('campaign_id', campaignId)
     .order('folder', { nullsFirst: true })
-    .order('title'));
+    .order('title')
+    .order('id'));
 }
 
 // --- Sharing -----------------------------------------------------------------

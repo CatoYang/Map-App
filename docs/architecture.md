@@ -98,7 +98,7 @@ Obsidian / editor ──▶ content repo (private git) ──npm run sync──�
 tiles (generated once per map) ──────────────────upload─────────▶ R2 ────────▶ app
 ```
 
-- Markdown files become `documents` rows (file name → title, folder → folder, contents → body).
+- Markdown files become `documents` rows (file name → title, folder → folder, contents → body), one copy per campaign the note belongs to. GM-only sections are cut from `body`; the full text goes in `document_secrets`, which only GMs can read. `[[links]]` and link fields become `document_links` rows.
 - YAML (frontmatter in `.md` files, or standalone `.yaml` next to `.geojson`) carries what plain files can't: visibility, who it's shared with, active years, map mode, colours. The sync translates it into rows; the app never reads YAML directly.
 - The sync is **one-way**. Documents published from files are marked as managed by the sync and read-only in the app, so a sync never overwrites in-app edits. Collaborative content (player journals, party documents) lives only in the app.
 - The note format is in [content-format.md](content-format.md); `npm run content:check` checks the vault against it. Map-only data (regions, overlays) is still to be defined (TODO P4b/P4c).
@@ -132,7 +132,15 @@ documents       id, campaign_id, author_id, title,
                 body             -- markdown
                 folder           -- simple grouping, e.g. 'Lore', 'Handouts'
                 visibility ('private' | 'campaign'),
-                created_at, updated_at
+                created_at, updated_at,
+                source_path      -- set = published from the vault, read-only in the app
+                source_hash, note_name (file name, for [[links]]), note_type,
+                meta (json)      -- the fields the app reads: date, clan, faction…
+
+document_secrets document_id, body  -- a published note's full text, GM-only sections
+                                    -- included; GMs only
+document_links  campaign_id, from_id, to_id, field ('body' or the YAML field)
+                                    -- visible to those who can see both notes
 
 maps            id, campaign_id, name, world_pack,
                 settings (json)  -- per-campaign overrides: default era, enabled modes

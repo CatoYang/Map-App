@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import {
-  Anchor, Autocomplete, Button, Group, Modal, Stack, Text, TextInput, Title,
+  Anchor, Autocomplete, Badge, Button, Group, Modal, SegmentedControl, Stack, Text, TextInput, Title,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { PageShell } from '../components/PageShell.jsx';
@@ -15,18 +15,21 @@ import { useAsync } from '../lib/useAsync.js';
 import { getCampaign, listMembers } from '../lib/api/campaigns.js';
 import { useCampaignTheme } from '../lib/useCampaignTheme.js';
 import {
-  SaveConflictError, deleteDocument, getDocument, getMyGrant, listDocuments, saveDocument, uploadImage,
+  SaveConflictError, deleteDocument, getDocument, getFullNote, getMyGrant, listBacklinks, listDocuments,
+  saveDocument, uploadImage,
 } from '../lib/api/documents.js';
 import { downloadMarkdown } from '../lib/files.js';
+import { NOTE_TYPE_LABELS, formatNoteDates, useNoteLinks } from '../lib/notes.js';
 
 export function DocumentPage() {
   const { campaignId, docId } = useParams();
   const { user } = useAuth();
   const { data, error, loading } = useAsync(async () => {
-    const [campaign, doc, members, myGrant] = await Promise.all([
+    const [campaign, doc, members, myGrant, fullBody, backlinks] = await Promise.all([
       getCampaign(campaignId), getDocument(docId), listMembers(campaignId), getMyGrant(docId, user.id),
+      getFullNote(docId), listBacklinks(docId),
     ]);
-    return { campaign, doc, members, myGrant };
+    return { campaign, doc, members, myGrant, fullBody, backlinks };
   }, [campaignId, docId, user.id]);
 
   if (loading && !data) return <PageShell><Loading /></PageShell>;
@@ -47,15 +50,21 @@ export function DocumentPage() {
   return <DocumentScreen key={data.doc.id} {...data} userId={user.id} />;
 }
 
-function DocumentScreen({ campaign, doc: initialDoc, members, myGrant, userId }) {
+function DocumentScreen({ campaign, doc: initialDoc, members, myGrant, fullBody, backlinks, userId }) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [doc, setDoc] = useState(initialDoc);
   const editing = searchParams.get('edit') === '1';
 
   const myRole = members.find(m => m.user_id === userId)?.role;
-  const canManage = myRole === 'gm' || doc.author_id === userId;
-  const canEdit = canManage || myGrant === 'edit';
+  // Notes published from the vault are edited in the vault
+  const fromVault = !!doc.source_path;
+  const canManage = !fromVault && (myRole === 'gm' || doc.author_id === userId);
+  const canEdit = canManage || (!fromVault && myGrant === 'edit');
+  // GMs see GM-only sections, and can check what players see instead
+  const [playerView, setPlayerView] = useState(false);
+  const shownBody = fullBody && !playerView ? fullBody : doc.body;
+  const resolveLink = useNoteLinks(campaign.id);
 
   const [sharing, share] = useDisclosure(false);
   const [confirmingDelete, confirmDelete] = useDisclosure(false);
@@ -94,13 +103,19 @@ function DocumentScreen({ campaign, doc: initialDoc, members, myGrant, userId })
               <Stack gap={4}>
                 {doc.folder && <Text size="xs" fw={700} tt="uppercase" c="dimmed">{doc.folder}</Text>}
                 <Title order={2}>{doc.title}</Title>
+                {formatNoteDates(doc.meta) && <Text c="gray.4">{formatNoteDates(doc.meta)}</Text>}
                 <Group gap="xs">
+                  {doc.note_type && <Badge size="sm" variant="outline" color="gray">{NOTE_TYPE_LABELS[doc.note_type] ?? doc.note_type}</Badge>}
                   <VisibilityBadge doc={doc} userId={userId} />
-                  <Text size="xs" c="dimmed">
-                    {doc.author?.display_name && `By ${doc.author.display_name} · `}
-                    Updated {new Date(doc.updated_at).toLocaleString()}
-                    {doc.editor?.display_name && doc.updated_by !== doc.author_id && ` by ${doc.editor.display_name}`}
-                  </Text>
+                  {fromVault ? (
+                    <Text size="xs" c="dimmed">From the vault · published {new Date(doc.updated_at).toLocaleDateString()}</Text>
+                  ) : (
+                    <Text size="xs" c="dimmed">
+                      {doc.author?.display_name && `By ${doc.author.display_name} · `}
+                      Updated {new Date(doc.updated_at).toLocaleString()}
+                      {doc.editor?.display_name && doc.updated_by !== doc.author_id && ` by ${doc.editor.display_name}`}
+                    </Text>
+                  )}
                 </Group>
               </Stack>
               <Group gap="xs">
@@ -111,9 +126,34 @@ function DocumentScreen({ campaign, doc: initialDoc, members, myGrant, userId })
               </Group>
             </Group>
 
-            {doc.body.trim()
-              ? <MarkdownView markdown={doc.body} />
+            {fullBody && (
+              <SegmentedControl
+                size="xs"
+                style={{ alignSelf: 'flex-start' }}
+                value={playerView ? 'players' : 'full'}
+                onChange={v => setPlayerView(v === 'players')}
+                data={[
+                  { value: 'full', label: 'Full note (GM)' },
+                  { value: 'players', label: doc.visibility === 'campaign' ? 'As players see it' : 'Without GM-only sections' },
+                ]}
+              />
+            )}
+
+            {shownBody.trim()
+              ? <MarkdownView markdown={shownBody} resolveLink={resolveLink} />
               : <Text c="dimmed">This document is empty.</Text>}
+
+            {backlinks.length > 0 && (
+              <Stack gap={4}>
+                <Title order={5}>Mentioned in</Title>
+                {backlinks.map(b => (
+                  <Group key={b.id} gap="xs" wrap="nowrap">
+                    <Anchor component={Link} to={`/c/${campaign.id}/docs/${b.id}`} size="sm">{b.title}</Anchor>
+                    {formatNoteDates(b.meta) && <Text size="xs" c="dimmed">{formatNoteDates(b.meta)}</Text>}
+                  </Group>
+                ))}
+              </Stack>
+            )}
           </>
         )}
       </Stack>

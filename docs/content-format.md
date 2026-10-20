@@ -7,7 +7,7 @@ How notes in the content vault (the Obsidian vault) are written, so that `npm ru
 Three principles:
 
 - **The app reads only a few fields.** Everything else in the YAML and the whole note body is yours: write whatever helps. Unknown fields are kept, not rejected.
-- **Secret by default.** A note is GM-only unless its `visibility` says otherwise. Sections headed *Kindred Secrets* or *GM Notes* are never shown to players.
+- **Secret by default.** A note is GM-only unless its `visibility` says otherwise. Sections headed *Kindred Secrets* or *GM Notes* are never shown to players. The one exception is the world timeline: real history, so every player sees it.
 - **Links are relationships.** `faction: "[[The Green Gang (Qingbang)]]"` is how a character joins a faction, and `pin: enp-513` is how a place joins the map.
 
 ## Quick reference
@@ -36,6 +36,7 @@ mortal_status: Gambling boss
 affiliation: Foreign Mob          # free text, for groups without a note
 faction: "[[Foreign Expatriate Community]]"
 location: ["[[Farren's]]", "[[The Del Monte]]"]
+# player: alice                   # only for a player character: the player's handle
 ---
 
 # Kindred — a vampire
@@ -107,9 +108,11 @@ The other types need only `type:`. See [Types](#types).
 | `players` | Everyone in the campaign |
 | `[alice, bob]` | GMs, plus those players |
 
-Player names are short handles listed in `_config/players.yaml` in the vault, which maps each handle to that player's Google e-mail. That file gets set up when the sync is built.
+Player names are short handles listed in `_config/players.yaml` in the vault, which maps each handle to that player's Google e-mail. That file isn't set up yet, so for now a `[alice, bob]` list keeps the note GM-only (`npm run sync` lists these notes).
 
-**Secret sections.** A heading named **Kindred Secrets** or **GM Notes**, at any level (`##` or `###`), starts a GM-only section. The section runs until the next heading of the same or a higher level. Players never see these sections, even in notes shared with them. So one note can hold both the public history of a hotel and what really happens in its basement.
+**The world timeline is public.** Timeline events (`type: event`) without `campaigns:` are real history that anyone can look up, so every player sees them, whatever their `visibility`. Keep vampire lore about an event in a separate note. Events with `campaigns:` (what happened in one chronicle) follow the rules above.
+
+**Secret sections.** A heading named **Kindred Secrets** or **GM Notes**, at any level (`##` or `###`), starts a GM-only section. The section runs until the next heading of the same or a higher level. Players never see these sections, even in notes shared with them. So one note can hold both the public history of a hotel and what really happens in its basement. (The sync stores the full note separately, where the database only gives it to GMs. Links inside secret sections don't count towards "Mentioned in".)
 
 ```markdown
 ### Historical Facts
@@ -191,8 +194,8 @@ map_year: 1855                                        # the map opens in the era
 |---|---|---|
 | `campaign` | A chronicle set in this world | `app_id`, `active_years`, `background`, `cover`, `accent`, `map_year`. See [Campaigns](#campaigns) |
 | `location` | Places | `pin` (one or a list) or `coords`, `category`, `address`, `active_years`, `mortal_status`, `kindred_status`, `faction` |
-| `character` | Mortals, including ghouls | `category`, `lifespan`, `active_years`, `mortal_status`, `status`, `affiliation`, `faction`, `location`, `domitor` (a ghoul's regnant) |
-| `kindred` | Vampires | `clan`, `generation`, `sire`, `childer`, `active_years`, `kindred_status`, `faction`, `location`, `haven` |
+| `character` | Mortals, including ghouls | `category`, `lifespan`, `active_years`, `mortal_status`, `status`, `affiliation`, `faction`, `location`, `domitor` (a ghoul's regnant), `player` |
+| `kindred` | Vampires | `clan`, `generation`, `sire`, `childer`, `active_years`, `kindred_status`, `faction`, `location`, `haven`, `player` |
 | `faction` | Groups, mortal or Kindred | `sphere`, `active_years`, `color` |
 | `event` | Timeline entries | `date`, `end_date`, `location`, `faction` |
 | `placard` | Trivia and museum-style exhibits | `date` or `active_years`, `location` |
@@ -212,9 +215,10 @@ When there's no note to link to, use the matching free-text field instead:
 
 ## Note text
 
-- Write ordinary Markdown. Use `##` for sections and `###` for subsections.
+- Write ordinary Markdown. Use `##` for sections and `###` for subsections. The app shows the note's name as its title, so a leading `# Title` line isn't repeated.
+- Timeline events: start with a `## Summary` of a sentence or two saying what happened and why it mattered to Shanghai. Timeline views show it as the event's description.
 - `[[Links]]` to other notes become links in the app. A link to a note the reader can't see shows as plain text.
-- Images: `![[picture.jpg]]` or `![](picture.jpg)`, with the file kept in the vault. The sync uploads them. Keep image file names readable, not `…jpgutm_source…`.
+- Images: `![[picture.jpg]]` or `![](picture.jpg)`, with the file kept in the vault. Keep image file names readable, not `…jpgutm_source…`. The sync doesn't upload images inside notes yet; the app shows a placeholder.
 
 ## Tools
 
@@ -225,7 +229,7 @@ Run these in Map-App. They read the vault folder set by `CONTENT_DIR` in `.env.l
 | `npm run content:check` | Checks every note and writes `_reports/Content check.md` into the vault. Changes nothing else. |
 | `npm run content:standardise` | Previews rewriting notes' YAML into this format, in `_reports/Standardise preview.md`. Useful after pasting in notes written the old way. |
 | `npm run sync -- --dry-run` | Shows what the sync would publish, without sending anything. |
-| `npm run sync` | Publishes to the app. For now this means each campaign's look and `map_year`; notes come next. Needs `SUPABASE_SECRET_KEY` in Map-App's `.env.sync.local`. |
+| `npm run sync` | Publishes to the app: each campaign's look and `map_year`, then every note that belongs to the campaign, read-only (edit notes in the vault and sync again). Only changed notes are sent; notes deleted from the vault are removed from the app. Needs `SUPABASE_SECRET_KEY` in Map-App's `.env.sync.local`. |
 | `npm run content:standardise -- --apply` | Writes those changes, after backing up every note to Map-App's `local/vault-backups/`. Only the YAML block changes; note text is never touched. |
 
 The vault was converted to this format on 2026-09-25 with `content:standardise`. The script still understands the old field names (`Category`, `Mortal Status`, `Active Years`…), so notes pasted in the old style can be converted the same way.
@@ -234,4 +238,4 @@ The vault was converted to this format on 2026-09-25 with `content:standardise`.
 
 - **World vs campaign in the database.** For now, world notes are copied into each campaign that uses them. A shared "world pack" table, so they're stored once, can come with generalisation.
 - **Territories** (who holds which area in each era: mortal control, military, Kindred domains, clan presence) aren't notes. They're drawn on the map by GMs and world editors and stored in Supabase; each links to its faction note by name (`faction`). Region borders for Explore mode still live in `public/data` (P4c).
-- **`_config/players.yaml`** (player name → Google e-mail, for `visibility` lists) and uploading images inside notes get settled when the sync publishes notes.
+- **`_config/players.yaml`** (player name → Google e-mail, for `visibility` lists and `player`) and uploading images inside notes.

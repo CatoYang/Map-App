@@ -4,9 +4,10 @@
  *   npm run sync               publish
  *   npm run sync -- --dry-run  show what would be published (no key needed)
  *
- * For now this publishes each campaign note's look (background, cover,
- * accent) and settings (map_year) to its campaign in the app. Notes
- * themselves come next.
+ * For each campaign note (`type: campaign` with an `app_id`) this publishes
+ * the campaign's look (background, cover, accent) and settings (map_year),
+ * then every note that belongs to the campaign as a read-only document, with
+ * its GM-only sections kept for GMs and its links to other notes.
  *
  * Needs SUPABASE_SECRET_KEY in .env.sync.local (gitignored). That key
  * bypasses every access rule: never commit it, never put it in a VITE_ variable.
@@ -17,6 +18,7 @@ import sharp from 'sharp';
 import { createClient } from '@supabase/supabase-js';
 import { REPO_ROOT, contentDir, loadVault, noteType, resolveImage, fail } from './vault.js';
 import { asText } from './format.js';
+import { planNotes, notesForCampaign, publishNotes, describeNotes } from './notes.js';
 
 const DRY_RUN = process.argv.includes('--dry-run');
 const ASSET_BUCKET = 'campaign-assets';
@@ -116,11 +118,26 @@ async function publishCampaign(supabase, plan) {
   return `published to "${campaign.name}" (${plan.uploads.length} image${plan.uploads.length === 1 ? '' : 's'}${stale.length ? `, ${stale.length} old removed` : ''})`;
 }
 
+// --- Notes -------------------------------------------------------------------
+
+/** Problems worth knowing about before publishing, one line each. */
+function reportNoteProblems(planned, problems) {
+  for (const { note, problem } of problems) console.log(`  ! ${note.path}: ${problem}`);
+  const named = planned.filter(p => p.players?.length);
+  if (named.length) {
+    console.log(`  ! ${named.length} note${named.length === 1 ? '' : 's'} list players in \`visibility\`; `
+      + 'they stay GM-only until _config/players.yaml is set up:');
+    for (const p of named) console.log(`      ${p.note.path}`);
+  }
+}
+
 // --- Run ---------------------------------------------------------------------
 
 const vault = loadVault(dir);
 const plans = await planCampaigns(vault);
 if (!plans.length) console.log('No campaign notes (type: campaign) in the vault.');
+const { notes: plannedNotes, problems: noteProblems } = planNotes(vault);
+reportNoteProblems(plannedNotes, noteProblems);
 
 const supabase = DRY_RUN ? null : createClient(url, secretKey, { auth: { persistSession: false } });
 let failed = 0;
@@ -136,6 +153,8 @@ for (const plan of plans) {
     for (const u of plan.uploads) console.log(`    ${u.path}  ${(u.data.length / 1024).toFixed(0)} KB  (from ${u.source})`);
     console.log(`    theme: ${JSON.stringify(plan.theme)}`);
     console.log(`    settings: ${JSON.stringify(plan.settings)}`);
+    const notes = notesForCampaign(plannedNotes, plan.note.name);
+    console.log(`    ${describeNotes(notes)}; ${notes.reduce((n, p) => n + p.links.length, 0)} links`);
     continue;
   }
   try {
@@ -143,6 +162,7 @@ for (const plan of plans) {
     const ok = result.startsWith('published');
     if (!ok) failed++;
     console.log(`${ok ? '✓' : '✖'} ${label}: ${result}`);
+    if (ok) console.log(`  ✓ ${await publishNotes(supabase, plan.appId, notesForCampaign(plannedNotes, plan.note.name))}`);
   } catch (err) {
     failed++;
     console.log(`✖ ${label}: ${err.message}`);

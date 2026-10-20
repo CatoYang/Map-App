@@ -11,7 +11,8 @@
 1. **1855 places for Old Hatreds** — `[/]` Cato is writing the location notes in the vault (not pushed yet). Then: `npm run sync` publishes them → a "places" pin set the 1855 era shows (see P4b/P4c below)
 2. **Test as a player** with a second Google account, before inviting real players (P3) — now also checks that players only see revealed territories
 3. **Draw territories**: Kindred domains, clan presence and military for each era, on the map (see *Territories*)
-4. **Document sync**: vault notes → app documents, with `_config/players.yaml` for who sees what (P4b)
+4. **Chronicle page** (`/c/:id/chronicle`): the timeline as chapters (era folders), event cards with their `## Summary`; then a **Characters** page and a hub layout for the campaign page (Map · Chronicle · Characters · Documents)
+5. `_config/players.yaml` for per-player `visibility` lists and `player:` (P4b)
 
 ---
 
@@ -53,7 +54,8 @@ Goal: Map-App repo holds code only; content lives in the private vault and is pu
 - [x] Campaign look (`background` / `cover` / `accent`) and `map_year` published by `npm run sync`; app backgrounds in `src/assets/brand/`
 - [x] Location note template in the vault (`_templates/Location.md`, every field with a fold-out explanation)
 - [ ] `npm run sync`, part 2: location notes → Supabase so the map can show them as pins (needed for **Next up #1**)
-- [ ] `npm run sync`, part 3: notes → app documents (one-way; synced documents read-only in the app; secret sections GM-only)
+- [x] `npm run sync`, part 3: notes → app documents (one-way; read-only in the app; GM-only sections in `document_secrets`; links in `document_links`; world timeline always public). Migration `20261020120000_vault_notes.sql`
+- [x] Timeline clean-up 2026-10-20: placeholder *Kindred Secrets* sections removed, 36 summaries rewritten (backup in `local/vault-backups/`)
 - [ ] `_config/players.yaml` (player handle → Google e-mail) and image uploads, settled with the sync
 - [x] Territories are drawn on the map and stored in Supabase, not written in the vault (they link to faction notes by name). Overlay modes live in config.json `overlayModes`
 - [ ] Format for region borders (Explore mode), with P4c
