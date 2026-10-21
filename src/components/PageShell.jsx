@@ -19,8 +19,6 @@ export const GLASS = {
  * content on a glass panel, for busy backgrounds like photos.
  */
 export function PageShell({ children, size = 'md', backdrop = null, dim = 0.85, soften = false, panel = false }) {
-  const { user } = useAuth();
-
   return (
     <Box pos="relative" mih="100vh">
       {backdrop && <Backdrop image={backdrop} dim={dim} soften={soften} />}
@@ -34,14 +32,7 @@ export function PageShell({ children, size = 'md', backdrop = null, dim = 0.85, 
               <Anchor component={Link} to="/" fw={700} c="bright" underline="never">
                 Map-App
               </Anchor>
-              {user ? (
-                <Group gap="sm">
-                  <Text size="sm" c="gray.4" visibleFrom="xs">{user.email}</Text>
-                  <Button variant="subtle" size="xs" onClick={signOut}>Sign out</Button>
-                </Group>
-              ) : (
-                <Button component={Link} to="/login" variant="subtle" size="xs">Sign in</Button>
-              )}
+              <UserMenu />
             </Group>
           </Container>
         </Box>
@@ -57,8 +48,21 @@ export function PageShell({ children, size = 'md', backdrop = null, dim = 0.85, 
   );
 }
 
+/** The signed-in user's e-mail and Sign out, or Sign in. */
+export function UserMenu() {
+  const { user } = useAuth();
+  return user ? (
+    <Group gap="sm">
+      <Text size="sm" c="gray.4" visibleFrom="xs">{user.email}</Text>
+      <Button variant="subtle" size="xs" onClick={signOut}>Sign out</Button>
+    </Group>
+  ) : (
+    <Button component={Link} to="/login" variant="subtle" size="xs">Sign in</Button>
+  );
+}
+
 /** A full-screen background image behind the page, fixed while scrolling. */
-function Backdrop({ image, dim, soften }) {
+export function Backdrop({ image, dim = 0.85, soften = false }) {
   return (
     <Box
       aria-hidden

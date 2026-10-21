@@ -1,0 +1,28 @@
+/* Library tree rows: folders and notes */
+.node {
+  padding: 3px 8px;
+  border-radius: var(--mantine-radius-sm);
+  min-width: 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.node:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Notes line up with their folder's name, past its ▸ */
+.note {
+  display: block;
+  padding-left: 24px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--mantine-color-gray-4);
+  text-decoration: none;
+}
+
+.note[data-active] {
+  background: var(--mantine-primary-color-light);
+  color: var(--mantine-primary-color-light-color);
+}

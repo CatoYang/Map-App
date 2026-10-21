@@ -4,53 +4,49 @@ import {
   Anchor, Autocomplete, Badge, Button, Group, Modal, SegmentedControl, Stack, Text, TextInput, Title,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { PageShell } from '../components/PageShell.jsx';
 import { ErrorAlert, Loading } from '../components/Status.jsx';
 import { MarkdownView } from '../components/MarkdownView.jsx';
 import { MarkdownEditor } from '../components/MarkdownEditor.jsx';
 import { ShareDialog } from '../components/ShareDialog.jsx';
-import { VisibilityBadge } from '../components/DocumentList.jsx';
-import { useAuth } from '../app/auth.jsx';
+import { VisibilityBadge } from '../components/VisibilityBadge.jsx';
+import { useCampaign } from '../app/CampaignLayout.jsx';
 import { useAsync } from '../lib/useAsync.js';
-import { getCampaign, listMembers } from '../lib/api/campaigns.js';
-import { useCampaignTheme } from '../lib/useCampaignTheme.js';
 import {
-  SaveConflictError, deleteDocument, getDocument, getFullNote, getMyGrant, listBacklinks, listDocuments,
+  SaveConflictError, deleteDocument, getDocument, getFullNote, getMyGrant, listBacklinks,
   saveDocument, uploadImage,
 } from '../lib/api/documents.js';
 import { downloadMarkdown } from '../lib/files.js';
 import { NOTE_TYPE_LABELS, formatNoteDates, useNoteLinks } from '../lib/notes.js';
 
+/** One document or vault note, inside the campaign frame (CampaignLayout). */
 export function DocumentPage() {
-  const { campaignId, docId } = useParams();
-  const { user } = useAuth();
+  const { docId } = useParams();
+  const { campaign, userId } = useCampaign();
   const { data, error, loading } = useAsync(async () => {
-    const [campaign, doc, members, myGrant, fullBody, backlinks] = await Promise.all([
-      getCampaign(campaignId), getDocument(docId), listMembers(campaignId), getMyGrant(docId, user.id),
-      getFullNote(docId), listBacklinks(docId),
+    const [doc, myGrant, fullBody, backlinks] = await Promise.all([
+      getDocument(docId), getMyGrant(docId, userId), getFullNote(docId), listBacklinks(docId),
     ]);
-    return { campaign, doc, members, myGrant, fullBody, backlinks };
-  }, [campaignId, docId, user.id]);
+    return { doc, myGrant, fullBody, backlinks };
+  }, [docId, userId]);
 
-  if (loading && !data) return <PageShell><Loading /></PageShell>;
-  if (error) return <PageShell><ErrorAlert error={error} /></PageShell>;
+  if (loading && !data) return <Loading />;
+  if (error) return <ErrorAlert error={error} />;
 
-  if (!data.campaign || !data.doc) {
+  if (!data.doc) {
     return (
-      <PageShell>
-        <Stack align="flex-start">
-          <Title order={2}>Document not found</Title>
-          <Text c="dimmed">It was deleted, or it hasn't been shared with you.</Text>
-          <Button component={Link} to={data.campaign ? `/c/${campaignId}` : '/campaigns'} variant="default">Back</Button>
-        </Stack>
-      </PageShell>
+      <Stack align="flex-start">
+        <Title order={2}>Document not found</Title>
+        <Text c="dimmed">It was deleted, or it hasn't been shared with you.</Text>
+        <Button component={Link} to={`/c/${campaign.id}`} variant="default">Back to the overview</Button>
+      </Stack>
     );
   }
 
-  return <DocumentScreen key={data.doc.id} {...data} userId={user.id} />;
+  return <DocumentScreen key={data.doc.id} {...data} />;
 }
 
-function DocumentScreen({ campaign, doc: initialDoc, members, myGrant, fullBody, backlinks, userId }) {
+function DocumentScreen({ doc: initialDoc, myGrant, fullBody, backlinks }) {
+  const { campaign, members, userId, reloadDocs } = useCampaign();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [doc, setDoc] = useState(initialDoc);
@@ -69,7 +65,6 @@ function DocumentScreen({ campaign, doc: initialDoc, members, myGrant, fullBody,
   const [sharing, share] = useDisclosure(false);
   const [confirmingDelete, confirmDelete] = useDisclosure(false);
   const [deleteError, setDeleteError] = useState(null);
-  const theme = useCampaignTheme(campaign);
 
   function setEditing(on) {
     setSearchParams(on ? { edit: '1' } : {}, { replace: true });
@@ -79,6 +74,7 @@ function DocumentScreen({ campaign, doc: initialDoc, members, myGrant, fullBody,
     setDeleteError(null);
     try {
       await deleteDocument(doc.id);
+      reloadDocs();
       navigate(`/c/${campaign.id}`, { replace: true });
     } catch (err) {
       setDeleteError(err);
@@ -86,15 +82,12 @@ function DocumentScreen({ campaign, doc: initialDoc, members, myGrant, fullBody,
   }
 
   return (
-    <PageShell size="xl" backdrop={theme.background} soften panel={!!theme.background}>
+    <>
       <Stack gap="lg">
-        <Anchor component={Link} to={`/c/${campaign.id}`} size="sm" c="dimmed">← {campaign.name}</Anchor>
-
         {editing && canEdit ? (
           <DocumentEditor
-            campaign={campaign}
             doc={doc}
-            onSaved={saved => { setDoc(saved); setEditing(false); }}
+            onSaved={saved => { setDoc(saved); setEditing(false); reloadDocs(); }}
             onCancel={() => setEditing(false)}
           />
         ) : (
@@ -179,11 +172,12 @@ function DocumentScreen({ campaign, doc: initialDoc, members, myGrant, fullBody,
           </Group>
         </Stack>
       </Modal>
-    </PageShell>
+    </>
   );
 }
 
-function DocumentEditor({ campaign, doc, onSaved, onCancel }) {
+function DocumentEditor({ doc, onSaved, onCancel }) {
+  const { campaign, docs } = useCampaign();
   const [title, setTitle] = useState(doc.title);
   const [folder, setFolder] = useState(doc.folder || '');
   const [body, setBody] = useState(doc.body);
@@ -193,10 +187,8 @@ function DocumentEditor({ campaign, doc, onSaved, onCancel }) {
   const [error, setError] = useState(null);
   const [conflict, setConflict] = useState(null);   // latest version from the server
 
-  const { data: folders } = useAsync(async () => {
-    const docs = await listDocuments(campaign.id);
-    return [...new Set(docs.map(d => d.folder).filter(Boolean))].sort();
-  }, [campaign.id]);
+  // Folders already used by documents written in the app
+  const folders = [...new Set((docs || []).filter(d => !d.source_path).map(d => d.folder).filter(Boolean))].sort();
 
   const dirty = title !== doc.title || (folder || null) !== (doc.folder || null) || body !== doc.body;
 
@@ -245,7 +237,7 @@ function DocumentEditor({ campaign, doc, onSaved, onCancel }) {
         <TextInput label="Title" value={title} onChange={e => setTitle(e.currentTarget.value)}
           maxLength={200} style={{ flex: 1 }} data-autofocus />
         <Autocomplete label="Folder" placeholder="None" value={folder} onChange={setFolder}
-          data={folders || []} maxLength={100} w={220} />
+          data={folders} maxLength={100} w={220} />
       </Group>
 
       <MarkdownEditor

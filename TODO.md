@@ -11,7 +11,7 @@
 1. **1855 places for Old Hatreds** — `[/]` Cato is writing the location notes in the vault (not pushed yet). Then: `npm run sync` publishes them → a "places" pin set the 1855 era shows (see P4b/P4c below)
 2. **Test as a player** with a second Google account, before inviting real players (P3) — now also checks that players only see revealed territories
 3. **Draw territories**: Kindred domains, clan presence and military for each era, on the map (see *Territories*)
-4. **Chronicle page** (`/c/:id/chronicle`): the timeline as chapters (era folders), event cards with their `## Summary`; then a **Characters** page and a hub layout for the campaign page (Map · Chronicle · Characters · Documents)
+4. **Chronicle page** (`/c/:id/chronicle`): the timeline as chapters (era folders), event cards with their `## Summary`; then a **Characters** page. Both get a link in the campaign sidebar (done 2026-10-21: sidebar with Overview, Map, My documents, Library tree, Members)
 5. `_config/players.yaml` for per-player `visibility` lists and `player:` (P4b)
 
 ---

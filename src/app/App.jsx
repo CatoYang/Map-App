@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 import { Center, Loader } from '@mantine/core';
 import { RequireAuth } from './auth.jsx';
+import { CampaignLayout } from './CampaignLayout.jsx';
 import { Landing } from '../pages/Landing.jsx';
 import { Login } from '../pages/Login.jsx';
 import { Privacy } from '../pages/Privacy.jsx';
@@ -9,6 +10,7 @@ import { Campaigns } from '../pages/Campaigns.jsx';
 import { CampaignHome } from '../pages/CampaignHome.jsx';
 import { Join } from '../pages/Join.jsx';
 import { DocumentPage } from '../pages/DocumentPage.jsx';
+import { MembersPage } from '../pages/MembersPage.jsx';
 
 // Loaded on demand so other pages don't download Leaflet and the map code
 const MapPage = lazy(() => import('../pages/MapPage.jsx').then(m => ({ default: m.MapPage })));
@@ -27,8 +29,13 @@ export function App() {
       <Route element={<RequireAuth />}>
         <Route path="/campaigns" element={<Campaigns />} />
         <Route path="/join/:code" element={<Join />} />
-        <Route path="/c/:campaignId" element={<CampaignHome />} />
-        <Route path="/c/:campaignId/docs/:docId" element={<DocumentPage />} />
+        {/* A campaign's pages share one frame: header, sidebar, page */}
+        <Route path="/c/:campaignId" element={<CampaignLayout />}>
+          <Route index element={<CampaignHome />} />
+          <Route path="docs/:docId" element={<DocumentPage />} />
+          <Route path="members" element={<MembersPage />} />
+        </Route>
+        {/* The map is its own full-screen page */}
         <Route path="/c/:campaignId/map/:mapId" element={<Suspense fallback={loading}><MapPage /></Suspense>} />
       </Route>
 

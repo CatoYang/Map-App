@@ -261,10 +261,13 @@ Players can write documents, so rendered markdown must be **sanitised** (DOMPuri
 | `/login` | Google sign-in | Public |
 | `/join/:code` | Redeem an invite, then go to the campaign | Logged in |
 | `/campaigns` | Your campaigns; create a campaign | Logged in |
-| `/c/:id` | Campaign home: maps, documents, members | Member |
-| `/c/:id/docs/:docId` | Read or edit a document | Per §5 |
-| `/c/:id/map/:mapId` | Map viewer | Per §5 |
+| `/c/:id` | Campaign overview: description, map, library summary, members | Member |
+| `/c/:id/docs/:docId` | Read or edit a document or vault note | Per §5 |
+| `/c/:id/members` | Members; GMs create invite links | Member |
+| `/c/:id/map/:mapId` | Map viewer, full screen (its own page, outside the campaign frame) | Per §5 |
 | `/c/:id/admin` | Members, invites, roles, grants | GM |
+
+Every `/c/:id/…` page except the map shares one frame (`CampaignLayout`, Mantine `AppShell`): a header, the campaign sidebar (Overview, Map, My documents, the vault library as a folder tree with search, Members) and the page on the right. The frame loads the campaign, members and document list once and shares them through `useCampaign()`. On phones the sidebar folds into a menu.
 
 Deep links (e.g. opening `/c/123/docs/456` directly) work without extra config: when a Cloudflare Pages project has no top-level `404.html`, it serves `index.html` for unknown paths and React Router takes over. Don't add a `_redirects` rule `/* /index.html 200` — Cloudflare treats it as an infinite loop and ignores it.
 
