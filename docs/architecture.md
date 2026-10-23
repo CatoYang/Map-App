@@ -317,6 +317,7 @@ The Leaflet code is kept, not rewritten:
 | Piece | Where | Notes |
 |---|---|---|
 | App | Cloudflare Pages (project `campaign-orchestrator`, https://vtm-shanghai.pages.dev) | Cloudflare's Git integration builds every push: `main` → production, other branches → preview URLs (`<branch>.vtm-shanghai.pages.dev`). Supabase URL and publishable key come from the committed `.env.production` (no dashboard variables needed). GitHub Actions only runs a build check |
+| Primer pages | Same site, `public/<slug>/` | Plain HTML pages made from vault notes by `npm run primer` and committed, e.g. `/old-hatreds/`. Public, outside the app (no login, no React). Cloudflare serves a folder's `index.html` before falling back to the app; `vite.config.js` does the same in development |
 | Tiles | Cloudflare R2 | Tile URL in `world.json` points at the bucket |
 | Database, auth, storage | Supabase (free tier) | Free projects pause after about a week without activity and are resumed from the dashboard. Check the tier's backup limits and use the markdown export as a safety net |
 | Google sign-in | Google Cloud OAuth client | Redirect URI is the Supabase auth callback. Add the production and `localhost` URLs to Supabase's allowed redirect list |

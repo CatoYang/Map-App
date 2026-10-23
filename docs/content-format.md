@@ -203,6 +203,7 @@ map_year: 1855                                        # the map opens in the era
 | `reference` | Rules and setting reference (court roles, economy…) | – |
 | `story` | Chronicle plans, scenarios | – |
 | `index` | Pages that list other notes | – |
+| `primer` | A public pitch page for a chronicle | `slug`, `subtitle`, `description`, `cover`, `accent`, `button_label`, `button_link`. See [Primers](#primers) |
 
 Link fields (`faction`, `location`, `sire`, `childer`, `domitor`, `campaigns`) take one link or a list of them. They should point at a note of the matching type: `faction` points at `faction` notes, `location` at `location` notes, `sire`, `childer` and `domitor` at `kindred` notes, and `campaigns` at `campaign` notes. A link to a note you haven't written yet is fine.
 
@@ -212,6 +213,34 @@ When there's no note to link to, use the matching free-text field instead:
 - `sire_description` for an unnamed sire, e.g. `A Lasombra Corsair`.
 
 `clan` is one of: Banu Haqim, Brujah, Caitiff, Gangrel, Hecata, Lasombra, Malkavian, Nosferatu, Ravnos, Salubri, The Ministry, Thin-Blood, Toreador, Tremere, Tzimisce, Ventrue.
+
+## Primers
+
+A primer is a public page that sells a chronicle to people who haven't joined yet, such as `https://vtm-shanghai.pages.dev/old-hatreds/`. Nobody needs to log in to read it. Nothing in the app links to it, and search engines are asked to skip it, so only people you send the link to will find it. Don't put secrets in it.
+
+```yaml
+---
+type: primer
+slug: old-hatreds                  # the address: /old-hatreds/
+subtitle: "A Vampire: The Masquerade chronicle · Shanghai, 1853"
+description: "Young vampires, old grudges, and a city being born in fire."   # under the title, and in link previews
+cover: "[[1853 imagined.jpeg]]"    # the opening screen, and the picture in link previews
+accent: "#b01c2e"
+button_label: Join the Discord     # optional: a button at the end…
+button_link: https://discord.gg/…  # …going here
+campaigns: ["[[Old_Hatreds]]"]
+---
+```
+
+How the note becomes the page:
+- Each `## Section` is one part of the page.
+- An image on the line straight after a heading, like `![[photo.jpg]]`, becomes that part's background. Other images show where they are.
+- A list whose items start in bold, like `- **1842.** Britain wins…`, shows the bold part as a label. A label with `↔`, like `- **Pulp ↔ Grim.** …`, becomes a dial.
+- A paragraph that starts with a bold label ending in `.`, `:`, `?` or `!`, like `**The Foreigners.** …`, becomes a card. A paragraph that's all bold is shown large.
+- `[[Links]]` become plain text, because the notes they point at aren't public.
+- `## GM Notes` and `## Kindred Secrets` sections are left out, as everywhere.
+
+To publish, run `npm run primer`, then commit and push. The page is online once Cloudflare has rebuilt the site, about a minute later. To look first, run `npm run dev` and open `/old-hatreds/`.
 
 ## Note text
 
@@ -230,6 +259,7 @@ Run these in Map-App. They read the vault folder set by `CONTENT_DIR` in `.env.l
 | `npm run content:standardise` | Previews rewriting notes' YAML into this format, in `_reports/Standardise preview.md`. Useful after pasting in notes written the old way. |
 | `npm run sync -- --dry-run` | Shows what the sync would publish, without sending anything. |
 | `npm run sync` | Publishes to the app: each campaign's look and `map_year`, then every note that belongs to the campaign, read-only (edit notes in the vault and sync again). Only changed notes are sent; notes deleted from the vault are removed from the app. Needs `SUPABASE_SECRET_KEY` in Map-App's `.env.sync.local`. |
+| `npm run primer` | Turns each `type: primer` note into its public page in `public/<slug>/`. See [Primers](#primers). Commit and push the result to put it online. |
 | `npm run content:standardise -- --apply` | Writes those changes, after backing up every note to Map-App's `local/vault-backups/`. Only the YAML block changes; note text is never touched. |
 
 The vault was converted to this format on 2026-09-25 with `content:standardise`. The script still understands the old field names (`Category`, `Mortal Status`, `Active Years`…), so notes pasted in the old style can be converted the same way.

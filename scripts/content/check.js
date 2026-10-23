@@ -12,7 +12,7 @@ import {
 } from './vault.js';
 import {
   TYPES, LEGACY_KEYS, RECOMMENDED, fieldsFor, isStandardKey, standardKey,
-  isValidYears, isValidDate, parseYears, parseDate, asText, isPlaceholder,
+  isValidYears, isValidDate, parseYears, parseDate, asText, isPlaceholder, SLUG,
 } from './format.js';
 import { loadPins } from './pins.js';
 
@@ -145,6 +145,11 @@ function checkValue(key, spec, value, add) {
     case 'image':
       if (!resolveImage(vault, value)) {
         add('error', 'Image not found', `${show}: no such image in the vault (write it as \`"[[photo.jpg]]"\`)`);
+      }
+      break;
+    case 'slug':
+      if (!SLUG.test(asText(value))) {
+        add('error', 'Bad `slug`', `${show}: lowercase letters, numbers and dashes, like \`slug: old-hatreds\``);
       }
       break;
     case 'color':

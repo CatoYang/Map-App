@@ -10,7 +10,8 @@
     "test:db": "bash scripts/test-db.sh",
     "content:check": "node scripts/content/check.js",
     "content:standardise": "node scripts/content/standardise.js",
-    "sync": "node scripts/content/sync.js"
+    "sync": "node scripts/content/sync.js",
+    "primer": "node scripts/content/primer.js"
   },
   "dependencies": {
     "@geoman-io/leaflet-geoman-free": "^2.20.2",

@@ -6,7 +6,7 @@
 
 export const TYPES = [
   'campaign', 'location', 'character', 'kindred', 'faction', 'event',
-  'placard', 'power', 'reference', 'story', 'index',
+  'placard', 'power', 'reference', 'story', 'index', 'primer',
 ];
 
 export const CLANS = [
@@ -97,11 +97,23 @@ export const FIELDS = {
   reference: {},
   story: {},
   index: {},
+  primer: {                            // a public pitch page: `npm run primer`
+    slug: { kind: 'slug' },            // its address: /<slug>/
+    subtitle: { kind: 'text' },
+    description: { kind: 'text' },     // the one-line pitch, also the link preview
+    cover: { kind: 'image' },
+    accent: { kind: 'color' },
+    button_label: { kind: 'text' },
+    button_link: { kind: 'text' },
+  },
 };
 
 export function fieldsFor(type) {
   return { ...COMMON, ...(FIELDS[type] || {}) };
 }
+
+/** A primer's `slug`: its address on the site. */
+export const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 /** Fields worth having; missing ones are reported as info, not errors. */
 export const RECOMMENDED = {
@@ -110,6 +122,7 @@ export const RECOMMENDED = {
   kindred: [['clan']],
   event: [['date']],
   faction: [['sphere']],
+  primer: [['slug'], ['description'], ['cover']],
 };
 
 // --- Older vault field names -------------------------------------------------

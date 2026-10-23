@@ -1,0 +1,346 @@
+/* Primer pages (npm run primer). Inlined into each page; --accent comes from the note. */
+:root {
+  --ink: #ece4d4;
+  --ink-dim: rgba(236, 228, 212, 0.68);
+  --night: #0c0a0a;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, "Noto Serif", serif;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--night);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: clamp(1.05rem, 0.9rem + 0.45vw, 1.25rem);
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; }
+
+/* --- Opening screen --- */
+
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 6rem 1.5rem;
+  text-align: center;
+  background:
+    radial-gradient(ellipse at center, rgba(12, 10, 10, 0.25) 0%, rgba(12, 10, 10, 0.85) 75%),
+    linear-gradient(to bottom, rgba(12, 10, 10, 0.2) 40%, var(--night) 100%),
+    var(--bg, none) center / cover no-repeat;
+}
+
+.hero-inner { max-width: 46rem; }
+
+.kicker {
+  margin: 0 0 1.25rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.95);
+}
+
+.kicker::after {
+  content: "";
+  display: block;
+  width: 3rem;
+  height: 2px;
+  margin: 1rem auto 0;
+  background: var(--accent);
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(3.2rem, 11vw, 8rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.03em;
+  text-shadow: 0 4px 40px rgba(0, 0, 0, 0.9);
+}
+
+.tagline {
+  margin: 1.5rem auto 0;
+  max-width: 36rem;
+  font-style: italic;
+  color: var(--ink-dim);
+}
+
+.scroll-cue {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.5rem;
+  text-decoration: none;
+  color: var(--ink-dim);
+  animation: drift 2.4s ease-in-out infinite;
+}
+
+@keyframes drift {
+  50% { transform: translate(-50%, 8px); }
+}
+
+/* --- Parts of the page --- */
+
+.part {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: clamp(4.5rem, 14vh, 9rem) 1.5rem;
+}
+
+.part.has-bg {
+  min-height: 100svh;
+  background:
+    linear-gradient(90deg, rgba(12, 10, 10, 0.94) 0%, rgba(12, 10, 10, 0.8) 45%, rgba(12, 10, 10, 0.35) 100%),
+    linear-gradient(to bottom, var(--night) 0%, transparent 18%, transparent 82%, var(--night) 100%),
+    var(--bg) center / cover no-repeat;
+}
+
+/* Alternate sides, so the pictures show on the left and the right in turn */
+.part.has-bg:nth-of-type(even) {
+  justify-content: flex-end;
+  background:
+    linear-gradient(270deg, rgba(12, 10, 10, 0.94) 0%, rgba(12, 10, 10, 0.8) 45%, rgba(12, 10, 10, 0.35) 100%),
+    linear-gradient(to bottom, var(--night) 0%, transparent 18%, transparent 82%, var(--night) 100%),
+    var(--bg) center / cover no-repeat;
+}
+
+.inner {
+  width: 100%;
+  max-width: 40rem;
+}
+
+.part:not(.has-bg) .inner { margin: 0 auto; }
+
+/* Text-only parts in a row: one gap between them, not two */
+.part:not(.has-bg) + .part:not(.has-bg) { padding-top: 0; }
+
+@media (min-width: 900px) {
+  .part.has-bg .inner { margin: 0 6vw; }
+}
+
+/* On phones the text covers the picture, so darken it evenly */
+@media (max-width: 700px) {
+  .part.has-bg,
+  .part.has-bg:nth-of-type(even) {
+    background:
+      linear-gradient(rgba(12, 10, 10, 0.8), rgba(12, 10, 10, 0.8)),
+      linear-gradient(to bottom, var(--night) 0%, transparent 15%, transparent 85%, var(--night) 100%),
+      var(--bg) center / cover no-repeat;
+  }
+}
+
+h2 {
+  margin: 0 0 1.75rem;
+  font-size: clamp(2rem, 1.4rem + 2.6vw, 3.3rem);
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+h2::after {
+  content: "";
+  display: block;
+  width: 3rem;
+  height: 2px;
+  margin-top: 1rem;
+  background: var(--accent);
+}
+
+h3 { font-weight: 400; font-size: 1.4rem; }
+
+p { margin: 0 0 1.2em; }
+
+strong { font-weight: 600; color: #fff6e6; }
+
+/* The very first part reads like the opening of a story */
+main > .part:first-child p:first-of-type::first-letter {
+  float: left;
+  font-size: 3.6em;
+  line-height: 0.85;
+  padding: 0.08em 0.12em 0 0;
+  color: var(--accent);
+  filter: brightness(1.25);
+}
+
+blockquote {
+  margin: 1.5rem 0;
+  padding-left: 1.25rem;
+  border-left: 2px solid var(--accent);
+  color: var(--ink-dim);
+  font-style: italic;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.5rem 0;
+  border-radius: 4px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+}
+
+/* `**The Establishment.** …` paragraphs */
+.card {
+  padding: 1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.04);
+  border-left: 2px solid var(--accent);
+  border-radius: 0 4px 4px 0;
+  backdrop-filter: blur(2px);
+}
+
+.card > strong:first-child {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  filter: brightness(1.4);
+}
+
+/* Paragraphs that are all bold */
+.callout {
+  font-size: 1.45em;
+  line-height: 1.4;
+  color: #fff6e6;
+}
+
+/* Lists whose items start in bold: dates, practical details */
+ul:has(> .labelled, > .dial) {
+  padding: 0;
+  margin: 0 0 1.5rem;
+}
+
+.labelled {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.labelled:first-child { border-top: 0; }
+
+.labelled > strong {
+  color: var(--accent);
+  filter: brightness(1.4);
+  font-weight: 600;
+}
+
+@media (max-width: 520px) {
+  .labelled { grid-template-columns: 1fr; gap: 0.1rem; }
+}
+
+/* `**Pulp ↔ Grim.**`: a dial, left unset until Session Zero */
+.dial {
+  list-style: none;
+  margin: 0 0 1.75rem;
+}
+
+.dial-ends {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #fff6e6;
+}
+
+.dial-track {
+  position: relative;
+  height: 2px;
+  margin: 0.9rem 0 1rem;
+  background: linear-gradient(90deg, rgba(236, 228, 212, 0.25), var(--accent));
+}
+
+.dial-mark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  background: var(--night);
+  font-size: 0.9rem;
+  color: #fff6e6;
+  animation: waver 6s ease-in-out infinite;
+}
+
+.dial:nth-child(2) .dial-mark { animation-delay: -1.5s; }
+.dial:nth-child(3) .dial-mark { animation-delay: -3s; }
+.dial:nth-child(4) .dial-mark { animation-delay: -4.5s; }
+
+@keyframes waver {
+  0%, 100% { left: 38%; }
+  50% { left: 62%; }
+}
+
+.dial-text { color: var(--ink-dim); }
+
+/* --- Closing --- */
+
+.action { margin-top: 2rem; }
+
+.button {
+  display: inline-block;
+  padding: 0.9rem 2.2rem;
+  border: 1px solid var(--accent);
+  border-radius: 2px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.85rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+
+.button:hover { background: transparent; }
+
+@media (max-width: 520px) {
+  .button { display: block; padding: 1rem; text-align: center; letter-spacing: 0.12em; }
+}
+
+footer {
+  padding: 3rem 1.5rem 2.5rem;
+  text-align: center;
+  font-size: 0.75rem;
+  color: rgba(236, 228, 212, 0.4);
+}
+
+footer p { margin: 0; }
+
+/* --- Fade in on scroll (only when the script runs, so nothing stays hidden) --- */
+
+.js .reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+
+.js .reveal.shown {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .js .reveal { opacity: 1; transform: none; transition: none; }
+  .scroll-cue, .dial-mark { animation: none; }
+}

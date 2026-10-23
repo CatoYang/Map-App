@@ -18,6 +18,7 @@ export const NOTE_TYPE_LABELS = {
   reference: 'Reference',
   story: 'Story',
   index: 'Index',
+  primer: 'Primer',
 };
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
